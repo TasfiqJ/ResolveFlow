@@ -12,6 +12,7 @@ STOP_AFTER="${STOP_AFTER:-8}"
 MAX_ATTEMPTS="${MAX_ATTEMPTS:-2}"
 RUN_PUBLISH="${RUN_PUBLISH:-0}"
 CREATE_BACKUP_TAG="${CREATE_BACKUP_TAG:-1}"
+PUSH_STAGE_CHECKPOINTS="${PUSH_STAGE_CHECKPOINTS:-1}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -223,6 +224,33 @@ for i in "${!STAGES[@]}"; do
         exit 6
       fi
       continue
+    fi
+
+    if [[ "$(git branch --show-current)" != "main" ]]; then
+      echo "Codex changed branches; stopping." >&2
+      exit 8
+    fi
+
+    if [[ "$(git rev-parse HEAD)" != "$start_sha" ]]; then
+      echo "Codex committed unexpectedly. The outer loop must own commits and pushes." >&2
+      exit 8
+    fi
+
+    if [[ "$PUSH_STAGE_CHECKPOINTS" == "1" && -n "$(git status --porcelain)" ]]; then
+      git diff --check
+      checkpoint_files="$(git status --porcelain | sed -E 's/^.. //')"
+      if printf '%s\n' "$checkpoint_files" | grep -E '(^|/)\.env($|\.(local|production|development)$)|\.(pem|p12|pfx|key)$' >/dev/null; then
+        echo "Refusing to checkpoint a likely secret-bearing file:" >&2
+        printf '%s\n' "$checkpoint_files" | grep -E '(^|/)\.env($|\.(local|production|development)$)|\.(pem|p12|pfx|key)$' >&2
+        exit 9
+      fi
+
+      git add -A
+      git diff --cached --check
+      git commit -m "$commit_message checkpoint"
+      git push origin main
+      start_sha="$(git rev-parse HEAD)"
+      echo "Checkpoint pushed: $stage @ $(git rev-parse --short HEAD)"
     fi
 
     if [[ ! -x "$ROOT/scripts/verify.sh" ]]; then

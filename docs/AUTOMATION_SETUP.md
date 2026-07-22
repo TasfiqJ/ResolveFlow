@@ -87,7 +87,7 @@ The default run:
 - allows workspace writes and network access;
 - withholds `COHERE_API_KEY`;
 - runs `scripts/verify.sh` independently;
-- makes a direct commit to `main` after each passing stage;
+- makes a direct checkpoint commit to `main` after Codex reports a passing stage, then a smaller completion commit when independent verification produces additional changes;
 - pushes `origin/main`;
 - stops on failure or blocker;
 - stops before the final audit until the human gate is complete;
@@ -183,6 +183,12 @@ Allow three Codex repair attempts per stage:
 MAX_ATTEMPTS=3 ./automation/run-resolveflow-loop.sh
 ```
 
+Checkpoint pushes are enabled by default so long milestones remain visible on `main`. Disable them for a single completion commit per stage with:
+
+```bash
+PUSH_STAGE_CHECKPOINTS=0 ./automation/run-resolveflow-loop.sh
+```
+
 Store logs somewhere else:
 
 ```bash
@@ -191,4 +197,4 @@ CODEX_LOG_DIR="$HOME/my-codex-logs" ./automation/run-resolveflow-loop.sh
 
 ## Important behavior
 
-The loop is finite, sequential, and fail-closed. It does not keep retrying forever. It never evaluates model-written shell commands with `eval`. It does not expose the Cohere key to ordinary build stages. The outer script—not Codex—owns commits and pushes.
+The loop is finite, sequential, and fail-closed. It does not keep retrying forever. It never evaluates model-written shell commands with `eval`. It does not expose the Cohere key to ordinary build stages. The outer script—not Codex—owns checkpoint and completion commits and pushes.
