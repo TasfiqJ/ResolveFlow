@@ -6,7 +6,7 @@
 
 **Product implementation:** Stage 01 foundation vertical slice implemented
 
-**Active work:** Stage 01 verification and outer-loop handoff
+**Active work:** Stage 01 complete; ready for outer-loop handoff
 
 ## Current repository facts
 
@@ -23,7 +23,7 @@
 | Milestone | Status | Evidence |
 |---|---|---|
 | Stage 00 executable planning | COMPLETE | Plan v1.1, 78 acceptance mappings, 12 ADRs, and source verifier |
-| 1. foundation vertical slice | IMPLEMENTED; FINAL VERIFY IN PROGRESS | Shared path, API/worker/database/web scaffold, fixtures, snapshot, tests |
+| 1. foundation vertical slice | COMPLETE | `scripts/verify.sh` passed with shared path, API/worker/database/web scaffold, fixtures, snapshot, tests, static export, browser smoke, and reversible migration cycle |
 | 2. evidence and retrieval | NOT STARTED | Typed `RetrievalPort` boundary only |
 | 3. governed agent and safety | NOT STARTED | Typed agent/verifier boundaries and fixture response only |
 | 4. actions, reliability and audit | NOT STARTED | Inert proposal and schema foundations only |
@@ -31,7 +31,7 @@
 | 6. public product and validation | NOT STARTED | Foundation snapshot shell only |
 | 7. final audit and release | NOT STARTED | No deployment or publication |
 
-## Stage 01 checks observed so far
+## Stage 01 checks
 
 | Command | Result |
 |---|---|
@@ -43,8 +43,9 @@
 | `pnpm --dir apps/web build` | PASS, static `/` and `/_not-found` export |
 | `node tests/browser/snapshot-smoke.mjs` | PASS |
 | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | PASS against local PostgreSQL |
+| `scripts/verify.sh` | PASS, cumulative Stage 00 + Stage 01 verification |
 
-The cumulative `scripts/verify.sh` result is recorded after its final run. Local checks do not imply GitHub Actions, provider, connector, deployment, or human evidence.
+Local checks do not imply GitHub Actions, provider, connector, deployment, or human evidence.
 
 ## External work and credentials
 
@@ -55,4 +56,4 @@ The cumulative `scripts/verify.sh` result is recorded after its final run. Local
 
 ## Immediate next action
 
-Complete `scripts/verify.sh`, inspect the final diff and working tree, then hand the coherent uncommitted Stage 01 slice to the outer loop. Do not begin Milestone 2 in this stage.
+The outer loop may inspect, commit, and push the coherent uncommitted Stage 01 slice. Do not begin Milestone 2 in this stage.

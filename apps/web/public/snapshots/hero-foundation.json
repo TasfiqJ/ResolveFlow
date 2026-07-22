@@ -29,8 +29,8 @@
     "synthetic": true,
     "tenant_id": "tenant_heliopay_synthetic"
   },
-  "commit": "3dc0d6816d93",
-  "content_hash": "sha256:5ecdac17fa5f806288e2ec40bc1f6454df025952253ed63fa73ec4fe8c80dc62",
+  "commit": "2fce6430ecd8",
+  "content_hash": "sha256:2b35111e081f54f858ddff211d9a22cb99d21b32da4f9cbb35d82dbc8be5e058",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
