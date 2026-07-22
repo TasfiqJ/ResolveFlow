@@ -295,25 +295,25 @@ The exact release-candidate sequence is explicit and nonautomatic: `make preflig
 
 | Check | Exact planned command |
 |---|---|
-| Python lint/format | `uv run ruff check . && uv run ruff format --check .` |
-| Python types | `uv run pyright python tests` |
+| Python lint/format | `uv run ruff check python tests scripts/*.py && uv run ruff format --check python tests scripts/*.py` |
+| Python types | `uv run mypy python/resolveflow` |
 | Python unit | `uv run pytest -q tests/unit` |
 | Integration | `uv run pytest -q tests/integration` |
 | Contracts | `uv run pytest -q tests/contract` |
 | Security | `uv run pytest -q tests/security` |
 | Replay | `uv run pytest -q tests/replay` |
 | Web lint/types/format/unit | `pnpm --dir apps/web lint && pnpm --dir apps/web typecheck && pnpm --dir apps/web format:check && pnpm --dir apps/web test` |
-| Browser | `pnpm --dir apps/web exec playwright test tests/browser` |
+| Browser | `node tests/browser/snapshot-smoke.mjs` against the production export |
 | Web build/export | `pnpm --dir apps/web build` |
 | Migrations | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` |
-| Repository secret scan | `gitleaks detect --source . --no-banner --redact` |
-| Python dependency audit | `uv run pip-audit` |
-| JavaScript dependency audit | `pnpm audit --audit-level high` |
-| Replay smoke | `uv run python -m resolveflow.replay.cli smoke --provider fixture --manifest data/manifests/smoke.yaml` |
-| Snapshot | `uv run python -m resolveflow.replay.cli snapshot --scenario hero --provider fixture --output data/published` |
-| Candidate evaluation | `uv run python -m resolveflow.evaluation.cli evaluate --candidate "$CANDIDATE_BUILD" --baseline "$BASELINE_BUILD" --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH"` |
-| Report regeneration | `uv run python -m resolveflow.evaluation.cli report --bundle "$RESULT_BUNDLE" --output eval/reports` |
-| Preflight | `uv run python scripts/preflight.py --strict` |
+| Repository secret scan | pinned Gitleaks container invocation in `scripts/verify.sh` plus strict generated-bundle scan |
+| Python dependency audit | `uv run --with pip-audit pip-audit` |
+| JavaScript dependency audit | `pnpm audit` |
+| Replay smoke | `uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml` |
+| Snapshot | `uv run resolveflow-snapshot` followed by checksum verification |
+| Candidate evaluation | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` |
+| Report regeneration | `uv run resolveflow-evaluation report --bundle /tmp/resolveflow-stage05-result.json --output /tmp/resolveflow-stage05-report` |
+| Preflight | `uv run python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json && uv run python scripts/preflight.py --strict` |
 
 Tool availability and exact dependency versions are implementation-time facts. Milestone 1 must either lock the listed tools or document an equivalent command and update this plan and the acceptance matrix before other work begins.
 

@@ -17,7 +17,8 @@
 - [x] Browser smoke covers all exported routes.
 - [x] PostgreSQL migration upgrade, downgrade, re-upgrade, and database tests pass.
 - [x] Release documentation, license, source notes, limitations, rollback, and postmortem are complete.
-- [ ] Local `main` and `origin/main` match after the release push.
+- [x] Isolated clean clone restores the Pages build and checksummed snapshot experience.
+- [x] Local `main` and `origin/main` match after the release push.
 
 ## Publication
 

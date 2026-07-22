@@ -211,11 +211,11 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-01 | Credential-free foundation verification: locked setup, seed/snapshot, static/unit/integration/browser checks, preflight, and local PostgreSQL migration cycle | `scripts/verify.sh` | 1 | PASS |
 | X-02 | Empty-to-head and reversible migration check | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | 1+ | PASS |
 | X-03 | Repository and public-build secret scan | pinned Gitleaks container in `scripts/verify.sh` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PASS |
-| X-04 | Candidate evaluation from a frozen Replay manifest | `uv run resolveflow-evaluation evaluate --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` | 5/7 | PASS |
+| X-04 | Candidate evaluation from a frozen Replay manifest | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` | 5/7 | PASS |
 | X-05 | Report regenerated without provider calls | `uv run resolveflow-evaluation report --bundle /tmp/resolveflow-stage05-result.json --output /tmp/resolveflow-stage05-report` | 5/7 | PASS |
-| X-06 | Restore snapshot experience on a clean machine | OPS-X06-RESTORE with machine/runtime, commands, hashes, observed result, and discrepancies | 7 | PLANNED |
+| X-06 | Restore snapshot experience on a clean machine | `docs/restore-reports/2026-07-22-e30f567.md` with machine/runtime, commands, hashes, observed result, and discrepancies | 7 | PASS |
 | X-07 | Every exported public route checked from the production artifact | `node tests/browser/snapshot-smoke.mjs` | 7 | PASS |
-| X-08 | Final claim and placeholder audit | `uv run python scripts/preflight.py --strict --signoff docs/HUMAN_SIGNOFF.json --snapshot data/published/hero-foundation.json` | 7 | PASS |
+| X-08 | Final release-profile, claim, and placeholder audit | `uv run python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json && uv run python scripts/preflight.py --strict` | 7 | PASS |
 
 ## Update rules
 

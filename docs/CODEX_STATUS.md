@@ -104,6 +104,7 @@ Local checks do not imply GitHub Actions, provider, connector, deployment, or hu
 | pinned Gitleaks 8.30.1 history scan | PASS, 18 reachable commits and no leaks |
 | `scripts/verify.sh` | PASS, 134 Python tests, 2 web tests, 4 PostgreSQL tests, Replay gates, static export, strict preflight, snapshot/bundle checks, migrations, and pinned container startup |
 | pinned Compose startup | PASS, database/API/worker/web running; API live/ready/version and homepage/About checks succeeded |
+| isolated clean-clone restore | PASS at pushed commit `e30f567`; frozen install, Pages build, route smoke, and published hashes reproduced |
 
 One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIONS.md`; no test was skipped or muted.
 

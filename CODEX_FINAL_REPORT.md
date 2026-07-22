@@ -44,6 +44,7 @@ The repository-controlled release checks completed locally on 2026-07-22:
 - Replay smoke retained the unsafe failure as `NO_SHIP` and produced the guarded development-fixture result as `SHIP_WITH_LIMITS`.
 - Static export with the `/ResolveFlow` base path, all-route snapshot smoke, strict public-claim preflight, and published-snapshot checksum verification passed.
 - Digest-pinned database, API, worker, and web images built and started; API live, ready, and version endpoints plus the exported homepage and nested About route returned the expected content.
+- An isolated clone of pushed commit `e30f567` completed a frozen install, rebuilt the `/ResolveFlow` export, passed the all-route snapshot smoke, and reproduced the two published artifact hashes. The exact restore record is in `docs/restore-reports/2026-07-22-e30f567.md`.
 
 The Python test run emits one upstream transition warning because Starlette 1.3.1 deprecates its `httpx` TestClient backend in favor of `httpx2`; it does not fail or skip a test.
 
