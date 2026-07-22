@@ -277,6 +277,20 @@ for required in \
 done
 
 for required in \
+  python/resolveflow/actions/models.py python/resolveflow/actions/service.py \
+  python/resolveflow/actions/dispatcher.py python/resolveflow/actions/connectors.py \
+  python/resolveflow/actions/postgres.py python/resolveflow/worker/actions.py \
+  python/resolveflow/telemetry/audit.py python/resolveflow/telemetry/projection.py \
+  python/resolveflow/telemetry/export.py python/resolveflow/telemetry/diff.py \
+  migrations/versions/0004_actions_reliability_audit.py \
+  apps/web/app/approval-panel.tsx; do
+  [[ -f "$required" ]] || {
+    echo "Missing Stage 04 artifact: $required" >&2
+    exit 1
+  }
+done
+
+for required in \
   python/resolveflow/agent/contracts.py python/resolveflow/agent/service.py \
   python/resolveflow/agent/cohere.py python/resolveflow/agent/fixture.py \
   python/resolveflow/agent/tools.py python/resolveflow/agent/security.py \
@@ -329,4 +343,4 @@ uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
 
-echo "Stage 03 verification passed: foundation, authorized retrieval, bounded tools/provider calls, evidence closure, two-pass rendering, injection defenses, PostgreSQL, and reversible migrations."
+echo "Stage 04 verification passed: prior controls plus exact approvals, durable leases, fault reconciliation, idempotency, append-only audit, public redaction, exports, diff, and approval UI."

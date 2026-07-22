@@ -94,6 +94,10 @@ class TraceEvent(FrozenModel):
     event_name: str
     outcome: Literal["ok", "needs_information", "rejected", "timeout", "failed"]
     correlation_id: str
+    duration_ms: int = 0
+    versions: dict[str, str] = Field(default_factory=dict)
+    trace_id: str | None = None
+    span_id: str | None = None
     safe_detail: dict[str, Any]
 
 
@@ -104,10 +108,27 @@ class AuditEvent(TraceEvent):
 
 class ActionBoundary(FrozenModel):
     action_type: Literal["create_jira_issue"] = "create_jira_issue"
-    state: Literal["pending_approval", "not_proposed"]
+    proposal_id: str | None = None
+    state: Literal[
+        "pending_approval",
+        "approved",
+        "rejected",
+        "expired",
+        "invalidated",
+        "not_proposed",
+    ]
     connector: Literal["synthetic_not_dispatched"] = "synthetic_not_dispatched"
     summary: str
     team: Literal["Payments Platform"] = "Payments Platform"
+    priority: Literal["High", "Medium", "Low"] = "High"
+    verified_description: str = ""
+    evidence_refs: tuple[str, ...] = ()
+    unknowns: tuple[str, ...] = ()
+    risk: Literal["low", "medium", "high"] = "medium"
+    expires_at: datetime | None = None
+    payload_digest: str | None = None
+    idempotency_key: str | None = None
+    permission_required: Literal["approve_jira"] = "approve_jira"
 
 
 class RunSnapshot(FrozenModel):

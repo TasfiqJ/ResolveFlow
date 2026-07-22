@@ -25,3 +25,18 @@ def test_governed_agent_migration_has_trace_and_evidence_tables() -> None:
         assert f'"{table}"' in text
     assert "ck_model_tool_never_writes" in text
     assert "def downgrade()" in text
+
+
+def test_action_migration_has_exact_approval_queue_and_append_only_controls() -> None:
+    text = Path("migrations/versions/0004_actions_reliability_audit.py").read_text(encoding="utf-8")
+    for table in (
+        "action_proposals",
+        "approvals",
+        "action_idempotency",
+        "action_attempts",
+    ):
+        assert f'"{table}"' in text
+    assert "FOR UPDATE" not in text  # claiming belongs to the runtime repository
+    assert "fk_approval_exact_proposal" in text
+    assert "audit_events_no_update_delete" in text
+    assert "def downgrade()" in text

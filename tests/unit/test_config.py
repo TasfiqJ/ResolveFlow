@@ -13,3 +13,12 @@ def test_public_profile_rejects_write_credentials() -> None:
 def test_live_public_requires_provider_kill_switch_enablement() -> None:
     with pytest.raises(ValidationError, match="explicitly enabled"):
         Settings(public_live_mode=True, cohere_allow_live=False)
+
+
+@pytest.mark.parametrize(
+    "flag",
+    ["jira_real_enabled", "jira_external_writes_authorized", "action_dispatch_enabled"],
+)
+def test_public_profile_rejects_every_action_enablement(flag: str) -> None:
+    with pytest.raises(ValidationError, match="public mode"):
+        Settings(environment="public", **{flag: True})

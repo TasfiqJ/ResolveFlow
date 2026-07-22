@@ -42,6 +42,16 @@ class AuditEventRow(Base):
     event_name: Mapped[str] = mapped_column(String(100), nullable=False)
     safe_detail: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
     event_hash: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+    actor_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    actor_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    component: Mapped[str] = mapped_column(String(80), nullable=False)
+    outcome: Mapped[str] = mapped_column(String(40), nullable=False)
+    duration_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    correlation_ids: Mapped[dict[str, str]] = mapped_column(JSON, nullable=False)
+    versions: Mapped[dict[str, str]] = mapped_column(JSON, nullable=False)
+    trace_id: Mapped[str | None] = mapped_column(String(64))
+    span_id: Mapped[str | None] = mapped_column(String(32))
+    previous_event_hash: Mapped[str | None] = mapped_column(String(72))
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -51,7 +61,79 @@ class JobRow(Base):
     kind: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued")
     payload: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("agent_runs.run_id"))
+    logical_key: Mapped[str | None] = mapped_column(String(160), unique=True)
+    available_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=5)
+    lease_owner: Mapped[str | None] = mapped_column(String(96))
+    lease_expires_at: Mapped[object | None] = mapped_column(DateTime(timezone=True))
+    last_error_code: Mapped[str | None] = mapped_column(String(100))
+    cancellation_requested: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    updated_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    completed_at: Mapped[object | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ActionProposalRow(Base):
+    __tablename__ = "action_proposals"
+    proposal_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    logical_action_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    run_id: Mapped[str] = mapped_column(ForeignKey("agent_runs.run_id"), nullable=False)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.tenant_id"), nullable=False)
+    graph_hash: Mapped[str] = mapped_column(String(72), nullable=False)
+    supporting_claim_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    payload: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    payload_digest: Mapped[str] = mapped_column(String(72), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(72), nullable=False)
+    state: Mapped[str] = mapped_column(String(32), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    invalidated_by_proposal_id: Mapped[str | None] = mapped_column(String(96))
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ApprovalRow(Base):
+    __tablename__ = "approvals"
+    approval_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    proposal_id: Mapped[str] = mapped_column(
+        ForeignKey("action_proposals.proposal_id"), unique=True
+    )
+    payload_digest: Mapped[str] = mapped_column(String(72), nullable=False)
+    approver_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    permission_result: Mapped[str] = mapped_column(String(64), nullable=False)
+    approved_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ActionIdempotencyRow(Base):
+    __tablename__ = "action_idempotency"
+    logical_action_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    idempotency_key: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("action_proposals.proposal_id"))
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    remote_issue_key: Mapped[str | None] = mapped_column(String(96))
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ActionAttemptRow(Base):
+    __tablename__ = "action_attempts"
+    attempt_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("action_proposals.proposal_id"))
+    logical_action_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(72), nullable=False)
+    payload_digest: Mapped[str] = mapped_column(String(72), nullable=False)
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    started_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[object] = mapped_column(DateTime(timezone=True), nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(72), nullable=False)
+    disposition: Mapped[str] = mapped_column(String(40), nullable=False)
+    safe_error_code: Mapped[str | None] = mapped_column(String(100))
+    retry_decision: Mapped[str] = mapped_column(String(32), nullable=False)
+    reconciliation: Mapped[dict[str, object] | None] = mapped_column(JSON)
+    remote_issue_key: Mapped[str | None] = mapped_column(String(96))
 
 
 class ProviderCallRow(Base):

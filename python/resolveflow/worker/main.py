@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
 
 def run() -> None:
-    """Stage 01 worker skeleton; durable job claiming arrives in Milestone 4."""
+    """Start the worker process with the external-effect kill switch engaged by default."""
     stopped = threading.Event()
 
     def stop(_signum: int, _frame: object) -> None:
@@ -16,7 +16,9 @@ def run() -> None:
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
-    logging.info("resolveflow worker ready (fixture mode, no external writes)")
+    logging.info(
+        "resolveflow durable worker ready (dispatch kill switch off by default; no external writes)"
+    )
     stopped.wait()
 
 

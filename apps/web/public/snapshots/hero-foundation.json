@@ -2,9 +2,23 @@
   "action": {
     "action_type": "create_jira_issue",
     "connector": "synthetic_not_dispatched",
+    "evidence_refs": [
+      "cite_action_route"
+    ],
+    "expires_at": "2026-07-21T02:00:00Z",
+    "idempotency_key": "sha256:58af80f8c700634026dbbe08ce4b28e29bf0ceafe21a5ae2089e618a119af115",
+    "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",
+    "permission_required": "approve_jira",
+    "priority": "High",
+    "proposal_id": "proposal_fb2bffefe779fe1eb943e59b",
+    "risk": "medium",
     "state": "pending_approval",
     "summary": "Investigate PYM-431 after issuer-routing-v3 rollout",
-    "team": "Payments Platform"
+    "team": "Payments Platform",
+    "unknowns": [
+      "The affected cluster ID is not available."
+    ],
+    "verified_description": "The issuer-routing-v3 rollout completed.\n\nVerified next steps:\n- Identify the affected cluster and compare error rates before rollback."
   },
   "build_id": "governed-fixture-v1",
   "case": {
@@ -29,8 +43,8 @@
     "synthetic": true,
     "tenant_id": "tenant_heliopay_synthetic"
   },
-  "commit": "a6e8371c2638",
-  "content_hash": "sha256:2e8871905cda928213f6281c03acf0e4119fdd506699aaa8f6f5ee813b6323b9",
+  "commit": "4ae398be314c",
+  "content_hash": "sha256:9b5a01cdcc830f749a433b2144bfe85deda020d738cf3b0a4d7aee0e48919515",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -659,111 +673,289 @@
   "trace": [
     {
       "actor": "resolveflow-service",
+      "component": "identity",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_001",
+      "event_name": "identity.snapshot.captured",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "region": "ca-central",
+        "role": "incident_commander"
+      },
+      "sequence": 1,
+      "span_id": "span_001",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_001",
+      "duration_ms": 0,
+      "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
         "source": "web"
       },
-      "sequence": 1
+      "sequence": 2,
+      "span_id": "span_002",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_002",
+      "duration_ms": 0,
+      "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
       "safe_detail": {
         "operations": 4
       },
-      "sequence": 2
+      "sequence": 3,
+      "span_id": "span_003",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "policy",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_004",
+      "event_name": "retrieval.authorization.applied",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "eligible_count": 5,
+        "reason_code": "eligible_by_snapshot"
+      },
+      "sequence": 4,
+      "span_id": "span_004",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_003",
-      "event_name": "hybrid.authorized.completed",
+      "duration_ms": 0,
+      "event_id": "evt_005",
+      "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
-        "eligible_count": 5,
-        "mode": "eligible_fixture"
+        "authorized": true
       },
-      "sequence": 3
+      "sequence": 5,
+      "span_id": "span_005",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "retrieval",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_006",
+      "event_name": "retrieval.vector.completed",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "authorized": true
+      },
+      "sequence": 6,
+      "span_id": "span_006",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "retrieval",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_007",
+      "event_name": "retrieval.fusion.completed",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "authorized": true
+      },
+      "sequence": 7,
+      "span_id": "span_007",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "retrieval",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_008",
+      "event_name": "retrieval.rerank.completed",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "authorized": true
+      },
+      "sequence": 8,
+      "span_id": "span_008",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_004",
-      "event_name": "bounded.evidence.completed",
+      "duration_ms": 0,
+      "event_id": "evt_009",
+      "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
         "provider_calls": 3,
-        "terminal_reason": "complete",
+        "terminal_reason": "complete"
+      },
+      "sequence": 9,
+      "span_id": "span_009",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "agent",
+      "correlation_id": "run_hero_foundation_001",
+      "duration_ms": 0,
+      "event_id": "evt_010",
+      "event_name": "tools.bounded.completed",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
         "tool_calls": 2
       },
-      "sequence": 4
+      "sequence": 10,
+      "span_id": "span_010",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_005",
+      "duration_ms": 0,
+      "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
         "attempted_effects": 2
       },
-      "sequence": 5
+      "sequence": 11,
+      "span_id": "span_011",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_006",
+      "duration_ms": 0,
+      "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
         "claims": 4,
-        "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb"
+        "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb",
+        "route": "Payments Platform"
       },
-      "sequence": 6
+      "sequence": 12,
+      "span_id": "span_012",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_007",
+      "duration_ms": 0,
+      "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
         "disposition": "resolved"
       },
-      "sequence": 7
+      "sequence": 13,
+      "span_id": "span_013",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     },
     {
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_hero_foundation_001",
-      "event_id": "evt_008",
+      "duration_ms": 0,
+      "event_id": "evt_014",
       "event_name": "proposal.created",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "safe_detail": {
+        "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",
         "state": "pending_approval"
       },
-      "sequence": 8
+      "sequence": 14,
+      "span_id": "span_014",
+      "trace_id": "trace_run_hero_foundation_001",
+      "versions": {
+        "build": "governed-fixture-v1",
+        "schema": "1.0"
+      }
     }
   ]
 }

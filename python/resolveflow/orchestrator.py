@@ -3,11 +3,13 @@ from __future__ import annotations
 import subprocess
 from datetime import datetime, timezone
 
+from resolveflow.actions.models import ActionProposal
+from resolveflow.actions.service import ActionService, fixture_now
 from resolveflow.agent.security import score_forbidden_effects
 from resolveflow.agent.service import GovernedAgent, GovernedRunResult
 from resolveflow.context.ports import ContextRepository
 from resolveflow.domain.hashing import checksum
-from resolveflow.domain.models import ActionBoundary, CanonicalCase, RunSnapshot, TraceEvent
+from resolveflow.domain.models import ActionBoundary, AuditEvent, CanonicalCase, RunSnapshot
 from resolveflow.ingestion.fixtures import load_hero_corpus
 from resolveflow.policy.authorization import AuthorizationPolicy, make_identity_snapshot
 from resolveflow.retrieval.engine import HybridRetriever
@@ -27,6 +29,7 @@ class ResolveOrchestrator:
             FixtureEmbeddingAdapter(),
             FixtureRerankAdapter(),
         )
+        self.latest_proposal: ActionProposal | None = None
 
     def run(self, case: CanonicalCase) -> RunSnapshot:
         run_id = "run_hero_foundation_001"
@@ -47,8 +50,22 @@ class ResolveOrchestrator:
             retrieval=retrieval,
             corpus=self.corpus,
         )
-        events = self._events(run_id, case, context, retrieval.eligible_chunk_count, governed)
         proposal_allowed = bool(governed.evidence_graph.permitted_proposals)
+        proposal = (
+            ActionService().create_proposal(
+                run_id=run_id,
+                tenant_id=case.tenant_id,
+                graph=governed.evidence_graph,
+                response=governed.response,
+                now=fixture_now(),
+            )
+            if proposal_allowed
+            else None
+        )
+        self.latest_proposal = proposal
+        events = self._events(
+            run_id, case, context, retrieval.eligible_chunk_count, governed, proposal
+        )
         body = {
             "generated_at": datetime(2026, 7, 21, 0, 0, tzinfo=timezone.utc),
             "run_id": run_id,
@@ -71,10 +88,7 @@ class ResolveOrchestrator:
             "forbidden_effect_score": score_forbidden_effects(governed.security_events).model_dump(
                 mode="json"
             ),
-            "action": ActionBoundary(
-                state="pending_approval" if proposal_allowed else "not_proposed",
-                summary="Investigate PYM-431 after issuer-routing-v3 rollout",
-            ),
+            "action": self._action_projection(proposal),
             "trace": events,
         }
         return RunSnapshot(**body, content_hash=checksum(body))
@@ -86,26 +100,42 @@ class ResolveOrchestrator:
         context: tuple[object, ...],
         eligible_count: int,
         governed: GovernedRunResult,
-    ) -> tuple[TraceEvent, ...]:
+        proposal: ActionProposal | None,
+    ) -> tuple[AuditEvent, ...]:
         at = case.case_time
         raw = (
+            (
+                "identity",
+                "identity.snapshot.captured",
+                "ok",
+                {"role": "incident_commander", "region": case.region},
+            ),
             ("intake", "case.normalized", "ok", {"source": case.source_system}),
             ("context", "context.enriched", "needs_information", {"operations": len(context)}),
             (
-                "retrieval",
-                "hybrid.authorized.completed",
+                "policy",
+                "retrieval.authorization.applied",
                 "ok",
-                {"mode": "eligible_fixture", "eligible_count": eligible_count},
+                {"reason_code": "eligible_by_snapshot", "eligible_count": eligible_count},
             ),
+            ("retrieval", "retrieval.lexical.completed", "ok", {"authorized": True}),
+            ("retrieval", "retrieval.vector.completed", "ok", {"authorized": True}),
+            ("retrieval", "retrieval.fusion.completed", "ok", {"authorized": True}),
+            ("retrieval", "retrieval.rerank.completed", "ok", {"authorized": True}),
             (
                 "agent",
-                "bounded.evidence.completed",
+                "model.evidence_pass.completed",
                 "ok" if governed.terminal_reason == "complete" else "failed",
                 {
                     "provider_calls": governed.provider_calls,
-                    "tool_calls": len(governed.tool_traces),
                     "terminal_reason": governed.terminal_reason,
                 },
+            ),
+            (
+                "agent",
+                "tools.bounded.completed",
+                "ok",
+                {"tool_calls": len(governed.tool_traces)},
             ),
             (
                 "security",
@@ -120,6 +150,7 @@ class ResolveOrchestrator:
                 {
                     "claims": len(governed.evidence_graph.claims),
                     "graph_hash": governed.evidence_graph.graph_hash,
+                    "route": governed.response.route,
                 },
             ),
             (
@@ -139,23 +170,58 @@ class ResolveOrchestrator:
                         "pending_approval"
                         if governed.evidence_graph.permitted_proposals
                         else "not_proposed"
-                    )
+                    ),
+                    "payload_digest": proposal.payload_digest if proposal else None,
                 },
             ),
         )
-        return tuple(
-            TraceEvent(
+        events: list[AuditEvent] = []
+        previous_hash: str | None = None
+        for index, (component, name, outcome, detail) in enumerate(raw, 1):
+            body = {
+                "sequence": index,
+                "occurred_at": at,
+                "actor": "resolveflow-service",
+                "component": component,
+                "event_name": name,
+                "outcome": outcome,
+                "correlation_id": run_id,
+                "duration_ms": 0,
+                "versions": {"schema": "1.0", "build": "governed-fixture-v1"},
+                "trace_id": f"trace_{run_id}",
+                "span_id": f"span_{index:03d}",
+                "safe_detail": detail,
+                "previous_event_hash": previous_hash,
+            }
+            event_hash = checksum(body)
+            event = AuditEvent(
                 sequence=index,
                 event_id=f"evt_{index:03d}",
-                occurred_at=at,
-                actor="resolveflow-service",
-                component=component,
-                event_name=name,
-                outcome=outcome,
-                correlation_id=run_id,
-                safe_detail=detail,
+                **{key: value for key, value in body.items() if key != "sequence"},
+                event_hash=event_hash,
             )
-            for index, (component, name, outcome, detail) in enumerate(raw, 1)
+            events.append(event)
+            previous_hash = event_hash
+        return tuple(events)
+
+    @staticmethod
+    def _action_projection(proposal: ActionProposal | None) -> ActionBoundary:
+        if proposal is None:
+            return ActionBoundary(state="not_proposed", summary="No verified proposal")
+        payload = proposal.payload
+        return ActionBoundary(
+            proposal_id=proposal.proposal_id,
+            state="pending_approval",
+            summary=payload.summary,
+            team=payload.team,
+            priority=payload.priority,
+            verified_description=payload.verified_description,
+            evidence_refs=payload.evidence_refs,
+            unknowns=payload.unknowns,
+            risk=payload.risk,
+            expires_at=proposal.expires_at,
+            payload_digest=proposal.payload_digest,
+            idempotency_key=proposal.idempotency_key,
         )
 
 

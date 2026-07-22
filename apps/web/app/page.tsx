@@ -1,5 +1,6 @@
 import snapshot from "../public/snapshots/hero-foundation.json";
 import React from "react";
+import { ApprovalPanel } from "./approval-panel";
 
 const contextStatus = new Map(
   snapshot.context.map((item) => [item.operation, item.status]),
@@ -120,13 +121,7 @@ export default function Home() {
               </details>
             ))}
           </div>
-          <div className="proposal">
-            <div>
-              <span>INERT ACTION PROPOSAL</span>
-              <strong>{snapshot.action.summary}</strong>
-            </div>
-            <button disabled>Awaiting approval</button>
-          </div>
+          <ApprovalPanel proposal={snapshot.action} />
         </article>
 
         <aside className="trace">

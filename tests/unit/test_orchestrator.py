@@ -17,12 +17,16 @@ def test_shared_path_produces_cited_result_trace_and_inert_proposal() -> None:
     assert result.response.unknowns == ("The affected cluster ID is not available.",)
     assert result.action.state == "pending_approval"
     assert result.action.connector == "synthetic_not_dispatched"
-    assert [event.sequence for event in result.trace] == list(range(1, 9))
+    assert [event.sequence for event in result.trace] == list(range(1, 15))
     assert result.provenance == "recorded_fixture"
     assert result.response.graph_hash == result.evidence_graph["graph_hash"]
     assert all(trace["pass_kind"] in {"evidence", "structure"} for trace in result.provider_traces)
     assert all("reasoning" not in trace for trace in result.provider_traces)
     assert result.forbidden_effect_score["successful_count"] == 0
+    assert result.action.payload_digest is not None
+    assert result.action.evidence_refs
+    assert result.action.expires_at is not None
+    assert result.trace[-1].previous_event_hash == result.trace[-2].event_hash
     for trace in result.provider_traces:
         assert not ({"text", "messages", "prompt", "reasoning"} & set(trace))
     repeated = ResolveOrchestrator(

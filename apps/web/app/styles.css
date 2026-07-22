@@ -319,17 +319,15 @@ dd small {
   color: #4c5d59;
 }
 .proposal {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  justify-content: space-between;
+  display: grid;
+  gap: 12px;
   margin-top: 22px;
   padding: 14px;
   border: 1px solid #bfd1cc;
   border-radius: 8px;
   background: #f5faf8;
 }
-.proposal div {
+.proposalHeader {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -343,13 +341,55 @@ dd small {
 .proposal strong {
   font-size: 12px;
 }
+.proposal small,
+.proposalNotice {
+  color: var(--muted);
+  font-size: 10px;
+}
+.proposal details {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.proposal details summary {
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+}
+.proposal details p,
+.proposal details dl {
+  font-size: 10px;
+  line-height: 1.45;
+}
+.proposal details dd {
+  max-width: 65%;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.proposalState,
+.proposalActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.proposalState b {
+  color: var(--teal);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
 .proposal button {
-  border: 1px solid #aab8b4;
-  background: white;
-  color: #6d7976;
+  border: 1px solid var(--teal);
+  background: var(--teal);
+  color: white;
   padding: 8px 10px;
   border-radius: 5px;
   font-size: 10px;
+  cursor: pointer;
+}
+.proposal button.secondary {
+  border-color: #aab8b4;
+  background: white;
+  color: #52615e;
 }
 .traceIntro {
   color: var(--muted);

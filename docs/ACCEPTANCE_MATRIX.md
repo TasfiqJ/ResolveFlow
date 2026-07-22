@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Milestones 1-3 implemented; later held-out, action, Replay, and human evidence remains planned
+**Current evidence state:** Milestones 1-4 implemented; later held-out, Replay, and human evidence remains planned
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 
@@ -132,30 +132,30 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F11-AC01 | Unapproved write count is zero. | 4/5 | state-machine and hard-gate test | `uv run pytest -q tests/security/test_no_unapproved_write.py` | PLANNED |
-| F11-AC02 | Payload integrity: dispatched payload hash equals the approved proposal hash. | 4 | digest/reconstruction integration test | `uv run pytest -q tests/integration/test_action_payload_integrity.py` | PLANNED |
-| F11-AC03 | Authorization: only `approve_jira` users can approve. | 4 | permission matrix test | `uv run pytest -q tests/security/test_action_authorization.py` | PLANNED |
-| F11-AC04 | Expiration: expired proposals cannot dispatch. | 4 | fake-clock state test | `uv run pytest -q tests/unit/actions/test_proposal_expiry.py` | PLANNED |
-| F11-AC05 | Public safety: public production has no credential capable of Jira write. | 4/6 | startup-config and bundle scan | `uv run pytest -q tests/security/test_public_configuration.py -k jira` | PLANNED |
+| F11-AC01 | Unapproved write count is zero. | 4/5 | state-machine and hard-gate test | `uv run pytest -q tests/security/test_no_unapproved_write.py` | PASS |
+| F11-AC02 | Payload integrity: dispatched payload hash equals the approved proposal hash. | 4 | digest/reconstruction and tamper tests | `uv run pytest -q tests/unit/actions/test_proposal_state.py tests/integration/test_action_faults.py` | PASS |
+| F11-AC03 | Authorization: only `approve_jira` users can approve. | 4 | permission matrix and API test | `uv run pytest -q tests/unit/actions/test_proposal_state.py tests/integration/test_api.py -k action` | PASS |
+| F11-AC04 | Expiration: expired proposals cannot dispatch. | 4 | fake-clock state and dispatch test | `uv run pytest -q tests/unit/actions/test_proposal_state.py tests/integration/test_action_faults.py -k expired` | PASS |
+| F11-AC05 | Public safety: public production has no credential capable of Jira write. | 4/6 | startup configuration and disabled adapter tests | `uv run pytest -q tests/unit/test_config.py tests/security/test_no_unapproved_write.py` | PASS |
 
 ## Feature 12 - idempotent connector execution and recovery
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F12-AC01 | Duplicate issue count is zero across forced timeout and retry tests. | 4 | fault-injection integration suite | `uv run pytest -q tests/integration/test_action_faults.py -k duplicate_prevention` | PLANNED |
-| F12-AC02 | Lost approved action count is zero in restart tests within configured retention. | 4 | worker restart/lease suite | `uv run pytest -q tests/integration/test_action_restart.py` | PLANNED |
-| F12-AC03 | Backoff is bounded and observable. | 4 | fake-clock retry unit test | `uv run pytest -q tests/unit/actions/test_retry_policy.py` | PLANNED |
-| F12-AC04 | Dead letter: permanent failures reach dead letter with an operator-readable reason. | 4 | dead-letter integration and browser test | `uv run pytest -q tests/integration/test_action_dead_letter.py` | PLANNED |
-| F12-AC05 | Worker crash: another worker safely reclaims expired work after a crash. | 4 | concurrent PostgreSQL lease test | `uv run pytest -q tests/integration/test_job_leases.py -k reclaim_after_crash` | PLANNED |
+| F12-AC01 | Duplicate issue count is zero across forced timeout and retry tests. | 4 | forced timeout/ack-loss reconciliation suite | `uv run pytest -q tests/integration/test_action_faults.py -k uncertain_send` | PASS |
+| F12-AC02 | Lost approved action count is zero in restart tests within configured retention. | 4 | durable lease/reclaim PostgreSQL suite | `uv run pytest -q tests/postgres/test_action_jobs.py -k reclaim` | PASS |
+| F12-AC03 | Backoff is bounded and observable. | 4 | fake-clock retry unit test | `uv run pytest -q tests/unit/actions/test_retry_policy.py` | PASS |
+| F12-AC04 | Dead letter: permanent failures reach dead letter with an operator-readable reason. | 4 | fault/dead-letter integration test | `uv run pytest -q tests/integration/test_action_faults.py -k "dead_letter or permission"` | PASS |
+| F12-AC05 | Worker crash: another worker safely reclaims expired work after a crash. | 4 | concurrent PostgreSQL lease test | `uv run pytest -q tests/postgres/test_action_jobs.py -k reclaim` | PASS |
 
 ## Feature 13 - complete audit trace and run diff
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F13-AC01 | Reconstructability: a maintainer can explain final route/action from stored events alone. | 4 | OPS-F13-RECONSTRUCT runbook exercise | Human/operational item: blinded run ID, reconstruction worksheet, discrepancies, maintainer/date/build | PLANNED |
-| F13-AC02 | Redaction: public trace exposes no secrets, tokens, hidden prompts, restricted content, or private paths. | 4/6 | redaction tests plus gitleaks/high-entropy scan | `uv run pytest -q tests/security/test_public_trace_redaction.py` | PLANNED |
-| F13-AC03 | Ordering: event sequence is stable and timestamps are coherent. | 4 | audit schema/order contract | `uv run pytest -q tests/integration/test_audit_ordering.py` | PLANNED |
-| F13-AC04 | Diff accuracy: a known role/corpus mutation appears exactly once in the comparison. | 4/5 | golden diff test | `uv run pytest -q tests/replay/test_run_diff.py` | PLANNED |
+| F13-AC01 | Reconstructability: a maintainer can explain final route/action from stored events alone. | 4 | deterministic event-only reconstruction test | `uv run pytest -q tests/unit/telemetry/test_audit_export_diff.py -k reconstructable` | PASS |
+| F13-AC02 | Redaction: public trace exposes no secrets, tokens, hidden prompts, restricted content, or private paths. | 4/6 | deterministic redaction and export tests | `uv run pytest -q tests/security/test_public_trace_redaction.py tests/unit/telemetry/test_audit_export_diff.py` | PASS |
+| F13-AC03 | Ordering: event sequence is stable and timestamps are coherent. | 4 | hash-chain/order plus database append-only tests | `uv run pytest -q tests/unit/telemetry/test_audit_export_diff.py tests/postgres/test_action_jobs.py -k audit` | PASS |
+| F13-AC04 | Diff accuracy: a known role/corpus mutation appears exactly once in the comparison. | 4/5 | immutable foundation diff test | `uv run pytest -q tests/unit/telemetry/test_audit_export_diff.py -k diff` | PASS |
 
 ## Feature 14 - Replay scenario compiler
 

@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     agent_tool_timeout_seconds: float = 2.0
     slack_signing_secret: str | None = None
     jira_api_token: str | None = None
+    jira_real_enabled: bool = False
+    jira_external_writes_authorized: bool = False
+    action_dispatch_enabled: bool = False
 
     @model_validator(mode="after")
     def reject_public_credentials(self) -> Settings:
@@ -39,6 +42,22 @@ class Settings(BaseSettings):
             raise ValueError("live Cohere mode requires an API key")
         if self.agent_max_provider_calls < 2 or self.agent_max_tool_rounds < 1:
             raise ValueError("governed agent budgets are invalid")
+        if self.environment == "public" and (
+            self.jira_real_enabled
+            or self.jira_external_writes_authorized
+            or self.action_dispatch_enabled
+        ):
+            raise ValueError("public mode cannot enable action dispatch or real Jira")
+        if self.jira_real_enabled and (
+            not self.jira_api_token or not self.jira_external_writes_authorized
+        ):
+            raise ValueError(
+                "real Jira requires a credential and explicit external-write authority"
+            )
+        if self.jira_external_writes_authorized and self.environment != "local":
+            raise ValueError(
+                "external Jira writes are restricted to an explicitly authorized local profile"
+            )
         return self
 
 
