@@ -3,7 +3,8 @@ from __future__ import annotations
 import subprocess
 from datetime import datetime, timezone
 
-from resolveflow.agent.ports import AgentPort
+from resolveflow.agent.security import score_forbidden_effects
+from resolveflow.agent.service import GovernedAgent, GovernedRunResult
 from resolveflow.context.ports import ContextRepository
 from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import ActionBoundary, CanonicalCase, RunSnapshot, TraceEvent
@@ -16,11 +17,12 @@ from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter, FixtureRerank
 class ResolveOrchestrator:
     """Shared production path used by web intake, fixtures, snapshots, and future Replay."""
 
-    def __init__(self, context_repository: ContextRepository, agent: AgentPort) -> None:
+    def __init__(self, context_repository: ContextRepository, agent: GovernedAgent) -> None:
         self.context_repository = context_repository
         self.agent = agent
+        self.corpus = load_hero_corpus()
         self.retriever = HybridRetriever(
-            load_hero_corpus(),
+            self.corpus,
             AuthorizationPolicy(),
             FixtureEmbeddingAdapter(),
             FixtureRerankAdapter(),
@@ -37,25 +39,53 @@ class ResolveOrchestrator:
             case_time=case.case_time,
         )
         retrieval = self.retriever.retrieve(case.raw_text, identity)
-        response = self.agent.resolve(case, context)
-        events = self._events(run_id, case, context, retrieval.eligible_chunk_count)
+        governed = self.agent.resolve(
+            run_id=run_id,
+            case=case,
+            context=context,
+            identity=identity,
+            retrieval=retrieval,
+            corpus=self.corpus,
+        )
+        events = self._events(run_id, case, context, retrieval.eligible_chunk_count, governed)
+        proposal_allowed = bool(governed.evidence_graph.permitted_proposals)
         body = {
             "generated_at": datetime(2026, 7, 21, 0, 0, tzinfo=timezone.utc),
             "run_id": run_id,
+            "build_id": "governed-fixture-v1",
             "commit": _git_sha(),
+            "model_policy": self.agent.budgets.policy_id,
             "identity_snapshot": identity,
             "retrieval": retrieval,
             "case": case,
             "context": context,
-            "response": response,
-            "action": ActionBoundary(summary="Investigate PYM-431 after issuer-routing-v3 rollout"),
+            "response": governed.response,
+            "evidence_graph": governed.evidence_graph.model_dump(mode="json"),
+            "provider_traces": tuple(
+                item.model_dump(mode="json") for item in governed.provider_traces
+            ),
+            "tool_traces": tuple(item.model_dump(mode="json") for item in governed.tool_traces),
+            "security_events": tuple(
+                item.model_dump(mode="json") for item in governed.security_events
+            ),
+            "forbidden_effect_score": score_forbidden_effects(governed.security_events).model_dump(
+                mode="json"
+            ),
+            "action": ActionBoundary(
+                state="pending_approval" if proposal_allowed else "not_proposed",
+                summary="Investigate PYM-431 after issuer-routing-v3 rollout",
+            ),
             "trace": events,
         }
         return RunSnapshot(**body, content_hash=checksum(body))
 
     @staticmethod
     def _events(
-        run_id: str, case: CanonicalCase, context: tuple[object, ...], eligible_count: int
+        run_id: str,
+        case: CanonicalCase,
+        context: tuple[object, ...],
+        eligible_count: int,
+        governed: GovernedRunResult,
     ) -> tuple[TraceEvent, ...]:
         at = case.case_time
         raw = (
@@ -67,9 +97,51 @@ class ResolveOrchestrator:
                 "ok",
                 {"mode": "eligible_fixture", "eligible_count": eligible_count},
             ),
-            ("agent", "fixture.response.loaded", "ok", {"provider": "recorded_fixture"}),
-            ("verifier", "fixture.citations.checked", "ok", {"citations": 2}),
-            ("actions", "proposal.created", "ok", {"state": "pending_approval"}),
+            (
+                "agent",
+                "bounded.evidence.completed",
+                "ok" if governed.terminal_reason == "complete" else "failed",
+                {
+                    "provider_calls": governed.provider_calls,
+                    "tool_calls": len(governed.tool_traces),
+                    "terminal_reason": governed.terminal_reason,
+                },
+            ),
+            (
+                "security",
+                "untrusted_evidence.checked",
+                "ok",
+                {"attempted_effects": len(governed.security_events)},
+            ),
+            (
+                "verifier",
+                "evidence_graph.verified",
+                "ok" if not governed.response.needs_review else "needs_information",
+                {
+                    "claims": len(governed.evidence_graph.claims),
+                    "graph_hash": governed.evidence_graph.graph_hash,
+                },
+            ),
+            (
+                "agent",
+                "structured_response.rendered",
+                "ok" if not governed.response.needs_review else "needs_information",
+                {"disposition": governed.response.disposition},
+            ),
+            (
+                "actions",
+                "proposal.created"
+                if governed.evidence_graph.permitted_proposals
+                else "proposal.blocked",
+                "ok" if governed.evidence_graph.permitted_proposals else "rejected",
+                {
+                    "state": (
+                        "pending_approval"
+                        if governed.evidence_graph.permitted_proposals
+                        else "not_proposed"
+                    )
+                },
+            ),
         )
         return tuple(
             TraceEvent(

@@ -2,14 +2,15 @@
 
 ResolveFlow Replay is a deployment gate for enterprise agents.
 
-This Stage 01 foundation demonstrates one clearly labeled synthetic payments incident moving
-through web intake, deterministic context enrichment, a fixture-backed cited result, an inert
-action proposal, and a chronological public trace. The public page is snapshot-first: it needs no
-Cohere key, database, Slack workspace, or Jira site.
+The current credential-free build demonstrates one clearly labeled synthetic payments incident
+moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level
+verification, a hashed evidence graph, strict two-pass structuring, an inert action proposal, and
+an observable trace. The public page is snapshot-first: it needs no Cohere key, database, Slack
+workspace, or Jira site.
 
-Current status: foundation vertical slice. Retrieval, the complete bounded agent/verifier, real
-Slack/Jira adapters, Replay evaluation, and release gates belong to later milestones and are not
-claimed here.
+Current status: Stage 03 governed agent and safety. Real connectors, action recovery, Replay
+evaluation, and release gates belong to later milestones and are not claimed here. No live
+provider result or external write is represented by the fixture.
 
 ## Snapshot quick start
 
@@ -69,4 +70,3 @@ snapshot smoke. It never calls Cohere, Slack, Jira, or a paid service.
 Synthetic data is not customer evidence. The cited result is a deterministic recorded fixture,
 not a live model result. Human review, provider performance, cost, integration success, and a
 release verdict have not been measured.
-

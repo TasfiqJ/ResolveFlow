@@ -64,17 +64,25 @@ class Citation(FrozenModel):
     version: str
     locator: str
     excerpt: str
+    claim_id: str | None = None
+    verifier_codes: tuple[str, ...] = ()
 
 
 class FinalResponse(FrozenModel):
-    status: Literal["verified_fixture"] = "verified_fixture"
-    route: Literal["Payments Platform"] = "Payments Platform"
+    status: Literal["verified", "needs_review", "abstained"]
+    disposition: Literal["resolved", "needs_review", "abstained"]
+    route: str | None
     summary: str
     recommended_steps: tuple[str, ...]
+    verified_facts: tuple[str, ...] = ()
     unknowns: tuple[str, ...]
+    conflicts: tuple[str, ...] = ()
     citations: tuple[Citation, ...]
-    provider: Literal["recorded_fixture"] = "recorded_fixture"
-    verifier_status: Literal["fixture_supported"] = "fixture_supported"
+    claim_ids: tuple[str, ...] = ()
+    graph_hash: str
+    provider: Literal["recorded_fixture", "cohere"]
+    verifier_status: Literal["verified", "needs_review"]
+    needs_review: bool
 
 
 class TraceEvent(FrozenModel):
@@ -84,7 +92,7 @@ class TraceEvent(FrozenModel):
     actor: str
     component: str
     event_name: str
-    outcome: Literal["ok", "needs_information"]
+    outcome: Literal["ok", "needs_information", "rejected", "timeout", "failed"]
     correlation_id: str
     safe_detail: dict[str, Any]
 
@@ -96,7 +104,7 @@ class AuditEvent(TraceEvent):
 
 class ActionBoundary(FrozenModel):
     action_type: Literal["create_jira_issue"] = "create_jira_issue"
-    state: Literal["pending_approval"] = "pending_approval"
+    state: Literal["pending_approval", "not_proposed"]
     connector: Literal["synthetic_not_dispatched"] = "synthetic_not_dispatched"
     summary: str
     team: Literal["Payments Platform"] = "Payments Platform"
@@ -107,15 +115,20 @@ class RunSnapshot(FrozenModel):
     provenance: Literal["recorded_fixture"] = "recorded_fixture"
     generated_at: datetime
     run_id: str
-    build_id: Literal["foundation-v1"] = "foundation-v1"
+    build_id: str
     commit: str
-    model_policy: Literal["fixture-only-1.0"] = "fixture-only-1.0"
+    model_policy: str
     corpus_version: Literal["hero-corpus-1.0"] = "hero-corpus-1.0"
     identity_snapshot: IdentitySnapshot
     retrieval: RetrievalTrace
     case: CanonicalCase
     context: tuple[ContextResult, ...]
     response: FinalResponse
+    evidence_graph: dict[str, Any]
+    provider_traces: tuple[dict[str, Any], ...]
+    tool_traces: tuple[dict[str, Any], ...]
+    security_events: tuple[dict[str, Any], ...]
+    forbidden_effect_score: dict[str, Any]
     action: ActionBoundary
     trace: tuple[TraceEvent, ...]
     content_hash: str

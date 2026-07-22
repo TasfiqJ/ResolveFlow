@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from resolveflow.agent.fixture import FixtureAgent
+from resolveflow.agent.fixture import FixtureChatAdapter
+from resolveflow.agent.security import SYSTEM_PROMPT, require_policy_lint_clean
+from resolveflow.agent.service import GovernedAgent
+from resolveflow.agent.tools import ToolRegistry
 from resolveflow.config import Settings
 from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.ingestion.fixtures import load_hero_corpus, validate_corpus
@@ -16,9 +19,9 @@ PUBLISHED = ROOT / "data" / "published"
 
 
 def build_snapshot() -> dict[str, object]:
-    snapshot = ResolveOrchestrator(FixtureContextRepository(), FixtureAgent()).run(
-        canonical_hero_case()
-    )
+    snapshot = ResolveOrchestrator(
+        FixtureContextRepository(), GovernedAgent(FixtureChatAdapter())
+    ).run(canonical_hero_case())
     return snapshot.model_dump(mode="json")
 
 
@@ -68,3 +71,12 @@ def retrieval_fixture_evaluation() -> None:
     for path in fixture_metric_paths():
         for observation in evaluate_fixture_split(path):
             print(observation.model_dump_json())
+
+
+def policy_lint_command() -> None:
+    case = canonical_hero_case()
+    context = FixtureContextRepository().enrich(case)
+    require_policy_lint_clean(SYSTEM_PROMPT, ToolRegistry(case, context).definitions)
+    print(
+        "Policy lint passed: system prompt and 4 fixed tool descriptions grant no broad authority"
+    )

@@ -1,8 +1,8 @@
 # ResolveFlow Replay decisions and discovery register
 
-**Log version:** 1.2
+**Log version:** 1.3
 
-**Last updated:** 2026-07-21
+**Last updated:** 2026-07-22
 
 This file records reversible planning assumptions, contradictions, blockers, and implementation-time facts that must be discovered. Architecture decisions with long-lived consequences are expanded in `docs/adr/`.
 
@@ -219,3 +219,15 @@ Do not delete resolved unknowns. Add the value and evidence so the decision hist
 | U-021-U-022 | Fixture retrieval policy uses K=10, RRF k=60, cap=2; cache identity includes tenant, role, region, policy, identity snapshot, corpus snapshot, and query. No TTL is needed for immutable in-process fixture entries. | `HybridRetriever` and cache-isolation security test. | Persistent cache introduction requires an explicit expiry/retention policy. |
 | U-026-U-031 | Official Cohere documentation checked 2026-07-22 identifies `rerank-v4.0-fast` and `rerank-v4.0-pro`; paired payloads are identical and every Pro request requires a declared escalation reason. No winner or threshold is selected. | Official Cohere Rerank documentation; paired adapter/policy tests. | Calibration locks an ambiguity rule before held-out evaluation. |
 | U-033-U-034 | Synthetic policy grants restricted evidence only to incident commanders; contractors are capped at internal. Tenant/role/region/policy/effective-time/corpus predicates are materialized before PostgreSQL FTS/vector ranking. | Real PostgreSQL FTS/pgvector test and negative security suite on 2026-07-22. | A new policy version changes the explicit table and snapshots, not prompt text. |
+
+## 7. Milestone 3 decisions and discovered facts
+
+| ID | Decision / fact | Rationale / evidence | Reversal trigger |
+|---|---|---|---|
+| D-025 / U-029 | Governed-agent policy `governed-agent-1.0` fixes two tool rounds, four total provider calls including structuring, 4,096 observed tokens, 1,024 output tokens per call, a 30-second wall deadline, and a two-second per-tool timeout. | These conservative fixture-safe limits make termination deterministic and leave one provider call reserved for the structure pass. They are implementation controls, not measured production targets. | Staging measurements support a new versioned policy before held-out lock; prior traces retain the old policy ID. |
+| D-026 | The structure pass selects only verified claim, unknown, and conflict IDs plus the exact graph hash; it does not generate final factual prose. | ID-only selection is stricter than accepting provider-authored field text and makes source closure and deterministic rendering mechanically testable. | A later schema version demonstrates an equally enforceable closure rule for richer wording. |
+| D-027 / U-035 | Deterministic support requires an existing authorized current in-context document, exact normalized span containment, all structured value terms, at least 45% non-stopword overlap, and independent non-hostile support when hostile evidence is cited. | Stage 03 needs a reproducible provider-independent verifier without claiming semantic entailment precision. Exact authorization/version/freshness failures and conflicts are preserved as codes. | Human-reviewed verifier evidence in Milestone 6 supports a versioned rule or narrowly scoped secondary entailment helper. |
+| D-028 / U-037 | The synthetic attack library covers visible instructions, delimiter-like text, multilingual instructions, fake-system messages, and approval bypass. Security scoring counts observable attempted-blocked and succeeded effects, never verbal refusal. | This implements the declared boundary without claiming prompt-injection immunity or mislabeling deterministic fixtures as live attacks. | Milestone 5 versions and locks the held-out family split and exact scenario counts. |
+| U-026-U-027 | Official Cohere documentation rechecked 2026-07-22 identifies `command-a-plus-05-2026`, V2 `messages`, `documents`, `tools`, `strict_tools`, citations, usage, finish reasons, and JSON-schema `response_format`; the official Python SDK is locked at `cohere==7.0.5`. | Official Cohere V2 Chat, tool-use, structured-output documentation and PyPI package metadata; sanitized client contract tests cover request/response mapping. No live call occurred. | Recheck before any live call or publication, and version the adapter if fields or model support change. |
+| U-028 / U-032 | Live Cohere allowance, billing state, latency, usage distribution, schema-valid rate, and provider error distribution remain unknown. | The loop intentionally withheld `COHERE_API_KEY`; all Stage 03 evidence is fixture/contract evidence and is labeled accordingly. | Only actual credential/billing evidence and bounded live traces may fill these facts. |
+| U-036 | No secondary semantic entailment model is used in Stage 03. | Deterministic exact-span/value/overlap checks are sufficient for the declared fixture contracts and avoid self-grading or unmeasured semantic claims. | A reviewed disputed-claim sample shows a material deterministic gap and defines a bounded helper rubric. |

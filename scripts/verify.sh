@@ -276,6 +276,19 @@ for required in \
   }
 done
 
+for required in \
+  python/resolveflow/agent/contracts.py python/resolveflow/agent/service.py \
+  python/resolveflow/agent/cohere.py python/resolveflow/agent/fixture.py \
+  python/resolveflow/agent/tools.py python/resolveflow/agent/security.py \
+  python/resolveflow/verifier/engine.py python/resolveflow/agent/renderer.py \
+  migrations/versions/0003_governed_agent_safety.py \
+  data/security/prompt-injection-fixtures.json; do
+  [[ -f "$required" ]] || {
+    echo "Missing Stage 03 artifact: $required" >&2
+    exit 1
+  }
+done
+
 echo "Stage 01: Python lint, formatting, and types"
 uv run ruff check python tests
 uv run ruff format --check python tests
@@ -289,6 +302,10 @@ pnpm --dir apps/web typecheck
 echo "Stage 01: unit and vertical-slice integration tests"
 uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay
 pnpm --dir apps/web test
+
+echo "Stage 03: governed-agent policy and fixture validation"
+uv run resolveflow-policy-lint
+python3 -m json.tool data/security/prompt-injection-fixtures.json >/dev/null
 
 echo "Stage 01: deterministic snapshot and static browser smoke"
 uv run resolveflow-snapshot
@@ -312,4 +329,4 @@ uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
 
-echo "Stage 02 verification passed: foundation, evidence, authorization, hybrid retrieval, provider contracts, security invariants, PostgreSQL FTS/pgvector, and reversible migrations."
+echo "Stage 03 verification passed: foundation, authorized retrieval, bounded tools/provider calls, evidence closure, two-pass rendering, injection defenses, PostgreSQL, and reversible migrations."

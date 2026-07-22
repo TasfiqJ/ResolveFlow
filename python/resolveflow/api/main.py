@@ -3,7 +3,8 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 
 from resolveflow import __version__
-from resolveflow.agent.fixture import FixtureAgent
+from resolveflow.agent.fixture import FixtureChatAdapter
+from resolveflow.agent.service import GovernedAgent
 from resolveflow.config import get_settings
 from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.domain.models import CaseCreate, HealthResponse, RunSnapshot, VersionResponse
@@ -11,7 +12,7 @@ from resolveflow.intake.web import canonical_hero_case
 from resolveflow.orchestrator import ResolveOrchestrator, _git_sha
 
 app = FastAPI(title="ResolveFlow Replay API", version=__version__)
-orchestrator = ResolveOrchestrator(FixtureContextRepository(), FixtureAgent())
+orchestrator = ResolveOrchestrator(FixtureContextRepository(), GovernedAgent(FixtureChatAdapter()))
 
 
 @app.get("/health/live", response_model=HealthResponse)

@@ -90,9 +90,9 @@ export default function Home() {
           <div className="routeRow">
             <span>ROUTE</span>
             <strong>{snapshot.response.route}</strong>
-            <b>FIXTURE SUPPORTED</b>
+            <b>DETERMINISTICALLY VERIFIED</b>
           </div>
-          <h2>Rollout timing aligns with the failure pattern.</h2>
+          <h2>Verified evidence graph</h2>
           <p>{snapshot.response.summary}</p>
           <ol className="steps">
             {snapshot.response.recommended_steps.map((step, index) => (
@@ -173,7 +173,8 @@ export default function Home() {
 
       <footer>
         <span>
-          Fixture-only foundation · no Cohere key required · no external writes
+          Governed recorded fixture · no Cohere key required · no external
+          writes
         </span>
         <code>{snapshot.content_hash.slice(0, 24)}…</code>
       </footer>

@@ -32,13 +32,13 @@ test-integration:
 	uv run pytest -q tests/integration
 
 test-contract:
-	@echo "Stage 01 typed provider/connector boundaries present; live contract suites begin in their named milestones."
+	uv run pytest -q tests/contract
 
 test-security:
-	uv run pytest -q tests/unit/test_config.py
+	uv run pytest -q tests/security
 
 test-replay:
-	@echo "Replay implementation is intentionally deferred to Milestone 5."
+	uv run pytest -q tests/replay
 
 test: test-unit test-integration test-contract test-security
 

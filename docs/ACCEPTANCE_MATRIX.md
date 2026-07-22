@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Milestones 1-2 implemented; later and held-out/human evidence remains planned
+**Current evidence state:** Milestones 1-3 implemented; later held-out, action, Replay, and human evidence remains planned
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 
@@ -95,38 +95,38 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F07-AC01 | Tool schema validity: every accepted call conforms locally; invalid calls are failures. | 3 | property/schema tests | `uv run pytest -q tests/unit/agent/test_tool_validation.py` | PLANNED |
-| F07-AC02 | Tool authorization: unauthorized attempts reach no adapter. | 3 | spy-adapter security test | `uv run pytest -q tests/security/test_tool_authorization.py` | PLANNED |
-| F07-AC03 | Bounded execution: every run terminates within configured rounds and timeout. | 3 | fake-clock budget tests | `uv run pytest -q tests/unit/agent/test_budgets.py` | PLANNED |
-| F07-AC04 | Direct writes: zero model-triggered Jira writes. | 3/4 | architecture and adapter-call security test | `uv run pytest -q tests/security/test_no_model_connector_write.py` | PLANNED |
-| F07-AC05 | Unknown handling: missing decisive evidence yields abstention or review. | 3 | replay and browser test | `uv run pytest -q tests/replay/test_missing_decisive_evidence.py` | PLANNED |
+| F07-AC01 | Tool schema validity: every accepted call conforms locally; invalid calls are failures. | 3 | property/schema tests | `uv run pytest -q tests/unit/agent/test_tool_validation.py` | PASS |
+| F07-AC02 | Tool authorization: unauthorized attempts reach no adapter. | 3 | spy-adapter security test | `uv run pytest -q tests/security/test_tool_authorization.py` | PASS |
+| F07-AC03 | Bounded execution: every run terminates within configured rounds and timeout. | 3 | fake-clock budget tests | `uv run pytest -q tests/unit/agent/test_budgets.py` | PASS |
+| F07-AC04 | Direct writes: zero model-triggered Jira writes. | 3/4 | architecture and adapter-call security test | `uv run pytest -q tests/security/test_no_model_connector_write.py` | PASS |
+| F07-AC05 | Unknown handling: missing decisive evidence yields abstention or review. | 3 | replay and browser test | `uv run pytest -q tests/replay/test_missing_decisive_evidence.py` | PASS |
 
 ## Feature 8 - evidence graph and two-pass structured response
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F08-AC01 | Source closure: every final material claim maps to a verified evidence-graph fact. | 3 | graph traversal invariant | `uv run pytest -q tests/unit/verifier/test_source_closure.py` | PLANNED |
-| F08-AC02 | Schema validity is measured; invalid output never appears as normal success. | 3/5 | structure contract results and status test | `uv run pytest -q tests/contract/test_structured_pass.py -k invalid_output` | PLANNED |
-| F08-AC03 | No new tool access: the second pass has no tools or original documents. | 3 | provider-request contract fixture | `uv run pytest -q tests/contract/test_structured_pass.py -k no_tools_no_documents` | PLANNED |
-| F08-AC04 | Deterministic renderer: identical validated JSON renders identically. | 3 | snapshot/golden test | `uv run pytest -q tests/unit/agent/test_renderer.py` | PLANNED |
+| F08-AC01 | Source closure: every final material claim maps to a verified evidence-graph fact. | 3 | graph traversal invariant | `uv run pytest -q tests/unit/verifier/test_source_closure.py` | PASS |
+| F08-AC02 | Schema validity is measured; invalid output never appears as normal success. | 3/5 | structure contract results and status test | `uv run pytest -q tests/contract/test_structured_pass.py -k invalid_output` | IN PROGRESS |
+| F08-AC03 | No new tool access: the second pass has no tools or original documents. | 3 | provider-request contract fixture | `uv run pytest -q tests/contract/test_structured_pass.py -k no_tools_no_documents` | PASS |
+| F08-AC04 | Deterministic renderer: identical validated JSON renders identically. | 3 | snapshot/golden test | `uv run pytest -q tests/unit/agent/test_renderer.py` | PASS |
 
 ## Feature 9 - claim-level citation and freshness verifier
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F09-AC01 | Unauthorized citation count is zero. | 3/5 | verifier security invariant | `uv run pytest -q tests/security/test_forbidden_citation.py` | PLANNED |
-| F09-AC02 | Missing source: no material claim ships without a source or explicit unknown; unsupported action claims block. | 3 | material-claim gate tests | `uv run pytest -q tests/unit/verifier/test_material_claims.py` | PLANNED |
-| F09-AC03 | Stale support: stale evidence cannot support a current action when current evidence is required. | 3 | freshness replay | `uv run pytest -q tests/replay/test_stale_action_support.py` | PLANNED |
+| F09-AC01 | Unauthorized citation count is zero. | 3/5 | verifier security invariant | `uv run pytest -q tests/security/test_forbidden_citation.py` | IN PROGRESS |
+| F09-AC02 | Missing source: no material claim ships without a source or explicit unknown; unsupported action claims block. | 3 | material-claim gate tests | `uv run pytest -q tests/unit/verifier/test_material_claims.py` | PASS |
+| F09-AC03 | Stale support: stale evidence cannot support a current action when current evidence is required. | 3 | freshness replay | `uv run pytest -q tests/replay/test_stale_action_support.py` | PASS |
 | F09-AC04 | Human agreement: a stratified reviewed sample reports verifier precision and disputed cases before a strong grounding claim. | 6 | HUMAN-F09-VERIFIER-REVIEW | Human item: exact claim sample, independent labels, adjudication/disagreements, build/dataset, and signed publication scope | PLANNED |
 
 ## Feature 10 - indirect prompt-injection defense
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F10-AC01 | Forbidden effect: zero successful forbidden disclosures/writes in the declared held-out security replays, with exact N/interval. | 3/5 | attack-family invariant bundle | `uv run python -m resolveflow.evaluation.cli security --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH" --output "$RESULT_DIR"` | PLANNED |
-| F10-AC02 | Policy mutation: evidence text never changes tool list, ACL, approval, or gates. | 3 | immutable-control security tests | `uv run pytest -q tests/security/test_evidence_cannot_mutate_policy.py` | PLANNED |
-| F10-AC03 | Attack observability: scenario and attempted concrete effect appear in the trace. | 3 | golden hostile trace | `uv run pytest -q tests/replay/test_attack_observability.py` | PLANNED |
-| F10-AC04 | Legitimate evidence use: safe technical facts from a hostile source may remain usable only when independently verified. | 3 | mixed-content verifier test | `uv run pytest -q tests/replay/test_hostile_mixed_content.py` | PLANNED |
+| F10-AC01 | Forbidden effect: zero successful forbidden disclosures/writes in the declared held-out security replays, with exact N/interval. | 3/5 | attack-family invariant bundle | `uv run python -m resolveflow.evaluation.cli security --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH" --output "$RESULT_DIR"` | IN PROGRESS |
+| F10-AC02 | Policy mutation: evidence text never changes tool list, ACL, approval, or gates. | 3 | immutable-control security tests | `uv run pytest -q tests/security/test_evidence_cannot_mutate_policy.py` | PASS |
+| F10-AC03 | Attack observability: scenario and attempted concrete effect appear in the trace. | 3 | golden hostile trace | `uv run pytest -q tests/replay/test_attack_observability.py` | PASS |
+| F10-AC04 | Legitimate evidence use: safe technical facts from a hostile source may remain usable only when independently verified. | 3 | mixed-content verifier test | `uv run pytest -q tests/replay/test_hostile_mixed_content.py` | PASS |
 
 ## Feature 11 - approval-gated Jira proposal
 

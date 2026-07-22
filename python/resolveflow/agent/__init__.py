@@ -1,3 +1,4 @@
-from resolveflow.agent.fixture import FixtureAgent
+from resolveflow.agent.fixture import FixtureChatAdapter
+from resolveflow.agent.service import GovernedAgent
 
-__all__ = ["FixtureAgent"]
+__all__ = ["FixtureChatAdapter", "GovernedAgent"]
