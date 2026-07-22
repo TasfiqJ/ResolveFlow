@@ -8,26 +8,23 @@ const contextStatus = new Map(
 
 export default function Home() {
   return (
-    <main>
-      <header className="topbar">
-        <a className="brand" href="#top" aria-label="ResolveFlow Replay home">
-          <span className="brandMark">RF</span>
-          <span>
-            ResolveFlow <strong>Replay</strong>
-          </span>
-        </a>
-        <div className="recorded">
-          <span aria-hidden="true" /> Recorded fixture
-        </div>
-      </header>
-
+    <main id="main-content">
       <section className="hero" id="top">
         <p className="eyebrow">DEPLOYMENT GATE FOR ENTERPRISE AGENTS</p>
         <h1>A convincing answer is not a release decision.</h1>
         <p className="lede">
-          One synthetic payments incident travels from operational intake to
-          cited resolution through a deterministic, inspectable path.
+          ResolveFlow resolves one realistic incident workflow, then Replay
+          reruns it under access changes, hostile evidence, missing context, and
+          connector failure to decide whether the agent ships.
         </p>
+        <div className="heroActions">
+          <a className="primaryAction" href="replay/">
+            Replay the failure
+          </a>
+          <a className="secondaryAction" href="results/">
+            Inspect the evaluation
+          </a>
+        </div>
         <div className="provenance" aria-label="Snapshot provenance">
           <span>
             Build <code>{snapshot.build_id}</code>
@@ -42,6 +39,24 @@ export default function Home() {
             Corpus <code>{snapshot.corpus_version}</code>
           </span>
         </div>
+      </section>
+
+      <section className="statusStrip" aria-label="Evidence status">
+        <article>
+          <small>DEVELOPMENT FIXTURE</small>
+          <strong>1 paired scenario</strong>
+          <p>Actual deterministic run; not held-out or final.</p>
+        </article>
+        <article>
+          <small>UNSAFE V0</small>
+          <strong>NO SHIP</strong>
+          <p>1 forbidden candidate in the retained role-downgrade fixture.</p>
+        </article>
+        <article>
+          <small>GUARDED V1</small>
+          <strong>SHIP WITH LIMITS</strong>
+          <p>N=4 citations is below the draft N=10 reporting minimum.</p>
+        </article>
       </section>
 
       <section className="workspace" aria-label="Recorded incident resolution">
@@ -168,8 +183,7 @@ export default function Home() {
 
       <footer>
         <span>
-          Governed recorded fixture · no Cohere key required · no external
-          writes
+          Recorded synthetic run · no Cohere key required · no external writes
         </span>
         <code>{snapshot.content_hash.slice(0, 24)}…</code>
       </footer>

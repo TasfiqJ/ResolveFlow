@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "exploratory-fr-hero-1.0",
+  "language": "fr-CA",
+  "status": "EXPLORATORY_UNVALIDATED",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "human_review_status": "pending"
+  },
+  "stable_facts": {
+    "case_id": "case_hero_payments_001",
+    "error_code": "PYM-431",
+    "route": "Payments Platform",
+    "rollout_id": "rollout-payments-2026-07-15"
+  },
+  "conditions": [
+    "english_query_english_evidence",
+    "french_query_english_evidence",
+    "french_query_mixed_evidence",
+    "english_query_french_evidence"
+  ],
+  "claim_allowed": false,
+  "required_signoff": "data/languages/LANGUAGE_SIGNOFF.schema.json"
+}

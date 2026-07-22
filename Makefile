@@ -1,4 +1,4 @@
-.PHONY: bootstrap dev seed-demo lint typecheck test-unit test-integration test-contract test-security test-replay test replay-smoke snapshot-hero evaluate-candidate report e2e preflight verify
+.PHONY: bootstrap dev seed-demo lint typecheck test-unit test-integration test-contract test-security test-replay test replay-smoke snapshot-hero evaluate-candidate report review-template review-analysis e2e preflight verify
 
 export UV_CACHE_DIR ?= /tmp/resolveflow-uv-cache
 export UV_LINK_MODE ?= copy
@@ -57,6 +57,13 @@ evaluate-candidate:
 report:
 	@test -n "$(RESULT_BUNDLE)" || { echo "RESULT_BUNDLE is required" >&2; exit 2; }
 	uv run resolveflow-evaluation report --bundle "$(RESULT_BUNDLE)" --output eval/reports
+
+review-template:
+	uv run resolveflow-review template --output /tmp/resolveflow-review-template.csv
+
+review-analysis:
+	@test -n "$(REVIEW_EXPORT)" || { echo "REVIEW_EXPORT is required" >&2; exit 2; }
+	uv run resolveflow-review analyze --input "$(REVIEW_EXPORT)" --output /tmp/resolveflow-review-analysis.json
 
 e2e: snapshot-hero
 	pnpm --dir apps/web build

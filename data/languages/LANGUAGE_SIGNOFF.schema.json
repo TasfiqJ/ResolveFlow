@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResolveFlow fluent-language signoff",
+  "type": "object",
+  "required": ["fixture_id", "reviewer_id", "fluency_basis", "reviewed_at", "variant_checksums", "query_approved", "terminology_approved", "gold_meaning_approved", "signature"],
+  "properties": {
+    "fixture_id": {"type": "string"},
+    "reviewer_id": {"type": "string"},
+    "fluency_basis": {"type": "string", "minLength": 1},
+    "reviewed_at": {"type": "string", "format": "date-time"},
+    "variant_checksums": {"type": "array", "minItems": 4, "items": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}},
+    "query_approved": {"const": true},
+    "terminology_approved": {"const": true},
+    "gold_meaning_approved": {"const": true},
+    "signature": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

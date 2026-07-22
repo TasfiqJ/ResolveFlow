@@ -31,18 +31,43 @@ button,
 a {
   font: inherit;
 }
+.skipLink {
+  position: fixed;
+  left: 12px;
+  top: -60px;
+  z-index: 20;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: white;
+}
+.skipLink:focus {
+  top: 10px;
+}
 code {
   font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 0.82em;
 }
 .topbar {
-  height: 68px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 clamp(20px, 4vw, 64px);
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.94);
+}
+.topbar nav {
+  display: flex;
+  gap: clamp(10px, 2vw, 24px);
+}
+.topbar nav a {
+  color: #42534f;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+}
+.topbar nav a:hover {
+  color: var(--teal);
 }
 .brand {
   display: flex;
@@ -110,6 +135,67 @@ h1 {
   color: #52615e;
   font-size: 18px;
   line-height: 1.55;
+}
+.heroActions,
+.linkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+.primaryAction,
+.secondaryAction,
+.linkRow a,
+.buildCard a,
+.panel > a {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 750;
+}
+.primaryAction {
+  background: var(--teal);
+  color: white;
+}
+.statusStrip {
+  max-width: 1380px;
+  margin: 0 auto 32px;
+  padding: 0 clamp(20px, 4vw, 64px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.statusStrip article,
+.metricGrid article {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+}
+.statusStrip small,
+.metricGrid small,
+.buildCard small {
+  color: var(--teal);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.statusStrip strong,
+.metricGrid strong {
+  display: block;
+  margin-top: 8px;
+  font-family: Georgia, serif;
+  font-size: 22px;
+}
+.statusStrip p,
+.metricGrid p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
 }
 .provenance {
   display: flex;
@@ -486,6 +572,288 @@ footer {
   color: var(--muted);
   font-size: 11px;
 }
+.pageShell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px clamp(20px, 4vw, 48px) 80px;
+}
+.pageIntro {
+  max-width: 850px;
+  margin-bottom: 36px;
+}
+.pageIntro h1 {
+  margin-bottom: 18px;
+}
+.pageIntro > p:last-child {
+  max-width: 760px;
+  color: #53635f;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.panel {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: clamp(20px, 3vw, 30px);
+  margin: 16px 0;
+}
+.panel h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+.panel p,
+.panel li {
+  color: #4d5e5a;
+  line-height: 1.65;
+}
+.controlBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  padding: 18px;
+  background: var(--ink);
+  border-radius: 10px;
+  color: white;
+}
+.controlBar label {
+  display: grid;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.controlBar select,
+.controlBar button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #60726e;
+  border-radius: 5px;
+  background: white;
+  color: var(--ink);
+}
+.controlBar button {
+  margin-left: auto;
+  background: #334640;
+  color: #ccd8d4;
+}
+.fallbackNotice {
+  padding: 12px 15px;
+  border-left: 3px solid var(--amber);
+  background: var(--amber-soft);
+  color: #754500;
+  font-size: 12px;
+}
+.comparisonGrid,
+.twoColumn {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 16px 0;
+}
+.buildCard {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.buildCard.unsafe {
+  border-top: 4px solid var(--red);
+}
+.buildCard.guarded {
+  border-top: 4px solid var(--teal);
+}
+.buildCard h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  font-size: 30px;
+  margin: 8px 0;
+}
+.buildCard p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.verdict {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+.noShip {
+  background: #fae6e6;
+  color: var(--red);
+}
+.limited {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.tableWrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+caption {
+  text-align: left;
+  color: var(--muted);
+  padding-bottom: 12px;
+}
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px;
+  text-align: left;
+}
+th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.hashLine {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  color: var(--muted);
+}
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.scorecard > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+}
+.scorecard span {
+  color: var(--muted);
+}
+.architectureFlow {
+  display: grid;
+  gap: 10px;
+}
+.architectureFlow article {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 18px;
+}
+.architectureFlow article > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-weight: 800;
+}
+.architectureFlow h2,
+.architectureFlow p {
+  margin: 2px 0;
+}
+.architectureFlow h2 {
+  font-size: 15px;
+}
+.architectureFlow p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.methodSteps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.methodSteps article {
+  background: white;
+  border: 1px solid var(--line);
+  padding: 22px;
+  border-radius: 9px;
+}
+.methodSteps code {
+  color: var(--teal);
+}
+.methodSteps h2 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+.methodSteps p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.provenance.wide {
+  margin: -18px 0 28px;
+}
+.auditList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.auditList li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.auditList li div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.auditList small {
+  color: var(--teal);
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.reviewForm {
+  display: grid;
+  gap: 18px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 26px;
+}
+.reviewForm fieldset {
+  border: 0;
+  padding: 0;
+}
+.reviewForm legend {
+  font-weight: 800;
+}
+.reviewForm > label {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.reviewForm select,
+.reviewForm textarea {
+  padding: 10px;
+  border: 1px solid #aebcb8;
+  border-radius: 5px;
+}
+.reviewForm > button {
+  justify-self: start;
+  border: 0;
+  border-radius: 6px;
+  background: var(--teal);
+  color: white;
+  padding: 11px 16px;
+  font-weight: 750;
+  cursor: pointer;
+}
 @media (max-width: 1000px) {
   .workspace {
     margin-left: 20px;
@@ -505,6 +873,9 @@ footer {
     gap: 10px;
   }
   .trace li:not(:last-child)::after {
+    display: none;
+  }
+  .topbar nav {
     display: none;
   }
 }
@@ -535,6 +906,20 @@ footer {
   footer {
     flex-direction: column;
     gap: 8px;
+  }
+  .statusStrip,
+  .metricGrid,
+  .comparisonGrid,
+  .twoColumn,
+  .methodSteps {
+    grid-template-columns: 1fr;
+  }
+  .recorded {
+    max-width: 120px;
+  }
+  .scorecard > div {
+    flex-direction: column;
+    gap: 4px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

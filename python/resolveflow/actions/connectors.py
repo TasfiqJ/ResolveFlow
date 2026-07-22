@@ -4,6 +4,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Protocol
+from urllib.parse import urlparse
 
 from resolveflow.actions.models import (
     ConnectorDisposition,
@@ -28,6 +29,30 @@ class JiraConnector(Protocol):
     def create_issue(self, payload: DispatchPayload) -> ConnectorResult: ...
 
     def reconcile(self, idempotency_key: str) -> ReconciliationResult: ...
+
+
+@dataclass(frozen=True)
+class JiraStagingConfig:
+    """Narrow development-project mapping; values are discovered, never model-authored."""
+
+    base_url: str
+    project_key: str
+    issue_type: str = "Task"
+    team_field: str = "team"
+    priority_map: tuple[tuple[str, str], ...] = (
+        ("High", "High"),
+        ("Medium", "Medium"),
+        ("Low", "Low"),
+    )
+
+    def __post_init__(self) -> None:
+        parsed = urlparse(self.base_url)
+        if parsed.scheme != "https" or not parsed.hostname:
+            raise ValueError("jira staging base URL must use HTTPS")
+        if not self.project_key.isascii() or not self.project_key.replace("_", "").isalnum():
+            raise ValueError("jira staging project key is invalid")
+        if {source for source, _ in self.priority_map} != {"High", "Medium", "Low"}:
+            raise ValueError("jira staging priority mapping must be complete")
 
 
 @dataclass
@@ -121,6 +146,7 @@ class DisabledJiraCloudConnector:
     """Real-adapter boundary. This build cannot send because it is always disabled."""
 
     enabled: bool = False
+    config: JiraStagingConfig | None = None
 
     def create_issue(self, payload: DispatchPayload) -> ConnectorResult:
         del payload

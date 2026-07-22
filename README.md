@@ -8,7 +8,7 @@ verification, exact approval controls, deterministic Replay, paired unsafe/guard
 and a hard-invariant-first release gate. The public page is snapshot-first: it needs no Cohere
 key, database, Slack workspace, or Jira site.
 
-Current status: Stage 05 Replay and release gate. One actual deterministic development fixture
+Current status: Stage 06 public product and validation tooling. One actual deterministic development fixture
 blocks unsafe-v0 with `NO_SHIP`; guarded-v1 receives `SHIP_WITH_LIMITS` because the draft
 citation sample is below its minimum N. This is not a held-out, live-provider, human-reviewed, or
 final release result. No external write is represented by the fixture.
@@ -23,8 +23,12 @@ make snapshot-hero
 pnpm --dir apps/web dev
 ```
 
-Open `http://localhost:3000`. The UI says **Recorded fixture** and **Slack-style simulation** so
+Open `http://localhost:3000`. The UI says **Recorded run** and **Slack-style simulation** so
 its provenance is unambiguous.
+
+The static route set includes `/demo`, `/replay`, the published run trace, `/results`,
+`/architecture`, `/methodology`, `/about`, and a private/static `/review` workflow. Public live
+mode is disabled; a complete recorded fallback remains available without an API.
 
 ## Full local development
 
@@ -68,6 +72,20 @@ The local API exposes only predefined fixture inputs at `POST /v1/replays`,
 `GET /v1/replays/{id}`, and `GET /v1/releases/{build}`. It accepts no arbitrary prompt, manifest,
 attack payload, or connector write.
 
+## Human review and language status
+
+The review workflow is blinded and deterministic but contains no reviewer responses. Generate a
+private empty export and exact-count analysis with:
+
+```bash
+make review-template
+REVIEW_EXPORT=/path/to/genuine-private-export.csv make review-analysis
+```
+
+An exploratory French fixture and fluent-human signoff schema exist under `data/languages/`, but
+no signoff exists and no French or broad multilingual quality claim is made. Public claims remain
+English-only.
+
 ## Verification
 
 ```bash
@@ -76,14 +94,15 @@ scripts/verify.sh
 
 The verifier runs source-integrity checks, locked setup validation, Python and web lint/types,
 unit/integration/Replay tests, deterministic bundle reproduction, negative release gates,
-reversible PostgreSQL migrations, static export, and browser smoke. It never calls Cohere, Slack,
-Jira, or a paid service.
+reversible PostgreSQL migrations, all static routes, snapshot checksums, browser-bundle secret
+scan, and browser smoke. It never calls Cohere, Slack, Jira, or a paid service.
 
 ## Fixture and interfaces
 
 - Canonical truth: `data/truths/hero-payments-001.json`
 - Synthetic sources: `data/artifacts/`
 - Recorded snapshot: `data/published/hero-foundation.json`
+- Checksummed Replay result: `data/published/replay-development-result.json`
 - Shared Resolve path: `python/resolveflow/orchestrator.py`
 - Replay manifest: `data/manifests/replay-role-downgrade-001.yaml`
 - Draft gate: `eval/configs/release-gate-1.0.yaml`

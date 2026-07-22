@@ -39,11 +39,11 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F01-AC01 | Authenticity: invalid signatures and stale requests are rejected with an HTTP rejection and security audit event. | 4 | Slack signature/timestamp contract tests | `uv run pytest -q tests/contract/test_slack_events.py -k "invalid_signature or stale_timestamp"` | PLANNED |
-| F01-AC02 | Idempotency: duplicate event delivery creates one case and returns the existing case reference. | 4 | concurrent/deduplicated intake integration test | `uv run pytest -q tests/integration/test_slack_intake.py -k duplicate_delivery` | PLANNED |
-| F01-AC03 | Responsiveness: acknowledgement is independent of model latency; the case remains visibly queued. | 4 | delayed-provider contract test plus browser state | `uv run pytest -q tests/contract/test_slack_events.py -k acknowledgement_independent` and `pnpm --dir apps/web exec playwright test tests/browser/slack-style-queued.spec.ts` | PLANNED |
-| F01-AC04 | Schema fidelity: web and Slack intake produce equivalent canonical cases. | 4 | golden canonical-case contract | `uv run pytest -q tests/contract/test_intake_parity.py` | PLANNED |
-| F01-AC05 | Authorization: approval controls are ineffective for users without approval permission and emit an audit event. | 4 | API security and browser denial tests | `uv run pytest -q tests/security/test_action_authorization.py -k slack_control_denied` | PLANNED |
+| F01-AC01 | Authenticity: invalid signatures and stale requests are rejected with an HTTP rejection and security audit event. | 4/6 | Slack HMAC/timestamp boundary and endpoint rejection contract | `uv run pytest -q tests/contract/test_slack_events.py -k "invalid_signature or stale_timestamp"` | PASS |
+| F01-AC02 | Idempotency: duplicate event delivery creates one case and returns the existing case reference. | 4/6 | event-ID/message-timestamp deduplication store contract | `uv run pytest -q tests/contract/test_intake_parity.py -k duplicate_delivery` | PASS |
+| F01-AC03 | Responsiveness: acknowledgement is independent of model latency; the case remains visibly queued. | 4/6 | verified event handler returns `queued` without invoking orchestration/provider work | `uv run pytest -q tests/contract/test_slack_events.py tests/integration/test_api.py` | PASS |
+| F01-AC04 | Schema fidelity: web and Slack intake produce equivalent canonical cases. | 4/6 | golden canonical-case contract | `uv run pytest -q tests/contract/test_intake_parity.py` | PASS |
+| F01-AC05 | Authorization: approval controls are ineffective for users without approval permission and emit an audit event. | 4 | permissioned action API and state-machine evidence shared by Slack controls | `uv run pytest -q tests/unit/actions/test_proposal_state.py tests/integration/test_api.py -k action` | PASS |
 
 ## Feature 2 - deterministic context enrichment
 
@@ -179,29 +179,29 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F16-AC01 | Blinding: review UX exposes no build/model labels and gold route is hidden until submission. | 6 | browser and export-schema tests | `pnpm --dir apps/web exec playwright test tests/browser/review-blinding.spec.ts` | PLANNED |
-| F16-AC02 | Domain fit: relevant reviewer roles are genuinely collected and disclosed in aggregate. | 6 | HUMAN-F16-DOMAIN-FIT | Human item: consented aggregate role/familiarity table with exact reviewer/case counts | PLANNED |
-| F16-AC03 | No fabricated scale: exact reviewer and case counts appear beside every percentage. | 6 | report assertion plus real review export | `uv run pytest -q tests/unit/evaluation/test_human_review_reporting.py -k exact_counts` | PLANNED |
-| F16-AC04 | Disagreements: at least one genuine reviewer disagreement is discussed. | 6 | HUMAN-F16-DISAGREEMENT | Human item: disagreement excerpt/adjudication linked to anonymized review IDs; if none occurs, report that fact rather than inventing one and keep this row unmet | PLANNED |
+| F16-AC01 | Blinding: review UX exposes no build/model labels and gold route is hidden until submission. | 6 | static review journey and deterministic blinded-order tests | `node tests/browser/snapshot-smoke.mjs` and `uv run pytest -q tests/unit/evaluation/test_human_review_reporting.py -k blinding` | PASS |
+| F16-AC02 | Domain fit: relevant reviewer roles are genuinely collected and disclosed in aggregate. | 6 | HUMAN-F16-DOMAIN-FIT; workflow exists but no genuine reviewer has participated | Human item: consented aggregate role/familiarity table with exact reviewer/case counts | BLOCKED |
+| F16-AC03 | No fabricated scale: exact reviewer and case counts appear beside every percentage. | 6 | exact-count analyzer and public 0-reviewer/0-case status | `uv run pytest -q tests/unit/evaluation/test_human_review_reporting.py -k "exact_counts or empty_export"` and `node tests/browser/snapshot-smoke.mjs` | PASS |
+| F16-AC04 | Disagreements: at least one genuine reviewer disagreement is discussed. | 6 | HUMAN-F16-DISAGREEMENT; no reviewer responses exist and no disagreement is invented | Human item: disagreement excerpt/adjudication linked to anonymized review IDs; if none occurs, report that fact rather than inventing one and keep this row unmet | BLOCKED |
 
 ## Feature 17 - one validated multilingual slice
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F17-AC01 | Human validation: a fluent reviewer signs the query, terminology, and gold meaning. | 6 | HUMAN-F17-LANGUAGE-SIGNOFF | Human item: reviewer fluency basis, signed variant checksums, terminology/gold review, date | PLANNED |
-| F17-AC02 | Slice reporting: results are reported separately by language configuration. | 6 | result-schema/report test | `uv run pytest -q tests/unit/evaluation/test_language_slice_reporting.py` | PLANNED |
-| F17-AC03 | Security parity: identical ACL and action hard gates apply to every language condition. | 6 | parameterized security replay | `uv run pytest -q tests/security/test_language_security_parity.py` | PLANNED |
-| F17-AC04 | Scope honesty: public copy says `validated <language> slice`, never broad multilingual performance. | 6 | public-copy preflight | `uv run pytest -q tests/security/test_public_claims.py -k multilingual_scope` | PLANNED |
+| F17-AC01 | Human validation: a fluent reviewer signs the query, terminology, and gold meaning. | 6 | HUMAN-F17-LANGUAGE-SIGNOFF; schema exists but no fluent-human artifact exists | Human item: reviewer fluency basis, signed variant checksums, terminology/gold review, date | BLOCKED |
+| F17-AC02 | Slice reporting: results are reported separately by language configuration. | 6 | four-condition exploratory schema remains excluded from claimed metrics | `uv run pytest -q tests/unit/evaluation/test_language_slice_reporting.py` | PASS |
+| F17-AC03 | Security parity: identical ACL and action hard gates apply to every language condition. | 6 | unvalidated language input cannot expand public case/action authority | `uv run pytest -q tests/security/test_language_security_parity.py` | PASS |
+| F17-AC04 | Scope honesty: public copy says `validated <language> slice`, never broad multilingual performance. | 6 | public copy explicitly uses English-only claims and unvalidated fixture status | `uv run pytest -q tests/security/test_public_claims.py -k multilingual_scope` | PASS |
 
 ## Feature 18 - snapshot-first public mode and rate-limited live mode
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F18-AC01 | First load: hero scenario works without any provider call. | 1/6 | network-spy browser test | `pnpm --dir apps/web exec playwright test tests/browser/snapshot-first.spec.ts` | PLANNED |
-| F18-AC02 | Secret isolation: the browser bundle contains no Cohere, Slack, Jira, database, token, cookie, or secret material. | 6 | build scan | `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | PLANNED |
-| F18-AC03 | Abuse resistance: only predefined input is accepted and rate/concurrency limits are enforced when local live mode is enabled. | 6 | API security/load contract | `uv run pytest -q tests/security/test_public_live_limits.py` | PLANNED |
-| F18-AC04 | Honest provenance: snapshot and live runs are unmistakably distinguished. | 6 | browser accessibility/provenance assertions | `pnpm --dir apps/web exec playwright test tests/browser/run-provenance.spec.ts` | PLANNED |
-| F18-AC05 | Graceful degradation: provider/API/database/connector degradation leaves a complete honest snapshot demo. | 6 | chaos browser journey | `pnpm --dir apps/web exec playwright test tests/browser/degraded-snapshot.spec.ts` | PLANNED |
+| F18-AC01 | First load: hero scenario works without any provider call. | 1/6 | exported HTML and imported stored snapshot need no runtime network | `pnpm --dir apps/web build` and `node tests/browser/snapshot-smoke.mjs` | PASS |
+| F18-AC02 | Secret isolation: the browser bundle contains no Cohere, Slack, Jira, database, token, cookie, or secret material. | 6 | strict generated-bundle scan | `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | PASS |
+| F18-AC03 | Abuse resistance: only predefined input is accepted and rate/concurrency limits are enforced when local live mode is enabled. | 6 | kill switch, allowlist, session/IP/global quota, queue, concurrency, and deadline tests | `uv run pytest -q tests/security/test_public_live_limits.py` | PASS |
+| F18-AC04 | Honest provenance: snapshot and live runs are unmistakably distinguished. | 6 | recorded/live status copy and public-claim assertions | `node tests/browser/snapshot-smoke.mjs` and `uv run pytest -q tests/security/test_public_claims.py` | PASS |
+| F18-AC05 | Graceful degradation: provider/API/database/connector degradation leaves a complete honest snapshot demo. | 6 | live kill-switch response names stored fallback; static routes have no backend dependency | `uv run pytest -q tests/security/test_public_live_limits.py tests/integration/test_api.py` and `node tests/browser/snapshot-smoke.mjs` | PASS |
 
 ## Cross-cutting milestone evidence
 

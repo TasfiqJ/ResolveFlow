@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timedelta, timezone
 
-from fastapi import FastAPI, Header, HTTPException, Query, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Request, Response
 from pydantic import Field
 
 from resolveflow import __version__
@@ -21,8 +22,15 @@ from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.models import CaseCreate, HealthResponse, RunSnapshot, VersionResponse
 from resolveflow.evaluation.models import ResultBundle
 from resolveflow.evaluation.runner import evaluate_manifest_pair
+from resolveflow.intake.slack import (
+    SlackIntakeStore,
+    SlackRequestVerifier,
+    SlackVerificationError,
+    parse_slack_event,
+)
 from resolveflow.intake.web import canonical_hero_case
 from resolveflow.orchestrator import ResolveOrchestrator, _git_sha
+from resolveflow.public.live import LiveRequest, PublicLiveLimiter, PublicLiveRejected
 from resolveflow.replay.io import manifest_path
 from resolveflow.telemetry.export import export_run_json, export_run_markdown
 from resolveflow.telemetry.projection import public_projection
@@ -32,6 +40,9 @@ orchestrator = ResolveOrchestrator(FixtureContextRepository(), GovernedAgent(Fix
 action_service = ActionService()
 action_store: dict[str, ActionProposal] = {}
 replay_store: dict[str, ResultBundle] = {}
+slack_store = SlackIntakeStore()
+slack_audit_events: list[dict[str, object]] = []
+public_live_limiter = PublicLiveLimiter(enabled=False)
 
 
 class ApprovalRequest(FrozenModel):
@@ -48,6 +59,12 @@ class ReplayRequest(FrozenModel):
     manifest_id: str = "replay-role-downgrade-001"
     baseline_build: str = "unsafe-v0"
     candidate_build: str = "guarded-v1"
+
+
+class PublicLiveRequest(FrozenModel):
+    case_id: str = "hero-payments-001"
+    mutation: str = "baseline"
+    session_id: str = Field(min_length=8, max_length=128)
 
 
 def _fixture_proposal(proposal_id: str) -> ActionProposal:
@@ -94,6 +111,80 @@ def create_case(request: CaseCreate) -> RunSnapshot:
             status_code=422, detail="Only predefined synthetic scenarios are accepted"
         )
     return orchestrator.run(canonical_hero_case())
+
+
+@app.post("/integrations/slack/events")
+async def slack_events(
+    request: Request,
+    x_slack_request_timestamp: str | None = Header(default=None),
+    x_slack_signature: str | None = Header(default=None),
+) -> dict[str, object]:
+    settings = get_settings()
+    if not settings.slack_signing_secret:
+        raise HTTPException(status_code=503, detail="slack_adapter_disabled")
+    raw_body = await request.body()
+    try:
+        SlackRequestVerifier(settings.slack_signing_secret).verify(
+            raw_body, x_slack_request_timestamp or "", x_slack_signature or ""
+        )
+        event, challenge = parse_slack_event(raw_body)
+    except (SlackVerificationError, ValueError) as exc:
+        slack_audit_events.append({"event_name": "slack.request.rejected", "safe_code": str(exc)})
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    if challenge is not None:
+        return {"challenge": challenge}
+    assert event is not None
+    case, duplicate = slack_store.accept(event)
+    slack_audit_events.append(
+        {
+            "event_name": "slack.delivery.duplicate" if duplicate else "slack.case.queued",
+            "event_id": event.event_id,
+            "case_id": case.case_id,
+        }
+    )
+    return {
+        "ok": True,
+        "acknowledgement": "queued",
+        "case_id": case.case_id,
+        "duplicate": duplicate,
+    }
+
+
+@app.post("/v1/public/live", status_code=202)
+def submit_public_live(
+    payload: PublicLiveRequest,
+    request: Request,
+) -> dict[str, object]:
+    settings = get_settings()
+    public_live_limiter.enabled = settings.public_live_mode and settings.cohere_allow_live
+    public_live_limiter.daily_global_limit = settings.public_live_daily_limit
+    public_live_limiter.session_daily_limit = settings.public_live_session_limit
+    public_live_limiter.ip_daily_limit = settings.public_live_ip_limit
+    public_live_limiter.queue_limit = settings.public_live_queue_limit
+    public_live_limiter.deadline_seconds = settings.public_live_deadline_seconds
+    forwarded = request.headers.get("x-forwarded-for", "local-fixture").split(",", 1)[0].strip()
+    ip_hash = hashlib.sha256(forwarded.encode()).hexdigest()
+    try:
+        ticket = public_live_limiter.submit(
+            LiveRequest(payload.session_id, ip_hash, payload.case_id, payload.mutation)
+        )
+    except PublicLiveRejected as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": str(exc),
+                "fallback": "/snapshots/hero-foundation.json",
+                "message": "Live mode is unavailable; the complete recorded run remains available.",
+            },
+        ) from exc
+    return {
+        "mode": "live",
+        "status": "queued",
+        "ticket_id": ticket.ticket_id,
+        "queue_position": ticket.position,
+        "deadline_at": ticket.deadline_at.isoformat(),
+        "fallback": "/snapshots/hero-foundation.json",
+    }
 
 
 @app.get("/v1/runs/run_hero_foundation_001", response_model=RunSnapshot)

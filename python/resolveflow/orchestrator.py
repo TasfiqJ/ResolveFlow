@@ -163,7 +163,14 @@ class ResolveOrchestrator:
             "trace": events,
             "run_inputs": run_inputs,
         }
-        return RunSnapshot(**body, content_hash=checksum(body))
+        snapshot = RunSnapshot(**body, content_hash="sha256:" + "0" * 64)
+        return snapshot.model_copy(
+            update={
+                "content_hash": checksum(
+                    snapshot.model_dump(mode="python", exclude={"content_hash"})
+                )
+            }
+        )
 
     @staticmethod
     def _events(
@@ -307,6 +314,14 @@ class ResolveOrchestrator:
 
 def _git_sha() -> str:
     try:
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        if status.strip():
+            return "uncommitted"
         return subprocess.run(
             ["git", "rev-parse", "--short=12", "HEAD"],
             check=True,

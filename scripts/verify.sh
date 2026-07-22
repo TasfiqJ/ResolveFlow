@@ -277,6 +277,25 @@ for required in \
 done
 
 for required in \
+  python/resolveflow/intake/slack.py python/resolveflow/public/live.py \
+  python/resolveflow/evaluation/review.py python/resolveflow/evaluation/review_cli.py \
+  scripts/scan_public_build.py scripts/verify_public_snapshots.py \
+  data/published/replay-development-result.json \
+  apps/web/public/snapshots/replay-development-result.json \
+  data/languages/exploratory-fr-1.0.json data/languages/LANGUAGE_SIGNOFF.schema.json \
+  apps/web/app/replay/page.tsx apps/web/app/results/page.tsx \
+  apps/web/app/architecture/page.tsx apps/web/app/methodology/page.tsx \
+  apps/web/app/about/page.tsx apps/web/app/review/page.tsx \
+  apps/web/app/runs/'[run_id]'/page.tsx .github/workflows/pages.yml \
+  docs/customer-brief.md docs/threat-model.md docs/deployment-runbook.md \
+  docs/privacy.md docs/demo-script.md; do
+  [[ -f "$required" ]] || {
+    echo "Missing Stage 06 artifact: $required" >&2
+    exit 1
+  }
+done
+
+for required in \
   python/resolveflow/actions/models.py python/resolveflow/actions/service.py \
   python/resolveflow/actions/dispatcher.py python/resolveflow/actions/connectors.py \
   python/resolveflow/actions/postgres.py python/resolveflow/worker/actions.py \
@@ -357,8 +376,18 @@ uv run resolveflow-evaluation report \
 echo "Stage 01: deterministic snapshot and static browser smoke"
 uv run resolveflow-snapshot
 pnpm --dir apps/web build
+uv run python scripts/scan_public_build.py --path apps/web/out --strict
+uv run python scripts/verify_public_snapshots.py
 node tests/browser/snapshot-smoke.mjs
 uv run resolveflow-preflight
+
+echo "Stage 06: exact-count review tooling and multilingual claim boundary"
+uv run resolveflow-review template --output /tmp/resolveflow-review-template.csv
+uv run resolveflow-review analyze \
+  --input /tmp/resolveflow-review-template.csv \
+  --output /tmp/resolveflow-review-analysis.json
+python3 -m json.tool data/languages/exploratory-fr-1.0.json >/dev/null
+python3 -m json.tool data/languages/LANGUAGE_SIGNOFF.schema.json >/dev/null
 
 echo "Stage 01: reversible PostgreSQL migration cycle"
 docker compose up -d db
@@ -376,4 +405,4 @@ uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
 
-echo "Stage 05 verification passed: prior controls plus deterministic Replay, paired builds, exact-count uncertainty, hard-first gates, reproducible bundles, and public result APIs."
+echo "Stage 06 verification passed: prior controls plus complete static routes, snapshot integrity, bundle secret scan, bounded local-live controls, Slack contracts, review tooling, and honest language status."

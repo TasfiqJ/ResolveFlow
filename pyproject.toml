@@ -36,6 +36,7 @@ resolveflow-retrieval-fixture-eval = "resolveflow.cli:retrieval_fixture_evaluati
 resolveflow-policy-lint = "resolveflow.cli:policy_lint_command"
 resolveflow-replay = "resolveflow.replay.cli:main"
 resolveflow-evaluation = "resolveflow.evaluation.cli:main"
+resolveflow-review = "resolveflow.evaluation.review_cli:main"
 
 [build-system]
 requires = ["hatchling"]

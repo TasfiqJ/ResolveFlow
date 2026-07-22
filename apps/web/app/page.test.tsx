@@ -7,7 +7,9 @@ import Home from "./page";
 describe("snapshot-first home", () => {
   it("labels synthetic recorded provenance and renders the resolution", () => {
     render(<Home />);
-    expect(screen.getByText("Recorded fixture")).toBeInTheDocument();
+    expect(
+      screen.getByText("A convincing answer is not a release decision."),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Slack-style simulation/)).toBeInTheDocument();
     expect(screen.getAllByText("Payments Platform").length).toBeGreaterThan(0);
     expect(

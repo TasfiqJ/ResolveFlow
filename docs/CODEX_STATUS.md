@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Stage 05 Replay and release gate implemented
+**Product implementation:** Stage 06 public product and validation tooling implemented
 
-**Active work:** Stage 05 complete; ready for outer-loop handoff
+**Active work:** Stage 06 complete; ready for outer-loop handoff
 
 ## Current repository facts
 
@@ -44,6 +44,15 @@
 - One actual deterministic development-fixture pair produced unsafe-v0 `NO_SHIP` for one forbidden candidate and guarded-v1 `SHIP_WITH_LIMITS` because citation precision N=4 is below the draft minimum N=10. This is not a final, held-out, live-provider, human-reviewed, or publishable release verdict.
 - FastAPI now exposes only the predefined `POST /v1/replays`, `GET /v1/replays/{id}`, and `GET /v1/releases/{build}` fixture interfaces; arbitrary manifests/builds remain rejected.
 - Alembic revision `0005_replay_release_gate` owns draft truth/scenario/expectation, paired Replay, metric, comparison, gate, and result-bundle records, including database guards against falsely locked truth rows or final-publication flags.
+- The static product now exports `/`, `/demo`, `/replay`, `/results`, `/architecture`, `/methodology`, `/about`, `/review`, and one pre-generated `/runs/run_hero_foundation_001` audit page, plus a useful unknown-artifact page.
+- Homepage and demo expose the synthetic case, authorized evidence, verified response, inert action, and observable trace. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
+- Canonical hero and Replay result JSON are stored with reconstructable canonical/file checksums and copied byte-for-byte into the browser asset tree. Generated-browser bundles are scanned for secret-like values and server-only credential names.
+- Public live inference remains disabled. A local API boundary accepts one predefined case and five named mutations and enforces IP/session/global quotas, one active run per session, a bounded queue, deadline, and kill switch with a recorded fallback.
+- Slack request HMAC/timestamp verification, challenge/event parsing, deduplication, immediate queued acknowledgement, canonical normalization, and safe audit events are implemented with synthetic signed contracts; no real Slack credential or request was used.
+- Jira staging configuration validates one HTTPS development site/project and fixed issue/team/priority mappings, while the real adapter remains disabled and public mode cannot contain write authority.
+- The private/static review workflow blinds and deterministically randomizes A/B outputs. Empty export and exact-count analysis commands report 0 reviewers/0 cases; no reviewer response, role evidence, percentage, or disagreement is invented.
+- The exploratory French fixture is synthetic-agent-authored, pending fluent-human signoff, excluded from claimed results, and unable to expand public case/action authority. Public quality claims remain English-only.
+- GitHub Pages static deployment is prepared as a manual workflow. No workflow was triggered and no deployment/public URL is claimed.
 
 ## Milestone status
 
@@ -55,31 +64,34 @@
 | 3. governed agent and safety | COMPLETE | Bounded typed tools/provider calls, fixture and Cohere adapters, verified graph closure, strict two-pass rendering, hostile-evidence boundary, effect scoring, linter, traces, migration, and fault/security tests |
 | 4. actions, reliability and audit | COMPLETE | Verified-evidence proposals, exact approval states, durable leases/reclaim, bounded fault recovery, synthetic Jira reconciliation, append-only audit, public redaction/export/diff foundation, and approval UI |
 | 5. Replay and release gate | COMPLETE | Versioned draft truths/manifests/builds, frozen deterministic materialization, shared-path pairing, run diff, hard-first exact-count scoring, uncertainty, three-way gate, checksummed bundles, API/CLI, migration, and CI smoke/negative workflows |
-| 6. public product and validation | NOT STARTED | Foundation snapshot shell only |
+| 6. public product and validation | COMPLETE | Complete static route set, public views, checksummed snapshots, secret scan, outage fallback, bounded local-live controls, Slack/Jira staging boundaries, blinded review tooling, and unvalidated language structure |
 | 7. final audit and release | NOT STARTED | No deployment or publication |
 
-## Stage 05 checks
+## Stage 06 checks
 
 | Command | Result |
 |---|---|
 | `uv run ruff check python tests` | PASS |
 | `uv run ruff format --check python tests` | PASS |
-| `uv run mypy python/resolveflow` | PASS, 74 source files |
-| `uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay` | PASS, 109 credential-free Stage 01-05 tests |
-| `uv run pytest -q tests/replay tests/unit/evaluation tests/integration/test_api.py` | PASS, 29 focused Replay/gate/API tests |
+| `uv run mypy python/resolveflow` | PASS, 79 source files |
+| `uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay` | PASS, 132 credential-free Stage 01-06 tests |
 | `uv run pytest -q tests/postgres` | PASS, 4 real PostgreSQL retrieval/action concurrency and audit tests |
 | `uv run resolveflow-corpus-validate` | PASS, 5 artifacts, 6 versions, 6 chunks, 6 embeddings |
 | `uv run resolveflow-retrieval-fixture-eval` | PASS, development/calibration observations with exact N; not held-out/provider evidence |
 | `pnpm --dir apps/web test` | PASS, 2 component/action-flow tests |
-| `pnpm --dir apps/web build` | PASS, static `/` and `/_not-found` export |
-| `node tests/browser/snapshot-smoke.mjs` | PASS |
+| `pnpm --dir apps/web build` | PASS, 9 public/static views plus one pre-generated run route and unknown-artifact page |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, GitHub Pages asset prefix and base path present |
+| `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
+| `uv run python scripts/verify_public_snapshots.py` | PASS, hero canonical hash and Replay canonical/file checksums verified |
+| `node tests/browser/snapshot-smoke.mjs` | PASS, complete snapshot-first route/provenance/review/degradation smoke |
+| `uv run resolveflow-review template ... && uv run resolveflow-review analyze ...` | PASS, honest empty export reports 0 responses with exact counts |
 | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | PASS against local PostgreSQL |
 | `uv run resolveflow-policy-lint` | PASS, versioned system prompt and four fixed tool descriptions |
 | `uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, no provider call; materialization `sha256:72146755...ca7a` |
 | `uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, same shared path for unsafe-v0 and guarded-v1 |
 | `uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, retained unsafe forbidden candidate blocks with `NO_SHIP` |
 | `uv run resolveflow-evaluation evaluate ... --output /tmp/resolveflow-stage05-result.json` | PASS, canonical and file checksums verified; unsafe `NO_SHIP`, guarded `SHIP_WITH_LIMITS` |
-| `scripts/verify.sh` | PASS, cumulative Stage 00-05 verification |
+| `scripts/verify.sh` | PASS, cumulative Stage 00-06 verification including PostgreSQL migration/concurrency checks |
 
 Local checks do not imply GitHub Actions, provider, connector, deployment, or human evidence.
 
@@ -92,4 +104,4 @@ Local checks do not imply GitHub Actions, provider, connector, deployment, or hu
 
 ## Immediate next action
 
-The outer loop may inspect, commit, and push the coherent uncommitted Stage 05 slice. Do not begin Milestone 6 in this stage.
+The outer loop may inspect, commit, and push the coherent uncommitted Stage 06 slice. Do not begin Milestone 7 in this stage.
