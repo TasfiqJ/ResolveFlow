@@ -56,7 +56,7 @@ export default function ResultsPage() {
         </div>
         <div>
           <span>Final release verdict</span>
-          <strong>not available</strong>
+          <strong>not available · technical preview only</strong>
         </div>
       </section>
       <section className="panel">

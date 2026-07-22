@@ -68,27 +68,40 @@ STAGES=(
   "08-publish|Publish the verified snapshot site|medium"
 )
 
-check_human_gate() {
+check_release_gate() {
   local gate="$ROOT/docs/HUMAN_SIGNOFF.json"
   if [[ ! -f "$gate" ]]; then
-    echo "Human gate missing: copy docs/HUMAN_SIGNOFF.example.json to docs/HUMAN_SIGNOFF.json, complete it truthfully, commit it to main, then resume with START_AT=7." >&2
+    echo "Release gate missing: copy docs/HUMAN_SIGNOFF.example.json to docs/HUMAN_SIGNOFF.json, select a truthful release profile, commit it to main, then resume with START_AT=7." >&2
     return 1
   fi
 
   jq -e '
-    .truth_data.status == "complete" and
-    .truth_data.human_authored_truth_count >= 36 and
-    .gate_rules_locked == true and
-    .held_out_locked == true and
-    .practitioner_review.status == "complete" and
-    .practitioner_review.reviewer_count >= 3 and
-    .practitioner_review.case_count >= 10 and
     (
+      .release_profile == "validated_release" and
+      .truth_data.status == "complete" and
+      .truth_data.human_authored_truth_count >= 36 and
+      .gate_rules_locked == true and
+      .held_out_locked == true and
+      .practitioner_review.status == "complete" and
+      .practitioner_review.reviewer_count >= 3 and
+      .practitioner_review.case_count >= 10 and
       (
-        .multilingual.status == "validated" and
-        .multilingual.fluent_reviewer_confirmed == true
+        (
+          .multilingual.status == "validated" and
+          .multilingual.fluent_reviewer_confirmed == true
+        )
+        or
+        .multilingual.status == "claim_removed"
       )
-      or
+    )
+    or
+    (
+      .release_profile == "technical_preview" and
+      .technical_preview.operator_authorized == true and
+      .technical_preview.limitations_acknowledged == true and
+      .technical_preview.publication_allowed == true and
+      .technical_preview.human_validation_claimed == false and
+      .technical_preview.final_release_verdict_claimed == false and
       .multilingual.status == "claim_removed"
     )
   ' "$gate" >/dev/null
@@ -154,8 +167,8 @@ for i in "${!STAGES[@]}"; do
   fi
 
   if [[ "$stage" == "07-final-audit" || "$stage" == "08-publish" ]]; then
-    if ! check_human_gate; then
-      echo "Stopped before $stage because the human evidence gate is incomplete." >&2
+    if ! check_release_gate; then
+      echo "Stopped before $stage because neither the validated-release gate nor the truthful technical-preview gate is complete." >&2
       exit 3
     fi
   fi

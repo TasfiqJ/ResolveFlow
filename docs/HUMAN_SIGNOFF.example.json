@@ -1,5 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "release_profile": "technical_preview",
+  "technical_preview": {
+    "operator_authorized": false,
+    "limitations_acknowledged": true,
+    "publication_allowed": false,
+    "human_validation_claimed": false,
+    "final_release_verdict_claimed": false,
+    "notes": "A technical preview may publish automated fixture evidence while clearly stating that human validation and a final release verdict are unavailable. Use validated_release only after the human evidence gate is genuinely complete."
+  },
   "truth_data": {
     "status": "pending",
     "human_authored_truth_count": 0,

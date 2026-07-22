@@ -21,9 +21,9 @@ export default function AboutPage() {
         <article className="panel">
           <h2>Honest limitations</h2>
           <p>
-            Synthetic domain data only. No deployment, customer validation,
-            human scoring, fluent-language signoff, live provider result, or
-            real Slack/Jira integration result is claimed.
+            Synthetic domain data only. This technical preview does not claim
+            customer validation, human scoring, fluent-language signoff, a
+            live provider result, or a real Slack/Jira integration result.
           </p>
         </article>
       </section>

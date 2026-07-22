@@ -1,5 +1,9 @@
 # Public product threat model
 
+## Release profile
+
+The published artifact is a technical preview. Passing repository-controlled security tests does not convert it into a production security certification or a human-validated release.
+
 ## Assets and boundaries
 
 The public build contains only synthetic, sanitized, checksummed snapshots. It contains no Cohere, Slack, Jira, database, session, or write credential. Authorization, tool scope, exact approval, idempotency, and release gates are enforced in ordinary Python and database code.

@@ -90,7 +90,7 @@ The default run:
 - makes a direct checkpoint commit to `main` after Codex reports a passing stage, then a smaller completion commit when independent verification produces additional changes;
 - pushes `origin/main`;
 - stops on failure or blocker;
-- stops before the final audit until the human gate is complete;
+- stops before the final audit until either the validated-release gate or the truthful technical-preview gate is complete;
 - skips publication unless explicitly enabled.
 
 ## 5. Resume a stopped stage
@@ -123,7 +123,7 @@ Run only one stage:
 START_AT=4 STOP_AFTER=4 ./automation/run-resolveflow-loop.sh
 ```
 
-## 6. Complete the real human gate
+## 6. Select the release profile
 
 After stage 6:
 
@@ -131,7 +131,7 @@ After stage 6:
 cp docs/HUMAN_SIGNOFF.example.json docs/HUMAN_SIGNOFF.json
 ```
 
-Then complete the required work truthfully:
+For a fully validated release, complete the required work truthfully:
 
 - at least 36 genuinely human-authored incident truths;
 - gate rules locked before held-out evaluation;
@@ -139,7 +139,9 @@ Then complete the required work truthfully:
 - at least 3 relevant practitioners across at least 10 cases;
 - either a fluent-human-validated language slice or removal of the multilingual quality claim.
 
-Update `docs/HUMAN_SIGNOFF.json` with evidence paths, commit it directly to `main`, and push.
+Set `release_profile` to `validated_release`, update `docs/HUMAN_SIGNOFF.json` with evidence paths, commit it directly to `main`, and push.
+
+When reviewers are unavailable, the governing master prompt permits a technical preview. Keep all human counts and statuses truthful, set the multilingual status to `claim_removed`, explicitly authorize the preview, and leave both `human_validation_claimed` and `final_release_verdict_claimed` false. This profile publishes the implemented product and automated evidence without presenting it as human-validated or production-ready.
 
 Do not put names, employer-confidential data, credentials, or API keys in that file.
 

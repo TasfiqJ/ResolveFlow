@@ -1,6 +1,9 @@
 # Stage 07 — final definition-of-done audit and repair
 
-The outer loop runs this stage only after `docs/HUMAN_SIGNOFF.json` passes its human gate.
+The outer loop runs this stage only after `docs/HUMAN_SIGNOFF.json` passes one of two truthful release profiles:
+
+- `validated_release`, which requires the complete human evidence gate; or
+- `technical_preview`, which permits publication of automated synthetic evidence only, labels human validation as pending, and prohibits a final release verdict.
 
 Read:
 
@@ -42,8 +45,8 @@ Create or update:
 - `CODEX_FINAL_REPORT.md`
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/KNOWN_LIMITATIONS.md`
-- `docs/THREAT_MODEL.md`
-- `docs/DEPLOYMENT_RUNBOOK.md`
+- `docs/threat-model.md`
+- `docs/deployment-runbook.md`
 - one genuine failed-case postmortem when evidence exists
 
 Expand `scripts/verify.sh` into the complete release-critical verifier, run it, and leave the working tree ready for the outer loop.

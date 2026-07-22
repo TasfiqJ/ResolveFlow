@@ -8,10 +8,10 @@ verification, exact approval controls, deterministic Replay, paired unsafe/guard
 and a hard-invariant-first release gate. The public page is snapshot-first: it needs no Cohere
 key, database, Slack workspace, or Jira site.
 
-Current status: Stage 06 public product and validation tooling. One actual deterministic development fixture
-blocks unsafe-v0 with `NO_SHIP`; guarded-v1 receives `SHIP_WITH_LIMITS` because the draft
-citation sample is below its minimum N. This is not a held-out, live-provider, human-reviewed, or
-final release result. No external write is represented by the fixture.
+Current status: technical preview. One actual deterministic development fixture blocks unsafe-v0
+with `NO_SHIP`; guarded-v1 receives `SHIP_WITH_LIMITS` because the draft citation sample is below
+its minimum N. This is not a held-out, live-provider, human-reviewed, or final release result. No
+external write is represented by the fixture.
 
 ## Snapshot quick start
 
@@ -86,6 +86,11 @@ An exploratory French fixture and fluent-human signoff schema exist under `data/
 no signoff exists and no French or broad multilingual quality claim is made. Public claims remain
 English-only.
 
+The release contract has two profiles. `validated_release` retains the full human-authorship,
+held-out-lock, and practitioner-review gates. The active `technical_preview` profile permits the
+snapshot site to publish while those items remain visibly incomplete and while no final
+production-readiness verdict is claimed.
+
 ## Verification
 
 ```bash
@@ -106,7 +111,14 @@ scan, and browser smoke. It never calls Cohere, Slack, Jira, or a paid service.
 - Shared Resolve path: `python/resolveflow/orchestrator.py`
 - Replay manifest: `data/manifests/replay-role-downgrade-001.yaml`
 - Draft gate: `eval/configs/release-gate-1.0.yaml`
+- Release profile: `docs/HUMAN_SIGNOFF.json`
+- Release checklist and limits: `docs/RELEASE_CHECKLIST.md`, `docs/KNOWN_LIMITATIONS.md`
 
 Synthetic data is not customer evidence. The cited result is a deterministic recorded fixture,
 not a live model result. Human review, provider performance, cost, integration success, held-out
 performance, and a final release verdict have not been measured.
+
+## License
+
+ResolveFlow Replay is available under the MIT License. Synthetic project fixtures are not customer
+evidence; third-party dependencies and referenced materials retain their own licenses.

@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Stage 06 public product and validation tooling implemented
+**Product implementation:** Stage 06 public product complete; Stage 07 technical-preview audit in progress
 
-**Active work:** Stage 06 complete; ready for outer-loop handoff
+**Active work:** Stage 07 final audit under the explicit technical-preview release profile
 
 ## Current repository facts
 

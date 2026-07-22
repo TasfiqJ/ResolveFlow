@@ -1,6 +1,6 @@
 # ResolveFlow Replay decisions and discovery register
 
-**Log version:** 1.3
+**Log version:** 1.4
 
 **Last updated:** 2026-07-22
 
@@ -25,6 +25,7 @@ This file records reversible planning assumptions, contradictions, blockers, and
 | D-013 | Work on `main` only. | Latest user instruction explicitly prohibits subbranches. | User explicitly changes the Git workflow again. |
 | D-014 | Do not add product code in this planning task. | Explicit task boundary. | A later task names Milestone 1. |
 | D-015 | Make `scripts/verify.sh` dependency-light in Stage 00 and expand it cumulatively with each milestone. | The outer loop needs an executable verifier now, while product toolchains and lockfiles do not exist yet. | Milestone 1 expands it with locked toolchain commands while preserving all current checks and the no-credential default. |
+| D-042 | Support two explicit release profiles: `validated_release` retains every human-evidence gate; `technical_preview` may publish only automated synthetic evidence while human validation and a final release verdict remain explicitly unclaimed. | The governing master prompt says missing reviewers must not stop the build and forbids invented reviewer results. Separating profiles preserves that boundary while allowing the portfolio product to ship. | Genuine human-authored truths, locked held-out data, and practitioner evidence permit promotion to `validated_release`; the technical preview is never relabeled retroactively. |
 | D-016 | Lock the canonical hero to fictional HelioPay, `PYM-431`, `rollout-payments-2026-07-15`, `payments-api`, `ca-central`, and Payments Platform. | This is internally consistent with the governing master prompt and preserves the deliberately missing cluster ID. | A new versioned fixture supersedes the hero before evaluation lock. |
 | D-017 | Use deterministic string IDs in the Stage 01 fixture and defer the production sortable-ID generator choice. | Recorded fixture identifiers must be stable; UUIDv7/ULID behavior is not needed until runtime persistence creates arbitrary objects. | Milestone 2 or 4 introduces runtime-generated persisted identifiers. |
 | D-018 | Canonicalize JSON with sorted keys, compact UTF-8, NFC strings, and UTC timestamps at second precision; prefix hashes with `sha256:`. | The foundation snapshot needs reproducible, explainable content hashes without security-sensitive floating point values. | A versioned canonicalization schema is required for additional numeric evidence. |

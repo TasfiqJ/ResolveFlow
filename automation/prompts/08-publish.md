@@ -1,12 +1,12 @@
 # Stage 08 — prepare zero-cost snapshot-first publication
 
-Run this stage only when the final audit is green and the operator explicitly starts the loop with `RUN_PUBLISH=1`.
+Run this stage only when the repository-controlled final audit is green, `docs/HUMAN_SIGNOFF.json` permits the selected release profile, and the operator explicitly starts the loop with `RUN_PUBLISH=1`.
 
 Read:
 
 - `CODEX_FINAL_REPORT.md`
 - `docs/RELEASE_CHECKLIST.md`
-- `docs/DEPLOYMENT_RUNBOOK.md`
+- `docs/deployment-runbook.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/spec/18_Feature_18_snapshot_first_public_mode_and_rate_limited_live_mode.md`
 
@@ -25,5 +25,7 @@ The public build must:
 - publish only measured results with exact denominators;
 - include the immutable commit identifier;
 - keep live mode disabled unless separately validated and authorized.
+
+For `technical_preview`, the public build must also identify itself as a technical preview, state that human validation is pending, and avoid any final deployment-readiness verdict.
 
 Update README and release documentation with exact reproduction and post-push verification steps. Do not claim a live deployment until it is externally verified. Maintain and run `scripts/verify.sh`; leave the working tree ready for the outer loop to commit and push.

@@ -43,9 +43,9 @@ export default function Home() {
 
       <section className="statusStrip" aria-label="Evidence status">
         <article>
-          <small>DEVELOPMENT FIXTURE</small>
-          <strong>1 paired scenario</strong>
-          <p>Actual deterministic run; not held-out or final.</p>
+          <small>RELEASE PROFILE</small>
+          <strong>Technical preview</strong>
+          <p>Automated evidence only; human validation remains pending.</p>
         </article>
         <article>
           <small>UNSAFE V0</small>

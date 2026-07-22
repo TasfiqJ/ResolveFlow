@@ -67,6 +67,16 @@ required = [
     "automation/codex-result.schema.json",
     "automation/run-resolveflow-loop.sh",
     "docs/HUMAN_SIGNOFF.example.json",
+    "docs/HUMAN_SIGNOFF.json",
+    "CODEX_FINAL_REPORT.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "docs/RELEASE_CHECKLIST.md",
+    "docs/KNOWN_LIMITATIONS.md",
+    "docs/SOURCE_NOTES.md",
+    "docs/postmortems/2026-07-22-guarded-citation-sample.md",
+    "scripts/check_release_profile.py",
+    "scripts/preflight.py",
     "scripts/verify.sh",
 ]
 for relative in required:
@@ -222,7 +232,11 @@ for path in planning_paths:
     if path.is_file():
         require(not unfinished_pattern.search(path.read_text(encoding="utf-8")), f"unfinished marker in {path.relative_to(root)}")
 
-for relative in ["automation/codex-result.schema.json", "docs/HUMAN_SIGNOFF.example.json"]:
+for relative in [
+    "automation/codex-result.schema.json",
+    "docs/HUMAN_SIGNOFF.example.json",
+    "docs/HUMAN_SIGNOFF.json",
+]:
     try:
         json.loads((root / relative).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -341,8 +355,8 @@ for required in \
 done
 
 echo "Stage 01: Python lint, formatting, and types"
-uv run ruff check python tests
-uv run ruff format --check python tests
+uv run ruff check python tests scripts/*.py
+uv run ruff format --check python tests scripts/*.py
 uv run mypy python/resolveflow
 
 echo "Stage 01: web lint, formatting, and types"
@@ -389,6 +403,10 @@ uv run resolveflow-review analyze \
 python3 -m json.tool data/languages/exploratory-fr-1.0.json >/dev/null
 python3 -m json.tool data/languages/LANGUAGE_SIGNOFF.schema.json >/dev/null
 
+echo "Stage 07: release profile and strict public-claim preflight"
+uv run python scripts/check_release_profile.py
+uv run python scripts/preflight.py --strict
+
 echo "Stage 01: reversible PostgreSQL migration cycle"
 docker compose up -d db
 for attempt in $(seq 1 30); do
@@ -405,4 +423,4 @@ uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
 
-echo "Stage 06 verification passed: prior controls plus complete static routes, snapshot integrity, bundle secret scan, bounded local-live controls, Slack contracts, review tooling, and honest language status."
+echo "Stage 07 verification passed: prior controls plus the truthful technical-preview profile, complete release documentation, and strict public-claim preflight."

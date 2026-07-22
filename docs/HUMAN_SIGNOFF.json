@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "release_profile": "technical_preview",
+  "technical_preview": {
+    "operator_authorized": true,
+    "limitations_acknowledged": true,
+    "publication_allowed": true,
+    "human_validation_claimed": false,
+    "final_release_verdict_claimed": false,
+    "notes": "The operator explicitly authorized a public technical preview on 2026-07-22. It may publish automated, synthetic, deterministic evidence only. It is not a production validation or final release verdict."
+  },
+  "truth_data": {
+    "status": "pending",
+    "human_authored_truth_count": 0,
+    "reviewed_by": [],
+    "notes": "The 36 repository candidates remain synthetic-agent-authored drafts pending genuine human authorship or review."
+  },
+  "gate_rules_locked": false,
+  "held_out_locked": false,
+  "practitioner_review": {
+    "status": "pending",
+    "reviewer_count": 0,
+    "case_count": 0,
+    "evidence_path": "",
+    "notes": "No practitioner review is claimed in the technical preview."
+  },
+  "multilingual": {
+    "status": "claim_removed",
+    "language": "",
+    "fluent_reviewer_confirmed": false,
+    "evidence_path": "",
+    "notes": "Public quality claims are English-only. The exploratory French fixture is excluded from quality claims."
+  }
+}
