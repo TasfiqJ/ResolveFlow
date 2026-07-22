@@ -25,3 +25,7 @@ This release is a technical preview, not a production-readiness verdict. It publ
 - One fictional payments workflow and one inert Jira proposal are included.
 - Image evidence remains outside the evaluated core.
 - The exploratory French fixture is excluded from quality claims because no fluent-human signoff exists.
+
+## Tooling note
+
+- The passing Python suite currently reports one Starlette TestClient deprecation warning while the ecosystem transitions from `httpx` to `httpx2`. No test is skipped or muted.

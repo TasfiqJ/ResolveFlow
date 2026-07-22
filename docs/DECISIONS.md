@@ -1,6 +1,6 @@
 # ResolveFlow Replay decisions and discovery register
 
-**Log version:** 1.4
+**Log version:** 1.5
 
 **Last updated:** 2026-07-22
 
@@ -45,9 +45,9 @@ This file records reversible planning assumptions, contradictions, blockers, and
 
 | Fact IDs | Recorded value | Evidence |
 |---|---|---|
-| U-001 | Node 24.18.0, pnpm 10.32.0, Next.js 16.2.11, React 19.2.8, TypeScript 5.9.2, Vitest 3.2.4 are locked for the foundation. | Runtime output, npm registry metadata retrieved 2026-07-21, `pnpm-lock.yaml` |
-| U-002 | Python 3.13.14 lock environment; FastAPI 0.116.1, Pydantic 2.13.4, SQLAlchemy 2.0.43, Alembic 1.16.5, asyncpg 0.30.0, Ruff 0.12.11, mypy 1.17.1, pytest 8.4.1. | `uv.lock`, successful local checks on 2026-07-21 |
-| U-003 | PostgreSQL 17-compatible pgvector development image `pgvector/pgvector:pg17`; tag is locked but its immutable digest remains a Milestone 7 hardening item. | Successful Compose health and reversible migration cycle on 2026-07-21 |
+| U-001 | Node 24.18.0, pnpm 10.32.0, Next.js 16.2.11, React 19.2.8, TypeScript 5.9.2, and patched-compatible Vitest 3.2.6 are locked. | Runtime output, registry metadata, clean dependency audit, and `pnpm-lock.yaml` on 2026-07-22 |
+| U-002 | Python 3.13.14 lock environment; FastAPI 0.139.2, Starlette 1.3.1, Pydantic 2.13.4, SQLAlchemy 2.0.43, Alembic 1.16.5, asyncpg 0.30.0, Ruff 0.12.11, mypy 1.17.1, pytest 9.1.1, and pytest-asyncio 1.4.0. | `uv.lock`, clean dependency audit, and successful local checks on 2026-07-22 |
+| U-003 | PostgreSQL 17-compatible pgvector and all Python, Node, and uv container bases are locked by immutable SHA-256 digest. | `docker-compose.yml`, both Dockerfiles, and successful pinned-image startup on 2026-07-22 |
 | U-008-U-010 | Fictional HelioPay tenant/customer, values in D-016, canonical web case schema, and only one missing-field clarification (`cluster_id`). | `data/truths/hero-payments-001.json`, domain tests |
 | U-012-U-013 | Canonicalization is D-018; schema version is `1.0`; initial event names are the six public trace events in the fixture. | Hash and orchestration tests |
 | U-067 | Liveness is process health; readiness validates configuration. Database dependency readiness remains for the persistence milestone. | FastAPI integration tests |
@@ -261,3 +261,12 @@ Do not delete resolved unknowns. Add the value and evidence so the decision hist
 | D-039 / U-040-U-044 | Slack HMAC/timestamp verification, challenge/event parsing, event-ID plus message-timestamp deduplication, queued acknowledgement, and canonical intake are implemented. Jira staging configuration fixes one HTTPS development site/project, issue type, team field, and complete priority mapping, while the real connector stays disabled. | Contract/API tests use synthetic signed deliveries and configuration only. No Slack or Jira credential was accessed and no external request/write occurred. | An explicitly authorized private staging task supplies credentials, discovers actual scopes/field IDs, and records real integration evidence. |
 | D-040 / U-056-U-058 | Human review is a blinded static workflow with deterministic A/B order, private CSV template, and exact-count analyzer. Results remain `human review not yet completed` at 0 reviewers/0 cases. The French fixture is exploratory, synthetic-agent-authored, unvalidated, and excluded from claims. | No genuine reviewer or fluent-human signoff exists. Public copy states English-only claims and publishes no reviewer percentage or multilingual quality result. | Genuine consented review exports or a fluent signoff matching the versioned checksum schema create new evidence; prior absence is not overwritten. |
 | D-041 | Published hero and development-result snapshots are canonical/file checksummed and duplicated byte-for-byte into the static public tree. Snapshot verification now hashes the actual serialized `RunSnapshot` projection rather than the richer pre-projection audit objects. | The prior hash was computed before `AuditEvent` objects were projected to public `TraceEvent` fields, so it could not be independently reconstructed from the published JSON. The corrected implementation and regression verifier pass. | A versioned snapshot schema changes the public projection and supplies a migration/compatibility verifier. |
+
+## 11. Milestone 7 decisions and discovered facts
+
+| ID | Decision / fact | Rationale / evidence | Reversal trigger |
+|---|---|---|---|
+| D-043 | Build the static Next.js export with its supported Webpack mode while retaining the same application and export contract. | Turbopack resolves workspace roots across real paths and failed when Codex exposed the repository through a WSL bind alias while pnpm dependencies resolved through `/mnt/c`. The Webpack build passed locally, in the pinned container, and with the GitHub Pages base path. | Turbopack supports this bind/symlink topology or the build environment no longer aliases the workspace. |
+| U-066 | Python, uv, Node, and pgvector bases are digest-pinned. The API image includes the fixture corpus, the web image builds and serves the exported artifact without a runtime download, and `.dockerignore` reduces the build context from about 92 MB to under 1 MB. | Pinned Compose build and startup passed; API live/ready/version plus homepage and nested About endpoints returned expected content. | A planned base-image update replaces the digest and repeats the same audit/startup checks. |
+| U-071 | `pip-audit` and `pnpm audit` report no known dependency vulnerabilities. Pinned Gitleaks 8.30.1 scanned 18 reachable commits with no leaks after one exact-fingerprint ignore for the documented synthetic identifier `prior-incident-1042`. | Release verifier output on 2026-07-22 and `.gitleaksignore`; the ignore does not suppress a rule, file, or path. | New dependency/history findings require remediation and a new clean audit. |
+| U-072 | Starlette 1.3.1 emits one TestClient deprecation warning for the `httpx` backend while all 134 Python tests pass. | The warning is recorded rather than hidden; no test is skipped. | FastAPI/Starlette complete the `httpx2` transition and the locked test client can be upgraded safely. |

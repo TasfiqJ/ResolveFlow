@@ -21,6 +21,7 @@ need docker
 export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/resolveflow-uv-cache}"
 export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 export PNPM_HOME="${PNPM_HOME:-/tmp/resolveflow-pnpm}"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-resolveflow}"
 
 if [[ "$(git branch --show-current)" != "main" ]]; then
   echo "Verification must run on main." >&2
@@ -57,6 +58,8 @@ def require(condition: bool, message: str) -> None:
 
 required = [
     "AGENTS.md",
+    ".dockerignore",
+    ".gitleaksignore",
     "docs/CODEX_MASTER_PROMPT_ResolveFlow.md",
     "docs/IMPLEMENTATION_PLAN.md",
     "docs/ACCEPTANCE_MATRIX.md",
@@ -75,6 +78,7 @@ required = [
     "docs/KNOWN_LIMITATIONS.md",
     "docs/SOURCE_NOTES.md",
     "docs/postmortems/2026-07-22-guarded-citation-sample.md",
+    "apps/web/server.mjs",
     "scripts/check_release_profile.py",
     "scripts/preflight.py",
     "scripts/verify.sh",
@@ -276,8 +280,15 @@ PY
 
 echo "Stage 01: validating locked setup and runtime configuration"
 uv lock --check
-pnpm install --frozen-lockfile --offline --store-dir /tmp/resolveflow-pnpm-store
+pnpm install --frozen-lockfile --lockfile-only --offline
 docker compose config --quiet
+
+echo "Stage 07: dependency and reachable-history secret audits"
+uv run --with pip-audit pip-audit
+pnpm audit
+docker run --rm -v "$ROOT:/repo" \
+  ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+  detect --source=/repo --no-banner --redact
 
 for required in \
   pyproject.toml uv.lock package.json pnpm-lock.yaml docker-compose.yml alembic.ini \
@@ -363,6 +374,7 @@ echo "Stage 01: web lint, formatting, and types"
 pnpm --dir apps/web lint
 pnpm --dir apps/web format:check
 pnpm --dir apps/web typecheck
+node --check apps/web/server.mjs
 
 echo "Stage 01: unit and vertical-slice integration tests"
 uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay
@@ -422,5 +434,48 @@ uv run alembic upgrade head
 uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
+
+echo "Stage 07: pinned container build and complete local startup"
+docker compose config -q
+docker compose up -d --build
+python3 - <<'PY'
+from __future__ import annotations
+
+import time
+from urllib.error import URLError
+from urllib.request import urlopen
+
+targets = {
+    "http://localhost:8000/health/live": '"status":"ok"',
+    "http://localhost:8000/health/ready": '"status":"ready"',
+    "http://localhost:8000/version": '"version":"0.1.0"',
+    "http://localhost:3000": "ResolveFlow",
+    "http://localhost:3000/about/": "preview",
+}
+pending = dict(targets)
+for _ in range(30):
+    for url, marker in list(pending.items()):
+        try:
+            with urlopen(url, timeout=3) as response:
+                body = response.read().decode("utf-8")
+                if response.status == 200 and marker in body:
+                    pending.pop(url)
+        except (OSError, URLError):
+            pass
+    if not pending:
+        break
+    time.sleep(1)
+if pending:
+    raise SystemExit(f"container endpoints did not become ready: {sorted(pending)}")
+print("Pinned container startup passed: API live/ready/version and web returned expected content")
+PY
+
+for service in db api worker web; do
+  docker compose ps --services --status running | grep -Fx "$service" >/dev/null || {
+    echo "Container service is not running: $service" >&2
+    docker compose logs --no-color --tail 50 "$service" >&2
+    exit 1
+  }
+done
 
 echo "Stage 07 verification passed: prior controls plus the truthful technical-preview profile, complete release documentation, and strict public-claim preflight."

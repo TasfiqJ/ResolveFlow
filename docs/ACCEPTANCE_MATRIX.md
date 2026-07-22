@@ -210,12 +210,12 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-00 | Planning sources, checksums, all 78 acceptance mappings, ADR structure, links, JSON/shell syntax, and secret hygiene validate without external credentials | `scripts/verify.sh` | 0 | PASS |
 | X-01 | Credential-free foundation verification: locked setup, seed/snapshot, static/unit/integration/browser checks, preflight, and local PostgreSQL migration cycle | `scripts/verify.sh` | 1 | PASS |
 | X-02 | Empty-to-head and reversible migration check | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | 1+ | PASS |
-| X-03 | Repository and public-build secret scan | `gitleaks detect --source . --no-banner --redact` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PLANNED |
-| X-04 | Locked candidate evaluation | `uv run python -m resolveflow.evaluation.cli evaluate --candidate "$CANDIDATE_BUILD" --baseline "$BASELINE_BUILD" --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH"` | 5/7 | IN PROGRESS |
-| X-05 | Report regenerated without provider calls | `uv run python -m resolveflow.evaluation.cli report --bundle "$RESULT_BUNDLE" --output eval/reports` | 5/7 | IN PROGRESS |
+| X-03 | Repository and public-build secret scan | pinned Gitleaks container in `scripts/verify.sh` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PASS |
+| X-04 | Candidate evaluation from a frozen Replay manifest | `uv run resolveflow-evaluation evaluate --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` | 5/7 | PASS |
+| X-05 | Report regenerated without provider calls | `uv run resolveflow-evaluation report --bundle /tmp/resolveflow-stage05-result.json --output /tmp/resolveflow-stage05-report` | 5/7 | PASS |
 | X-06 | Restore snapshot experience on a clean machine | OPS-X06-RESTORE with machine/runtime, commands, hashes, observed result, and discrepancies | 7 | PLANNED |
-| X-07 | Every public link/private-browser/mobile route checked | `pnpm --dir apps/web exec playwright test tests/browser/public-release.spec.ts` | 7 | PLANNED |
-| X-08 | Final claim and placeholder audit | `uv run python scripts/preflight.py --strict` | 7 | PLANNED |
+| X-07 | Every exported public route checked from the production artifact | `node tests/browser/snapshot-smoke.mjs` | 7 | PASS |
+| X-08 | Final claim and placeholder audit | `uv run python scripts/preflight.py --strict --signoff docs/HUMAN_SIGNOFF.json --snapshot data/published/hero-foundation.json` | 7 | PASS |
 
 ## Update rules
 

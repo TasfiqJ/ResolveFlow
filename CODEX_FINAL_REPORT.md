@@ -1,9 +1,12 @@
 # ResolveFlow Replay technical-preview report
 
-**Audit date:** 2026-07-22  
-**Branch:** `main`  
-**Release profile:** `technical_preview`  
-**Rollback target:** `724f53c9a5aee3b90da339e5717e6b5cb767bc81`
+**Audit date:** 2026-07-22
+
+**Branch:** `main`
+
+**Release profile:** `technical_preview`
+
+**Rollback target:** `fddb5aa6a46d8c6a24d9fe1cb238fa9fc453992c`
 
 ## Outcome
 
@@ -31,7 +34,18 @@ These values are not held-out, live-provider, human-reviewed, or final results.
 
 ## Verification
 
-Release verification is pending in this report until the complete repository-controlled verifier runs on the final audit changes. Exact observed commands and outcomes will replace this paragraph before publication.
+The repository-controlled release checks completed locally on 2026-07-22:
+
+- Python lint, formatting, and mypy passed across 79 source files.
+- 134 Python tests, 2 web tests, and 4 PostgreSQL tests passed.
+- The migration upgraded, downgraded one revision, and re-upgraded successfully.
+- Python and pnpm dependency audits reported no known vulnerabilities. The local package itself is not published on PyPI and was explicitly skipped by `pip-audit`.
+- Gitleaks 8.30.1 scanned all 18 reachable commits and found no leaks; the public static bundle scan also passed.
+- Replay smoke retained the unsafe failure as `NO_SHIP` and produced the guarded development-fixture result as `SHIP_WITH_LIMITS`.
+- Static export with the `/ResolveFlow` base path, all-route snapshot smoke, strict public-claim preflight, and published-snapshot checksum verification passed.
+- Digest-pinned database, API, worker, and web images built and started; API live, ready, and version endpoints plus the exported homepage and nested About route returned the expected content.
+
+The Python test run emits one upstream transition warning because Starlette 1.3.1 deprecates its `httpx` TestClient backend in favor of `httpx2`; it does not fail or skip a test.
 
 ## External systems and spend
 
@@ -43,4 +57,4 @@ The complete limitation register is in `docs/KNOWN_LIMITATIONS.md`. Promotion to
 
 ## Publication
 
-Publication has not yet been verified. The final commit, workflow result, public URL, and post-push checks will be recorded only after they are observed.
+Publication has not yet been verified. The workflow result, public URL, and post-push checks will be recorded only after they are observed.

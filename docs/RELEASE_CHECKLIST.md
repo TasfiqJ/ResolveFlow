@@ -10,13 +10,13 @@
 
 ## Repository-controlled audit
 
-- [ ] Complete `scripts/verify.sh` passes on the release commit.
-- [ ] Strict preflight passes.
-- [ ] Static production build succeeds with the `/ResolveFlow` base path.
-- [ ] Public bundle secret scan and snapshot checksum verification pass.
-- [ ] Browser smoke covers all exported routes.
-- [ ] PostgreSQL migration upgrade, downgrade, re-upgrade, and database tests pass.
-- [ ] Release documentation, license, source notes, limitations, rollback, and postmortem are complete.
+- [x] Complete `scripts/verify.sh` passes on the release worktree.
+- [x] Strict preflight passes.
+- [x] Static production build succeeds with the `/ResolveFlow` base path.
+- [x] Public bundle secret scan and snapshot checksum verification pass.
+- [x] Browser smoke covers all exported routes.
+- [x] PostgreSQL migration upgrade, downgrade, re-upgrade, and database tests pass.
+- [x] Release documentation, license, source notes, limitations, rollback, and postmortem are complete.
 - [ ] Local `main` and `origin/main` match after the release push.
 
 ## Publication

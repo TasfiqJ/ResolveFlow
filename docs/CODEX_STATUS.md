@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Stage 06 public product complete; Stage 07 technical-preview audit in progress
+**Product implementation:** Stage 07 technical-preview audit complete; publication verification pending
 
-**Active work:** Stage 07 final audit under the explicit technical-preview release profile
+**Active work:** Stage 08 GitHub Pages publication and post-push verification
 
 ## Current repository facts
 
@@ -52,7 +52,7 @@
 - Jira staging configuration validates one HTTPS development site/project and fixed issue/team/priority mappings, while the real adapter remains disabled and public mode cannot contain write authority.
 - The private/static review workflow blinds and deterministically randomizes A/B outputs. Empty export and exact-count analysis commands report 0 reviewers/0 cases; no reviewer response, role evidence, percentage, or disagreement is invented.
 - The exploratory French fixture is synthetic-agent-authored, pending fluent-human signoff, excluded from claimed results, and unable to expand public case/action authority. Public quality claims remain English-only.
-- GitHub Pages static deployment is prepared as a manual workflow. No workflow was triggered and no deployment/public URL is claimed.
+- GitHub Pages static deployment is prepared but has not yet been triggered. No deployment/public URL is claimed before observation.
 
 ## Milestone status
 
@@ -65,7 +65,7 @@
 | 4. actions, reliability and audit | COMPLETE | Verified-evidence proposals, exact approval states, durable leases/reclaim, bounded fault recovery, synthetic Jira reconciliation, append-only audit, public redaction/export/diff foundation, and approval UI |
 | 5. Replay and release gate | COMPLETE | Versioned draft truths/manifests/builds, frozen deterministic materialization, shared-path pairing, run diff, hard-first exact-count scoring, uncertainty, three-way gate, checksummed bundles, API/CLI, migration, and CI smoke/negative workflows |
 | 6. public product and validation | COMPLETE | Complete static route set, public views, checksummed snapshots, secret scan, outage fallback, bounded local-live controls, Slack/Jira staging boundaries, blinded review tooling, and unvalidated language structure |
-| 7. final audit and release | NOT STARTED | No deployment or publication |
+| 7. final audit and release | COMPLETE | Truthful technical-preview profile, dependency/history/bundle audits, exact claims, pinned container build/startup, release documents, and full verifier |
 
 ## Stage 06 checks
 
@@ -95,13 +95,26 @@
 
 Local checks do not imply GitHub Actions, provider, connector, deployment, or human evidence.
 
+## Stage 07 checks
+
+| Command | Result |
+|---|---|
+| `uv run --with pip-audit pip-audit` | PASS, no known vulnerabilities; unpublished local package explicitly skipped |
+| `pnpm audit` | PASS, no known vulnerabilities |
+| pinned Gitleaks 8.30.1 history scan | PASS, 18 reachable commits and no leaks |
+| `scripts/verify.sh` | PASS, 134 Python tests, 2 web tests, 4 PostgreSQL tests, Replay gates, static export, strict preflight, snapshot/bundle checks, migrations, and pinned container startup |
+| pinned Compose startup | PASS, database/API/worker/web running; API live/ready/version and homepage/About checks succeeded |
+
+One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIONS.md`; no test was skipped or muted.
+
 ## External work and credentials
 
 - No Cohere key was available or required; no live model call was made.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
-- No branch, worktree, commit, push, merge, deployment, tag, release, or publication was performed. The outer loop owns commit and push.
+- Milestone work through commit `fddb5aa` is pushed to `origin/main`; the final audit hardening changes are the next coherent checkpoint.
+- No merge, deployment, tag, release, or publication is claimed yet.
 
 ## Immediate next action
 
-The outer loop may inspect, commit, and push the coherent uncommitted Stage 06 slice. Do not begin Milestone 7 in this stage.
+Commit and push the verified audit checkpoint, prove a clean-clone restore, then enable and verify the GitHub Pages workflow and public URL.
