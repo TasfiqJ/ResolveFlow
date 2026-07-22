@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "truth_data": {
+    "status": "pending",
+    "human_authored_truth_count": 0,
+    "reviewed_by": [],
+    "notes": ""
+  },
+  "gate_rules_locked": false,
+  "held_out_locked": false,
+  "practitioner_review": {
+    "status": "pending",
+    "reviewer_count": 0,
+    "case_count": 0,
+    "evidence_path": "",
+    "notes": ""
+  },
+  "multilingual": {
+    "status": "pending",
+    "language": "",
+    "fluent_reviewer_confirmed": false,
+    "evidence_path": "",
+    "notes": "Set status to validated after real fluent-human signoff, or claim_removed when the multilingual quality claim is removed."
+  }
+}
