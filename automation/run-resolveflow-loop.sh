@@ -56,15 +56,15 @@ LOG_DIR="${CODEX_LOG_DIR:-$HOME/.resolveflow-codex-logs/$RUN_ID}"
 mkdir -p "$LOG_DIR"
 
 STAGES=(
-  "00-plan|Add ResolveFlow implementation plan|high"
-  "01-foundation|Implement foundation vertical slice|medium"
-  "02-retrieval|Implement authorized evidence retrieval|medium"
-  "03-agent-safety|Implement governed agent safety controls|high"
-  "04-actions-audit|Implement governed actions and audit trail|high"
-  "05-replay-gate|Implement Replay release gate|high"
-  "06-public-validation|Complete public Replay product|medium"
-  "07-final-audit|Complete final release audit|high"
-  "08-publish|Prepare snapshot-first public release|medium"
+  "00-plan|map the build|high"
+  "01-foundation|start the engine|medium"
+  "02-retrieval|teach the retriever|medium"
+  "03-agent-safety|lock the doors|high"
+  "04-actions-audit|jira waits nicely|high"
+  "05-replay-gate|make replay real|high"
+  "06-public-validation|polish the control room|medium"
+  "07-final-audit|tests are happy|high"
+  "08-publish|ship the snapshots|medium"
 )
 
 check_human_gate() {
