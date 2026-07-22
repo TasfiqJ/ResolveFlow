@@ -1,0 +1,57 @@
+name: release evaluation
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_build:
+        description: Pinned candidate build ID
+        required: true
+        type: string
+      baseline_build:
+        description: Pinned baseline build ID
+        required: true
+        type: string
+      dataset_version:
+        description: Explicit dataset version
+        required: true
+        type: string
+      manifest_lock_hash:
+        description: Exact selected manifest checksum
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  deterministic-release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.0
+      - run: make bootstrap
+      - name: Prove unsafe seeded gate blocks
+        run: uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml
+      - name: Evaluate explicit fixture candidate
+        env:
+          CANDIDATE_BUILD: ${{ inputs.candidate_build }}
+          BASELINE_BUILD: ${{ inputs.baseline_build }}
+          DATASET_VERSION: ${{ inputs.dataset_version }}
+          MANIFEST_LOCK_HASH: ${{ inputs.manifest_lock_hash }}
+        run: make evaluate-candidate
+      - name: Regenerate readable report
+        env:
+          RESULT_BUNDLE: eval/results/replay-development-result.json
+        run: make report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: replay-release-result
+          path: |
+            eval/results/replay-development-result.json
+            eval/results/replay-development-result.json.sha256
+            eval/reports/*.md
+          if-no-files-found: error

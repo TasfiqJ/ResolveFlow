@@ -291,6 +291,24 @@ for required in \
 done
 
 for required in \
+  python/resolveflow/replay/models.py python/resolveflow/replay/io.py \
+  python/resolveflow/replay/mutations.py python/resolveflow/replay/materialize.py \
+  python/resolveflow/replay/runner.py python/resolveflow/evaluation/models.py \
+  python/resolveflow/evaluation/statistics.py python/resolveflow/evaluation/scoring.py \
+  python/resolveflow/evaluation/gate.py python/resolveflow/evaluation/runner.py \
+  migrations/versions/0005_replay_release_gate.py \
+  data/truths/replay-base-truths-1.0.yaml \
+  data/manifests/replay-role-downgrade-001.yaml \
+  data/manifests/security-scenario-candidates-1.0.yaml \
+  eval/configs/replay-builds-1.0.yaml eval/configs/release-gate-1.0.yaml \
+  .github/workflows/release-evaluation.yml; do
+  [[ -f "$required" ]] || {
+    echo "Missing Stage 05 artifact: $required" >&2
+    exit 1
+  }
+done
+
+for required in \
   python/resolveflow/agent/contracts.py python/resolveflow/agent/service.py \
   python/resolveflow/agent/cohere.py python/resolveflow/agent/fixture.py \
   python/resolveflow/agent/tools.py python/resolveflow/agent/security.py \
@@ -321,6 +339,21 @@ echo "Stage 03: governed-agent policy and fixture validation"
 uv run resolveflow-policy-lint
 python3 -m json.tool data/security/prompt-injection-fixtures.json >/dev/null
 
+echo "Stage 05: Replay materialization, shared-path pairing, and release gates"
+uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml >/tmp/resolveflow-replay-dry-run.json
+uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml
+uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml
+uv run resolveflow-evaluation evaluate \
+  --candidate guarded-v1 \
+  --baseline unsafe-v0 \
+  --dataset replay-development-draft-1.0 \
+  --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a \
+  --manifest data/manifests/replay-role-downgrade-001.yaml \
+  --output /tmp/resolveflow-stage05-result.json
+uv run resolveflow-evaluation report \
+  --bundle /tmp/resolveflow-stage05-result.json \
+  --output /tmp/resolveflow-stage05-report
+
 echo "Stage 01: deterministic snapshot and static browser smoke"
 uv run resolveflow-snapshot
 pnpm --dir apps/web build
@@ -343,4 +376,4 @@ uv run alembic downgrade -1
 uv run alembic upgrade head
 uv run pytest -q tests/postgres
 
-echo "Stage 04 verification passed: prior controls plus exact approvals, durable leases, fault reconciliation, idempotency, append-only audit, public redaction, exports, diff, and approval UI."
+echo "Stage 05 verification passed: prior controls plus deterministic Replay, paired builds, exact-count uncertainty, hard-first gates, reproducible bundles, and public result APIs."

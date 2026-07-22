@@ -19,8 +19,11 @@ from resolveflow.config import get_settings
 from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.models import CaseCreate, HealthResponse, RunSnapshot, VersionResponse
+from resolveflow.evaluation.models import ResultBundle
+from resolveflow.evaluation.runner import evaluate_manifest_pair
 from resolveflow.intake.web import canonical_hero_case
 from resolveflow.orchestrator import ResolveOrchestrator, _git_sha
+from resolveflow.replay.io import manifest_path
 from resolveflow.telemetry.export import export_run_json, export_run_markdown
 from resolveflow.telemetry.projection import public_projection
 
@@ -28,6 +31,7 @@ app = FastAPI(title="ResolveFlow Replay API", version=__version__)
 orchestrator = ResolveOrchestrator(FixtureContextRepository(), GovernedAgent(FixtureChatAdapter()))
 action_service = ActionService()
 action_store: dict[str, ActionProposal] = {}
+replay_store: dict[str, ResultBundle] = {}
 
 
 class ApprovalRequest(FrozenModel):
@@ -38,6 +42,12 @@ class ApprovalRequest(FrozenModel):
 class RejectionRequest(FrozenModel):
     reason: str = Field(min_length=1, max_length=500)
     actor_id: str = "user_incident_commander_synthetic"
+
+
+class ReplayRequest(FrozenModel):
+    manifest_id: str = "replay-role-downgrade-001"
+    baseline_build: str = "unsafe-v0"
+    candidate_build: str = "guarded-v1"
 
 
 def _fixture_proposal(proposal_id: str) -> ActionProposal:
@@ -127,6 +137,55 @@ def get_run_markdown_export(run_id: str) -> Response:
         export_run_markdown(_hero_run(run_id), public=True),
         media_type="text/markdown",
     )
+
+
+def _public_replay_bundle() -> ResultBundle:
+    bundle = evaluate_manifest_pair(manifest_path("replay-role-downgrade-001"))
+    replay_store[bundle.bundle_id] = bundle
+    return bundle
+
+
+@app.post("/v1/replays", response_model=ResultBundle, status_code=201)
+def create_replay(request: ReplayRequest) -> ResultBundle:
+    if (
+        request.manifest_id != "replay-role-downgrade-001"
+        or request.baseline_build != "unsafe-v0"
+        or request.candidate_build != "guarded-v1"
+    ):
+        raise HTTPException(status_code=422, detail="Only predefined Replay pairs are accepted")
+    return _public_replay_bundle()
+
+
+@app.get("/v1/replays/{replay_id}", response_model=ResultBundle)
+def get_replay(replay_id: str) -> ResultBundle:
+    bundle = replay_store.get(replay_id)
+    if bundle is None:
+        generated = _public_replay_bundle()
+        if generated.bundle_id != replay_id:
+            raise HTTPException(status_code=404, detail="Replay not found")
+        bundle = generated
+    return bundle
+
+
+@app.get("/v1/releases/{build_id}")
+def get_release(build_id: str) -> dict[str, object]:
+    bundle = _public_replay_bundle()
+    if build_id == "guarded-v1":
+        result = bundle.candidate
+    elif build_id == "unsafe-v0":
+        result = bundle.baseline
+    else:
+        raise HTTPException(status_code=404, detail="Release result not found")
+    return {
+        "schema_version": "1.0",
+        "build_id": build_id,
+        "decision_scope": result.verdict.decision_scope,
+        "publishable_as_final_release": False,
+        "dataset_lock_status": bundle.dataset_lock_status,
+        "verdict": result.verdict.model_dump(mode="json"),
+        "bundle_id": bundle.bundle_id,
+        "bundle_checksum": bundle.checksum,
+    }
 
 
 @app.get("/v1/actions/{proposal_id}", response_model=ActionProposal)

@@ -1,0 +1,25 @@
+schema_version: "1.0"
+matrix_id: security-scenario-candidates-draft-1.0
+content_label: DRAFT_PENDING_HUMAN_REVIEW
+lock_status: DRAFT_NOT_LOCKED
+base_truth_ids:
+  - dev-payments-001
+  - dev-payments-002
+  - dev-payments-003
+  - dev-payments-004
+  - dev-payments-005
+  - dev-payments-006
+  - dev-payments-007
+  - dev-payments-008
+  - dev-payments-009
+  - dev-payments-010
+attack_families:
+  - visible_instruction
+  - delimiter_like
+  - multilingual_instruction
+  - fake_system_message
+  - approval_bypass
+variants: [1, 2, 3, 4]
+declared_scenario_count: 200
+live_provider_calls: 0
+checksum: sha256:8778930ad65d889a8e655553360b09ddf424afa5c6e1e7caa78b288375862bbd

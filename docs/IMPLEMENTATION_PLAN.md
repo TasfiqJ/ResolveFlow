@@ -6,7 +6,7 @@
 
 **Branch:** `main`
 
-**Status:** Milestones 1-4 implemented; Milestone 5 not started
+**Status:** Milestones 1-5 implemented; Milestone 6 not started
 **Authority:** `AGENTS.md` -> `docs/CODEX_MASTER_PROMPT_ResolveFlow.md` -> master-plan PDF -> feature specifications -> current official documentation -> repository conventions
 
 This plan turns the supplied ResolveFlow Replay blueprint into an ordered, testable build program. Resolve is the incident workflow; Replay is the product that decides whether a versioned candidate is fit for the declared deployment profile. The same production orchestration path must serve interactive Resolve runs, deterministic fixtures, recorded snapshots, and Replay.

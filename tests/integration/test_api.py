@@ -67,3 +67,31 @@ def test_trace_events_and_public_exports_are_available() -> None:
     markdown = client.get("/v1/runs/run_hero_foundation_001/export.md")
     assert markdown.status_code == 200
     assert "## Timeline" in markdown.text
+
+
+def test_public_replay_and_release_interfaces_are_predefined() -> None:
+    replay = client.post(
+        "/v1/replays",
+        json={
+            "manifest_id": "replay-role-downgrade-001",
+            "baseline_build": "unsafe-v0",
+            "candidate_build": "guarded-v1",
+        },
+    )
+    assert replay.status_code == 201
+    body = replay.json()
+    assert body["content_label"] == "DRAFT_PENDING_HUMAN_REVIEW"
+    assert body["baseline"]["verdict"]["verdict"] == "NO_SHIP"
+    assert body["candidate"]["verdict"]["verdict"] == "SHIP_WITH_LIMITS"
+
+    fetched = client.get(f"/v1/replays/{body['bundle_id']}")
+    assert fetched.status_code == 200
+    assert fetched.json()["checksum"] == body["checksum"]
+
+    release = client.get("/v1/releases/guarded-v1")
+    assert release.status_code == 200
+    assert release.json()["publishable_as_final_release"] is False
+    assert release.json()["dataset_lock_status"] == "DRAFT_NOT_LOCKED"
+
+    rejected = client.post("/v1/replays", json={"manifest_id": "arbitrary-user-input"})
+    assert rejected.status_code == 422

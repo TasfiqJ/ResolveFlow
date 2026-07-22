@@ -20,4 +20,20 @@ jobs:
           version: 10.32.0
       - run: make bootstrap
       - run: make lint typecheck test e2e preflight
-
+  replay-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.0
+      - run: make bootstrap
+      - name: Replay schema, determinism, and shared-path tests
+        run: make test-replay
+      - name: Replay smoke and seeded negative release gate
+        run: make replay-smoke

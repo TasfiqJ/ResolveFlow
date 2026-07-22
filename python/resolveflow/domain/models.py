@@ -39,10 +39,10 @@ class CanonicalCase(FrozenModel):
     case_time: datetime
     language_hint: Literal["en"] = "en"
     severity: Literal["high"] = "high"
-    region: Literal["ca-central"] = "ca-central"
-    service: Literal["payments-api"] = "payments-api"
+    region: str = "ca-central"
+    service: str = "payments-api"
     raw_text: str
-    error_code: Literal["PYM-431"] = "PYM-431"
+    error_code: str = "PYM-431"
     missing_fields: tuple[str, ...] = ("cluster_id",)
     synthetic: Literal[True] = True
     checksum: str
@@ -137,6 +137,7 @@ class RunSnapshot(FrozenModel):
     generated_at: datetime
     run_id: str
     build_id: str
+    scenario_id: str | None = None
     commit: str
     model_policy: str
     corpus_version: Literal["hero-corpus-1.0"] = "hero-corpus-1.0"
@@ -152,6 +153,7 @@ class RunSnapshot(FrozenModel):
     forbidden_effect_score: dict[str, Any]
     action: ActionBoundary
     trace: tuple[TraceEvent, ...]
+    run_inputs: dict[str, Any] = Field(default_factory=dict)
     content_hash: str
 
 

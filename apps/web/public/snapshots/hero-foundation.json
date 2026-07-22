@@ -43,8 +43,8 @@
     "synthetic": true,
     "tenant_id": "tenant_heliopay_synthetic"
   },
-  "commit": "3b9dcfb0f4e6",
-  "content_hash": "sha256:ac17b31cdda6944e5f54bf9477eb31773863891a3d0a8508941d13ce1fb0c7f2",
+  "commit": "4f6af86239c9",
+  "content_hash": "sha256:4b981e5c8e708671d8852e1fd4103aabf21e7590a79a5f451e1cf6778cfa47f4",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -623,6 +623,18 @@
     ]
   },
   "run_id": "run_hero_foundation_001",
+  "run_inputs": {
+    "acl": "acl_snapshot_e2fb6d726c13f74adc9c94ce",
+    "authorization_mode": "enforced",
+    "clock": "sha256:456c67edffcb04fba1ed2de9011a64258a48229d7e836875e4e50489dda8fccd",
+    "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
+    "corpus": "sha256:11d46e2710145b65605b1e12db530383091ef2b34f6f011b68a799115a6dce9e",
+    "feature_flags": "sha256:fcbd21cff78a35805889c60d9724f685caf9d369273d8d8cd62d13f1b541e24c",
+    "identity": "sha256:af6ca3d1ab607b292e230db3e9ace3a45a31eab4ea1a77f657884a620f37e586",
+    "policy": "sha256:4c0252633ccdbffa6715ee264f80133ac398c293f7a3633226d0757dd959438f",
+    "verifier_enforcement": "enforced"
+  },
+  "scenario_id": null,
   "schema_version": "1.0",
   "security_events": [
     {
@@ -905,6 +917,7 @@
       "outcome": "ok",
       "safe_detail": {
         "claims": 4,
+        "enforcement": "enforced",
         "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb",
         "route": "Payments Platform"
       },

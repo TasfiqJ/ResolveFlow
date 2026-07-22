@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Milestones 1-4 implemented; later held-out, Replay, and human evidence remains planned
+**Current evidence state:** Milestones 1-5 implemented; held-out locking, live evaluation, and human evidence remain planned
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 
@@ -161,19 +161,19 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F14-AC01 | Deterministic materialization: same manifest/fixture yields identical non-model hashes. | 5 | repeat materialization test | `uv run pytest -q tests/replay/test_materialization_determinism.py` | PLANNED |
-| F14-AC02 | Production parity: Replay invokes the same orchestrator and verifier. | 5 | architecture spy/contract test | `uv run pytest -q tests/replay/test_production_path_parity.py` | PLANNED |
-| F14-AC03 | Mutation isolation: undeclared inputs remain unchanged. | 5 | before/after canonical snapshot property test | `uv run pytest -q tests/replay/test_mutation_isolation.py` | PLANNED |
-| F14-AC04 | Invalid manifests fail before any provider call with a clear report. | 5 | spy-provider schema tests | `uv run pytest -q tests/replay/test_manifest_validation.py` | PLANNED |
+| F14-AC01 | Deterministic materialization: same manifest/fixture yields identical non-model hashes. | 5 | repeat materialization test | `uv run pytest -q tests/replay/test_materialization_determinism.py` | PASS |
+| F14-AC02 | Production parity: Replay invokes the same orchestrator and verifier. | 5 | architecture spy/contract test | `uv run pytest -q tests/replay/test_production_path_parity.py` | PASS |
+| F14-AC03 | Mutation isolation: undeclared inputs remain unchanged. | 5 | before/after canonical snapshot property test | `uv run pytest -q tests/replay/test_mutation_isolation.py` | PASS |
+| F14-AC04 | Invalid manifests fail before any provider call with a clear report. | 5 | spy-provider schema tests | `uv run pytest -q tests/replay/test_manifest_validation.py` | PASS |
 
 ## Feature 15 - readiness gate and CI release decision
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F15-AC01 | Pre-registration: gate-file commit predates final held-out results. | 5 | Git chronology integrity test | `uv run pytest -q tests/replay/test_evaluation_chronology.py` | PLANNED |
-| F15-AC02 | Hard-gate behavior: a seeded forbidden citation blocks release. | 5 | negative gate test and CI artifact | `uv run pytest -q tests/replay/test_release_gate_negative.py -k forbidden_citation` | PLANNED |
-| F15-AC03 | Reproducibility: local and CI aggregation produce identical verdict/hash from identical records. | 5 | reproducibility test | `uv run pytest -q tests/replay/test_verdict_reproducibility.py` | PLANNED |
-| F15-AC04 | Failure evidence: verdict links to every failing replay. | 5/6 | bundle schema and results-page test | `uv run pytest -q tests/unit/evaluation/test_failure_links.py` | PLANNED |
+| F15-AC01 | Pre-registration: gate-file commit predates final held-out results. | 5 | draft chronology guard passes; outer commit and later held-out lock/results remain required | `uv run pytest -q tests/replay/test_evaluation_chronology.py` | IN PROGRESS |
+| F15-AC02 | Hard-gate behavior: a seeded forbidden citation blocks release. | 5 | negative gate test and CI command | `uv run pytest -q tests/replay/test_release_gate_negative.py -k forbidden_citation` | PASS |
+| F15-AC03 | Reproducibility: local and CI aggregation produce identical verdict/hash from identical records. | 5 | reproducibility test; local half evidenced, CI run not claimed | `uv run pytest -q tests/replay/test_verdict_reproducibility.py` | IN PROGRESS |
+| F15-AC04 | Failure evidence: verdict links to every failing replay. | 5/6 | bundle schema and release API test | `uv run pytest -q tests/unit/evaluation/test_failure_links.py` | PASS |
 
 ## Feature 16 - human review and practitioner scoring
 
@@ -211,8 +211,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-01 | Credential-free foundation verification: locked setup, seed/snapshot, static/unit/integration/browser checks, preflight, and local PostgreSQL migration cycle | `scripts/verify.sh` | 1 | PASS |
 | X-02 | Empty-to-head and reversible migration check | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | 1+ | PASS |
 | X-03 | Repository and public-build secret scan | `gitleaks detect --source . --no-banner --redact` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PLANNED |
-| X-04 | Locked candidate evaluation | `uv run python -m resolveflow.evaluation.cli evaluate --candidate "$CANDIDATE_BUILD" --baseline "$BASELINE_BUILD" --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH"` | 5/7 | PLANNED |
-| X-05 | Report regenerated without provider calls | `uv run python -m resolveflow.evaluation.cli report --bundle "$RESULT_BUNDLE" --output eval/reports` | 5/7 | PLANNED |
+| X-04 | Locked candidate evaluation | `uv run python -m resolveflow.evaluation.cli evaluate --candidate "$CANDIDATE_BUILD" --baseline "$BASELINE_BUILD" --dataset "$DATASET_VERSION" --lock "$MANIFEST_LOCK_HASH"` | 5/7 | IN PROGRESS |
+| X-05 | Report regenerated without provider calls | `uv run python -m resolveflow.evaluation.cli report --bundle "$RESULT_BUNDLE" --output eval/reports` | 5/7 | IN PROGRESS |
 | X-06 | Restore snapshot experience on a clean machine | OPS-X06-RESTORE with machine/runtime, commands, hashes, observed result, and discrepancies | 7 | PLANNED |
 | X-07 | Every public link/private-browser/mobile route checked | `pnpm --dir apps/web exec playwright test tests/browser/public-release.spec.ts` | 7 | PLANNED |
 | X-08 | Final claim and placeholder audit | `uv run python scripts/preflight.py --strict` | 7 | PLANNED |

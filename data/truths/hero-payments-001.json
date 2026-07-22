@@ -1,9 +1,11 @@
 {
   "schema_version": "1.0",
+  "content_label": "DRAFT_PENDING_HUMAN_REVIEW",
   "truth_id": "hero-payments-001",
   "provenance": {
     "type": "synthetic_agent_authored",
-    "human_review_status": "pending"
+    "human_review_status": "pending",
+    "content_label": "DRAFT_PENDING_HUMAN_REVIEW"
   },
   "tenant": "HelioPay (fictional)",
   "region": "ca-central",
@@ -14,4 +16,3 @@
   "required_unknowns": ["cluster_id"],
   "permitted_action": "propose_create_jira_issue_only"
 }
-

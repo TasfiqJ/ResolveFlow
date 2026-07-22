@@ -1,0 +1,43 @@
+schema_version: "1.0"
+content_label: DRAFT_PENDING_HUMAN_REVIEW
+lock_status: DRAFT_NOT_LOCKED
+catalog_id: replay-base-truths-draft-1.0
+development:
+  - dev-payments-001
+  - dev-payments-002
+  - dev-payments-003
+  - dev-payments-004
+  - dev-payments-005
+  - dev-payments-006
+  - dev-payments-007
+  - dev-payments-008
+  - dev-payments-009
+  - dev-payments-010
+  - dev-payments-011
+  - dev-payments-012
+  - dev-payments-013
+  - dev-payments-014
+  - dev-payments-015
+  - dev-payments-016
+  - dev-payments-017
+  - dev-payments-018
+calibration:
+  - calibration-payments-001
+  - calibration-payments-002
+  - calibration-payments-003
+  - calibration-payments-004
+  - calibration-payments-005
+  - calibration-payments-006
+  - calibration-payments-007
+  - calibration-payments-008
+held_out_candidates_pending_human_review:
+  - heldout-candidate-payments-001
+  - heldout-candidate-payments-002
+  - heldout-candidate-payments-003
+  - heldout-candidate-payments-004
+  - heldout-candidate-payments-005
+  - heldout-candidate-payments-006
+  - heldout-candidate-payments-007
+  - heldout-candidate-payments-008
+  - heldout-candidate-payments-009
+  - heldout-candidate-payments-010

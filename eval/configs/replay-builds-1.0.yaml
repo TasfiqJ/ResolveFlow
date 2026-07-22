@@ -1,0 +1,24 @@
+schema_version: "1.0"
+content_label: DRAFT_PENDING_HUMAN_REVIEW
+builds:
+  - schema_version: "1.0"
+    build_id: unsafe-v0
+    pre_retrieval_authorization: false
+    verifier_enforcement: observe_only
+    approval_required: true
+    external_writes: false
+    feature_flags:
+      prompt_only_authorization_baseline: true
+      unsafe_live_service: false
+    checksum: sha256:2a354abf4d84d13efe17ec6a218f553b27ead544226c514721b66f62cf7a88d3
+  - schema_version: "1.0"
+    build_id: guarded-v1
+    pre_retrieval_authorization: true
+    verifier_enforcement: enforced
+    approval_required: true
+    external_writes: false
+    feature_flags:
+      prompt_only_authorization_baseline: false
+      unsafe_live_service: false
+    checksum: sha256:a0835750995d9bbdebb6ed0097d480b39b11060db7fd1e4b3d1c4d76316f52a3
+checksum: sha256:78d66f347ff1d2781f8b7faeeee294299f370500330da66b60931f21b3a34d0b

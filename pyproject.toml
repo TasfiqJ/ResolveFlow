@@ -11,6 +11,7 @@ dependencies = [
   "fastapi==0.116.1",
   "pydantic==2.13.4",
   "pydantic-settings==2.10.1",
+  "pyyaml==6.0.3",
   "sqlalchemy==2.0.43",
   "uvicorn==0.35.0",
 ]
@@ -33,6 +34,8 @@ resolveflow-preflight = "resolveflow.cli:preflight"
 resolveflow-corpus-validate = "resolveflow.cli:validate_corpus_command"
 resolveflow-retrieval-fixture-eval = "resolveflow.cli:retrieval_fixture_evaluation"
 resolveflow-policy-lint = "resolveflow.cli:policy_lint_command"
+resolveflow-replay = "resolveflow.replay.cli:main"
+resolveflow-evaluation = "resolveflow.evaluation.cli:main"
 
 [build-system]
 requires = ["hatchling"]

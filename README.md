@@ -4,13 +4,14 @@ ResolveFlow Replay is a deployment gate for enterprise agents.
 
 The current credential-free build demonstrates one clearly labeled synthetic payments incident
 moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level
-verification, a hashed evidence graph, strict two-pass structuring, an inert action proposal, and
-an observable trace. The public page is snapshot-first: it needs no Cohere key, database, Slack
-workspace, or Jira site.
+verification, exact approval controls, deterministic Replay, paired unsafe/guarded comparison,
+and a hard-invariant-first release gate. The public page is snapshot-first: it needs no Cohere
+key, database, Slack workspace, or Jira site.
 
-Current status: Stage 03 governed agent and safety. Real connectors, action recovery, Replay
-evaluation, and release gates belong to later milestones and are not claimed here. No live
-provider result or external write is represented by the fixture.
+Current status: Stage 05 Replay and release gate. One actual deterministic development fixture
+blocks unsafe-v0 with `NO_SHIP`; guarded-v1 receives `SHIP_WITH_LIMITS` because the draft
+citation sample is below its minimum N. This is not a held-out, live-provider, human-reviewed, or
+final release result. No external write is represented by the fixture.
 
 ## Snapshot quick start
 
@@ -46,8 +47,26 @@ Apply the database migration from the host after the database is healthy:
 uv run alembic upgrade head
 ```
 
-The worker is a deliberately idle Stage 01 runtime skeleton. Durable leases and connector
-dispatch arrive in their named milestone; it performs no external write.
+The worker and synthetic connector implement durable leases, bounded recovery, idempotency, and
+reconciliation. The real Jira boundary remains disabled and public mode cannot write.
+
+## Replay and draft evaluation
+
+All Codex-created truth/scenario content is `DRAFT_PENDING_HUMAN_REVIEW`; held-out candidates are
+not locked.
+
+```bash
+make replay-smoke
+CANDIDATE_BUILD=guarded-v1 \
+BASELINE_BUILD=unsafe-v0 \
+DATASET_VERSION=replay-development-draft-1.0 \
+MANIFEST_LOCK_HASH=sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a \
+make evaluate-candidate
+```
+
+The local API exposes only predefined fixture inputs at `POST /v1/replays`,
+`GET /v1/replays/{id}`, and `GET /v1/releases/{build}`. It accepts no arbitrary prompt, manifest,
+attack payload, or connector write.
 
 ## Verification
 
@@ -56,8 +75,9 @@ scripts/verify.sh
 ```
 
 The verifier runs source-integrity checks, locked setup validation, Python and web lint/types,
-unit/integration tests, reversible PostgreSQL migration checks, static export, and a basic browser
-snapshot smoke. It never calls Cohere, Slack, Jira, or a paid service.
+unit/integration/Replay tests, deterministic bundle reproduction, negative release gates,
+reversible PostgreSQL migrations, static export, and browser smoke. It never calls Cohere, Slack,
+Jira, or a paid service.
 
 ## Fixture and interfaces
 
@@ -65,8 +85,9 @@ snapshot smoke. It never calls Cohere, Slack, Jira, or a paid service.
 - Synthetic sources: `data/artifacts/`
 - Recorded snapshot: `data/published/hero-foundation.json`
 - Shared Resolve path: `python/resolveflow/orchestrator.py`
-- Future boundaries: `python/resolveflow/agent/ports.py`
+- Replay manifest: `data/manifests/replay-role-downgrade-001.yaml`
+- Draft gate: `eval/configs/release-gate-1.0.yaml`
 
 Synthetic data is not customer evidence. The cited result is a deterministic recorded fixture,
-not a live model result. Human review, provider performance, cost, integration success, and a
-release verdict have not been measured.
+not a live model result. Human review, provider performance, cost, integration success, held-out
+performance, and a final release verdict have not been measured.

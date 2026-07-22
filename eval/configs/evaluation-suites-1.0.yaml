@@ -1,0 +1,15 @@
+schema_version: "1.0"
+content_label: DRAFT_PENDING_HUMAN_REVIEW
+suites:
+  deterministic_application_control:
+    provider: recorded_fixture
+    scenario_matrix: security-scenario-candidates-draft-1.0
+    enabled: true
+  sanitized_provider_contract:
+    provider: recorded_contract
+    enabled: true
+    result_claim_scope: contract_only
+  bounded_live_provider:
+    provider: cohere
+    enabled: false
+    reason: COHERE_API_KEY_is_intentionally_withheld_and_zero_charge_allowance_is_unverified

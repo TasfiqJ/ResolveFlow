@@ -22,7 +22,7 @@ from resolveflow.agent.contracts import (
     ToolTrace,
     UntrustedEvidenceDocument,
 )
-from resolveflow.agent.findings import FirstPassFindings, UnknownDraft
+from resolveflow.agent.findings import ClaimKind, FirstPassFindings, UnknownDraft
 from resolveflow.agent.ports import ChatProviderPort
 from resolveflow.agent.renderer import DeterministicRenderer, StructureSelection
 from resolveflow.agent.security import (
@@ -38,7 +38,12 @@ from resolveflow.domain.evidence import Corpus, IdentitySnapshot, RetrievalTrace
 from resolveflow.domain.hashing import canonical_json, checksum
 from resolveflow.domain.models import CanonicalCase, ContextResult, FinalResponse
 from resolveflow.verifier.engine import EvidenceVerifier
-from resolveflow.verifier.models import EvidenceGraph
+from resolveflow.verifier.models import (
+    EvidenceGraph,
+    PermittedProposal,
+    RouteCandidate,
+    SupportStatus,
+)
 
 
 class GovernedRunResult(FrozenModel):
@@ -79,6 +84,7 @@ class GovernedAgent:
         identity: IdentitySnapshot,
         retrieval: RetrievalTrace,
         corpus: Corpus,
+        verifier_enforcement: Literal["enforced", "observe_only"] = "enforced",
     ) -> GovernedRunResult:
         started = self.clock()
         documents = self._documents(retrieval, corpus)
@@ -212,6 +218,8 @@ class GovernedAgent:
             identity=identity,
             corpus=corpus,
         )
+        if verifier_enforcement == "observe_only":
+            graph = self._observe_only_graph(graph, findings)
         final_response = self.renderer.fallback(graph, provider=self._provider_label())
         if (
             terminal_reason == "complete"
@@ -277,6 +285,36 @@ class GovernedAgent:
             provider_calls=len(provider_traces),
             total_tokens=total_tokens,
         )
+
+    @staticmethod
+    def _observe_only_graph(graph: EvidenceGraph, findings: FirstPassFindings) -> EvidenceGraph:
+        claims = tuple(
+            item.model_copy(
+                update={
+                    "status": SupportStatus.SUPPORTED,
+                    "verifier_codes": item.verifier_codes + ("unsafe_observe_only",),
+                }
+            )
+            for item in graph.claims
+        )
+        routes = tuple(
+            RouteCandidate(claim_id=item.claim_id, route=item.value, status=item.status)
+            for item in claims
+            if item.kind is ClaimKind.ROUTE
+        )
+        action_claims = tuple(item.claim_id for item in claims if item.action_supporting)
+        proposals = (
+            (PermittedProposal(supporting_claim_ids=action_claims),)
+            if findings.requested_proposal == "create_jira_issue" and action_claims
+            else ()
+        )
+        body = {
+            **graph.model_dump(mode="python", exclude={"graph_hash"}),
+            "claims": claims,
+            "route_candidates": routes,
+            "permitted_proposals": proposals,
+        }
+        return EvidenceGraph(**body, graph_hash=checksum(body))
 
     def _provider_call(
         self, request: ChatRequest, sequence: int, *, timeout_seconds: float

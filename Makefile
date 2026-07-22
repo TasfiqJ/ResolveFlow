@@ -43,16 +43,20 @@ test-replay:
 test: test-unit test-integration test-contract test-security
 
 replay-smoke:
-	uv run resolveflow-snapshot
+	uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml
+	uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml
+	uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml
 
 snapshot-hero:
 	uv run resolveflow-snapshot
 
 evaluate-candidate:
-	@echo "Candidate evaluation is intentionally unavailable before Milestone 5."; exit 2
+	@test -n "$(CANDIDATE_BUILD)" -a -n "$(BASELINE_BUILD)" -a -n "$(DATASET_VERSION)" -a -n "$(MANIFEST_LOCK_HASH)" || { echo "CANDIDATE_BUILD, BASELINE_BUILD, DATASET_VERSION, and MANIFEST_LOCK_HASH are required" >&2; exit 2; }
+	uv run resolveflow-evaluation evaluate --candidate "$(CANDIDATE_BUILD)" --baseline "$(BASELINE_BUILD)" --dataset "$(DATASET_VERSION)" --lock "$(MANIFEST_LOCK_HASH)" --manifest data/manifests/replay-role-downgrade-001.yaml --output eval/results/replay-development-result.json
 
 report:
-	@echo "Evaluation reporting is intentionally unavailable before Milestone 5."; exit 2
+	@test -n "$(RESULT_BUNDLE)" || { echo "RESULT_BUNDLE is required" >&2; exit 2; }
+	uv run resolveflow-evaluation report --bundle "$(RESULT_BUNDLE)" --output eval/reports
 
 e2e: snapshot-hero
 	pnpm --dir apps/web build

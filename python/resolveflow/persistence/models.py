@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -216,4 +216,92 @@ class FinalResponseRow(Base):
     graph_hash: Mapped[str] = mapped_column(String(72), nullable=False)
     disposition: Mapped[str] = mapped_column(String(32), nullable=False)
     response_body: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ReplayBaseTruthRow(Base):
+    __tablename__ = "replay_base_truths"
+    truth_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    schema_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    split: Mapped[str] = mapped_column(String(40), nullable=False)
+    lock_status: Mapped[str] = mapped_column(String(40), nullable=False)
+    provenance: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    body: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    content_checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ReplayScenarioRow(Base):
+    __tablename__ = "replay_scenarios"
+    scenario_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    truth_id: Mapped[str] = mapped_column(ForeignKey("replay_base_truths.truth_id"))
+    manifest_id: Mapped[str] = mapped_column(String(96), unique=True, nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    manifest: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    manifest_checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ReplayRunRow(Base):
+    __tablename__ = "replay_runs"
+    replay_run_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    scenario_id: Mapped[str] = mapped_column(ForeignKey("replay_scenarios.scenario_id"))
+    baseline_run_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    candidate_run_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    materialization_checksum: Mapped[str] = mapped_column(String(72), nullable=False)
+    result_checksum: Mapped[str | None] = mapped_column(String(72))
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ReplayExpectationRow(Base):
+    __tablename__ = "replay_expectations"
+    expectation_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    scenario_id: Mapped[str] = mapped_column(ForeignKey("replay_scenarios.scenario_id"))
+    invariant_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    expected: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+
+
+class MetricObservationRow(Base):
+    __tablename__ = "metric_observations"
+    observation_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    replay_run_id: Mapped[str] = mapped_column(ForeignKey("replay_runs.replay_run_id"))
+    metric_id: Mapped[str] = mapped_column(String(96), nullable=False)
+    metric_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    numerator: Mapped[int] = mapped_column(Integer, nullable=False)
+    denominator: Mapped[int] = mapped_column(Integer, nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    uncertainty: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    source_run_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+
+
+class ExperimentComparisonRow(Base):
+    __tablename__ = "experiment_comparisons"
+    comparison_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    replay_run_id: Mapped[str] = mapped_column(ForeignKey("replay_runs.replay_run_id"))
+    baseline_build: Mapped[str] = mapped_column(String(64), nullable=False)
+    candidate_build: Mapped[str] = mapped_column(String(64), nullable=False)
+    paired_results: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+
+
+class ReleaseGateRow(Base):
+    __tablename__ = "release_gates"
+    gate_id: Mapped[str] = mapped_column(String(96), primary_key=True)
+    schema_version: Mapped[str] = mapped_column(String(20), nullable=False)
+    registration_status: Mapped[str] = mapped_column(String(64), nullable=False)
+    definition: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ResultBundleRow(Base):
+    __tablename__ = "result_bundles"
+    bundle_id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    replay_run_id: Mapped[str] = mapped_column(ForeignKey("replay_runs.replay_run_id"))
+    verdict: Mapped[str] = mapped_column(String(32), nullable=False)
+    publishable_as_final_release: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    body: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    checksum: Mapped[str] = mapped_column(String(72), unique=True, nullable=False)
     created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now())

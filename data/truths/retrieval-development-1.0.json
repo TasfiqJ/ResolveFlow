@@ -1,10 +1,12 @@
 {
   "schema_version": "1.0",
+  "content_label": "DRAFT_PENDING_HUMAN_REVIEW",
   "split": "development",
   "provenance": {
     "type": "synthetic_agent_authored",
     "authoring_system": "codex",
-    "human_review_status": "pending"
+    "human_review_status": "pending",
+    "content_label": "DRAFT_PENDING_HUMAN_REVIEW"
   },
   "cases": [
     {
