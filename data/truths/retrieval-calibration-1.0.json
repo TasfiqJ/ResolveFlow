@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "split": "calibration",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "authoring_system": "codex",
+    "human_review_status": "pending"
+  },
+  "cases": [
+    {
+      "query_id": "retrieval_cal_route",
+      "query": "which team handles issuer routing failures",
+      "role": "contractor",
+      "relevant_artifact_ids": ["artifact_runbook_payments", "artifact_prior_incident_1042"]
+    },
+    {
+      "query_id": "retrieval_cal_hostile",
+      "query": "operator note for PYM-431",
+      "role": "contractor",
+      "relevant_artifact_ids": ["artifact_hostile_note"]
+    }
+  ]
+}

@@ -29,6 +29,8 @@ resolveflow-worker = "resolveflow.worker.main:run"
 resolveflow-seed = "resolveflow.cli:seed"
 resolveflow-snapshot = "resolveflow.cli:snapshot"
 resolveflow-preflight = "resolveflow.cli:preflight"
+resolveflow-corpus-validate = "resolveflow.cli:validate_corpus_command"
+resolveflow-retrieval-fixture-eval = "resolveflow.cli:retrieval_fixture_evaluation"
 
 [build-system]
 requires = ["hatchling"]

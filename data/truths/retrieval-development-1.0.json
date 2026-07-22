@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "split": "development",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "authoring_system": "codex",
+    "human_review_status": "pending"
+  },
+  "cases": [
+    {
+      "query_id": "retrieval_dev_pym431",
+      "query": "PYM-431 after issuer-routing-v3 rollout",
+      "role": "contractor",
+      "relevant_artifact_ids": ["artifact_rollout_records", "artifact_prior_incident_1042"]
+    },
+    {
+      "query_id": "retrieval_dev_rollback",
+      "query": "rollback preconditions when the cluster is unknown",
+      "role": "contractor",
+      "relevant_artifact_ids": ["artifact_runbook_payments"]
+    },
+    {
+      "query_id": "retrieval_dev_restricted",
+      "query": "payments legal review material",
+      "role": "incident_commander",
+      "relevant_artifact_ids": ["artifact_restricted_legal"]
+    }
+  ]
+}

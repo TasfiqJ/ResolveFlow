@@ -4,15 +4,14 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from resolveflow.domain.base import FrozenModel
+from resolveflow.domain.evidence import IdentitySnapshot, RetrievalTrace
 
 
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
-
-
-class FrozenModel(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
 
 
 class ContextStatus(str, Enum):
@@ -112,6 +111,8 @@ class RunSnapshot(FrozenModel):
     commit: str
     model_policy: Literal["fixture-only-1.0"] = "fixture-only-1.0"
     corpus_version: Literal["hero-corpus-1.0"] = "hero-corpus-1.0"
+    identity_snapshot: IdentitySnapshot
+    retrieval: RetrievalTrace
     case: CanonicalCase
     context: tuple[ContextResult, ...]
     response: FinalResponse

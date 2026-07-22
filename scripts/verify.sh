@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -182,9 +183,14 @@ for path in adr_paths:
         require(section in text, f"{path.relative_to(root)} is missing {section}")
 
 ignored_markdown_parts = {".git", ".venv", "node_modules", ".next", "out", "tmp"}
-markdown_paths = [
-    path for path in root.rglob("*.md") if not ignored_markdown_parts.intersection(path.parts)
-]
+markdown_paths: list[Path] = []
+for directory, child_directories, filenames in os.walk(root):
+    child_directories[:] = [
+        child for child in child_directories if child not in ignored_markdown_parts
+    ]
+    markdown_paths.extend(
+        Path(directory) / filename for filename in filenames if filename.endswith(".md")
+    )
 link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 for path in markdown_paths:
     text = path.read_text(encoding="utf-8")
@@ -281,7 +287,7 @@ pnpm --dir apps/web format:check
 pnpm --dir apps/web typecheck
 
 echo "Stage 01: unit and vertical-slice integration tests"
-uv run pytest -q tests/unit tests/integration
+uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay
 pnpm --dir apps/web test
 
 echo "Stage 01: deterministic snapshot and static browser smoke"
@@ -304,5 +310,6 @@ done
 uv run alembic upgrade head
 uv run alembic downgrade -1
 uv run alembic upgrade head
+uv run pytest -q tests/postgres
 
-echo "Stage 01 verification passed: scaffold, types, tests, snapshot export, browser smoke, and reversible migrations."
+echo "Stage 02 verification passed: foundation, evidence, authorization, hybrid retrieval, provider contracts, security invariants, PostgreSQL FTS/pgvector, and reversible migrations."

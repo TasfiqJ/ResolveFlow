@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     build_id: str = "foundation-v1"
     git_sha: str = "uncommitted"
     cohere_allow_live: bool = False
+    cohere_embed_model: str = "embed-v4.0"
+    cohere_rerank_fast_model: str = "rerank-v4.0-fast"
+    cohere_rerank_pro_model: str = "rerank-v4.0-pro"
     public_live_mode: bool = False
     slack_signing_secret: str | None = None
     jira_api_token: str | None = None

@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "snapshot_id": "corpus_hero_20260715",
+  "tenant_id": "tenant_heliopay_synthetic",
+  "as_of": "2026-07-15T14:22:00Z",
+  "parser": {"name": "resolveflow_fixture", "version": "1.0.0"},
+  "chunker": {"name": "source_record", "version": "1.0.0"},
+  "embedding_policy": "fixture-token-hash-1.0",
+  "artifacts": [
+    {
+      "artifact_id": "artifact_runbook_payments",
+      "source_key": "payments-rollback-runbook",
+      "title": "Payments rollback runbook",
+      "owner": "Payments Platform",
+      "modality": "text",
+      "versions": [
+        {
+          "version": "2",
+          "source_path": "data/artifacts/payments-rollback-runbook-v2-stale.md",
+          "classification": "internal",
+          "effective_from": "2026-01-01T00:00:00Z",
+          "effective_to": "2026-06-01T00:00:00Z",
+          "position": {"kind": "section", "locator": "procedure"}
+        },
+        {
+          "version": "3",
+          "source_path": "data/artifacts/payments-rollback-runbook-v3.md",
+          "classification": "internal",
+          "effective_from": "2026-06-01T00:00:00Z",
+          "effective_to": null,
+          "position": {"kind": "section", "locator": "preconditions"}
+        }
+      ],
+      "roles": ["incident_commander", "contractor"]
+    },
+    {
+      "artifact_id": "artifact_prior_incident_1042",
+      "source_key": "prior-incident-1042",
+      "title": "Prior incident 1042",
+      "owner": "Incident Operations",
+      "modality": "json",
+      "versions": [{
+        "version": "1", "source_path": "data/artifacts/prior-incident-1042.json",
+        "classification": "internal", "effective_from": "2026-02-01T00:00:00Z",
+        "effective_to": null, "position": {"kind": "row", "locator": "incident-1042"}
+      }],
+      "roles": ["incident_commander", "contractor"]
+    },
+    {
+      "artifact_id": "artifact_rollout_records",
+      "source_key": "rollout-records",
+      "title": "Synthetic rollout records",
+      "owner": "Release Engineering",
+      "modality": "csv",
+      "versions": [{
+        "version": "1", "source_path": "data/artifacts/rollout-records.csv",
+        "classification": "internal", "effective_from": "2026-07-15T14:05:00Z",
+        "effective_to": null, "position": {"kind": "row", "locator": "rollout-payments-2026-07-15"}
+      }],
+      "roles": ["incident_commander", "contractor"]
+    },
+    {
+      "artifact_id": "artifact_restricted_legal",
+      "source_key": "restricted-legal-memo",
+      "title": "Restricted payments legal memo",
+      "owner": "Legal",
+      "modality": "text",
+      "versions": [{
+        "version": "1", "source_path": "data/artifacts/restricted-legal-memo.md",
+        "classification": "restricted", "effective_from": "2026-07-01T00:00:00Z",
+        "effective_to": null, "position": {"kind": "section", "locator": "legal-review"}
+      }],
+      "roles": ["incident_commander"]
+    },
+    {
+      "artifact_id": "artifact_hostile_note",
+      "source_key": "hostile-operator-note",
+      "title": "Untrusted operator note",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "versions": [{
+        "version": "1", "source_path": "data/artifacts/hostile-operator-note.md",
+        "classification": "internal", "effective_from": "2026-07-10T00:00:00Z",
+        "effective_to": null, "position": {"kind": "section", "locator": "note"}
+      }],
+      "roles": ["incident_commander", "contractor"]
+    }
+  ],
+  "image_evidence": {"status": "unavailable", "reason": "optional_visual_not_shipped"}
+}

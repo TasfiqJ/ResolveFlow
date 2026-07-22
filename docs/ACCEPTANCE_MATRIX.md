@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Planning only; every row is `PLANNED`
+**Current evidence state:** Milestones 1-2 implemented; later and held-out/human evidence remains planned
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 
@@ -58,37 +58,37 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F03-AC01 | Reproducibility: re-ingestion yields identical chunk checksums. | 2 | idempotent ingestion integration test | `uv run pytest -q tests/integration/test_ingestion.py -k reingestion_checksums` | PLANNED |
-| F03-AC02 | Temporal correctness: Replay at T0 sees only effective versions. | 2 | effective-time security replay | `uv run pytest -q tests/replay/test_effective_time.py` | PLANNED |
-| F03-AC03 | Provenance: every chunk resolves to an artifact version and source position; otherwise it is excluded. | 2 | corpus quality and foreign-key test | `uv run pytest -q tests/integration/test_corpus_provenance.py` | PLANNED |
-| F03-AC04 | Multimodal trace: shipped image evidence retains original image and metadata; otherwise the visual case is marked unavailable. | 2 | modality contract test or recorded feature-disabled result | `uv run pytest -q tests/contract/test_image_artifact.py` | PLANNED |
+| F03-AC01 | Reproducibility: re-ingestion yields identical chunk checksums. | 2 | idempotent ingestion integration test | `uv run pytest -q tests/integration/test_ingestion.py -k reingestion_checksums` | PASS |
+| F03-AC02 | Temporal correctness: Replay at T0 sees only effective versions. | 2 | effective-time security replay | `uv run pytest -q tests/replay/test_effective_time.py` | PASS |
+| F03-AC03 | Provenance: every chunk resolves to an artifact version and source position; otherwise it is excluded. | 2 | corpus quality and foreign-key test | `uv run pytest -q tests/integration/test_corpus_provenance.py` | PASS |
+| F03-AC04 | Multimodal trace: shipped image evidence retains original image and metadata; otherwise the visual case is marked unavailable. | 2 | modality contract test or recorded feature-disabled result | `uv run pytest -q tests/contract/test_image_artifact.py` | PASS |
 
 ## Feature 4 - pre-retrieval authorization and role switch
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F04-AC01 | Forbidden candidate exposure is zero across declared held-out role replays. | 2/5 | stage-by-stage security results with exact N | `uv run pytest -q tests/security/test_forbidden_candidate.py` and `uv run python -m resolveflow.evaluation.cli invariant --id no_forbidden_candidate --bundle "$RESULT_BUNDLE"` | PLANNED |
-| F04-AC02 | Forbidden model input is zero. | 2/5 | model-request projection scan | `uv run pytest -q tests/security/test_forbidden_model_input.py` | PLANNED |
-| F04-AC03 | Forbidden citation is zero. | 2/5 | verifier security test and held-out invariant | `uv run pytest -q tests/security/test_forbidden_citation.py` | PLANNED |
-| F04-AC04 | Cache isolation: role or tenant change cannot reuse ineligible candidates. | 2 | property and integration cache tests | `uv run pytest -q tests/security/test_retrieval_cache_isolation.py` | PLANNED |
-| F04-AC05 | Explainability: trace shows a safe policy reason without leaking source title/content. | 2 | golden redaction projection plus reviewer check | `uv run pytest -q tests/unit/policy/test_public_reason_codes.py tests/security/test_restricted_title_redaction.py` | PLANNED |
+| F04-AC01 | Forbidden candidate exposure is zero across declared held-out role replays. | 2/5 | stage-by-stage security results with exact N | `uv run pytest -q tests/security/test_forbidden_candidate.py` and `uv run python -m resolveflow.evaluation.cli invariant --id no_forbidden_candidate --bundle "$RESULT_BUNDLE"` | IN PROGRESS |
+| F04-AC02 | Forbidden model input is zero. | 2/5 | model-request projection scan | `uv run pytest -q tests/security/test_forbidden_model_input.py` | PASS |
+| F04-AC03 | Forbidden citation is zero. | 2/5 | verifier security test and held-out invariant | `uv run pytest -q tests/security/test_forbidden_citation.py` | IN PROGRESS |
+| F04-AC04 | Cache isolation: role or tenant change cannot reuse ineligible candidates. | 2 | property and integration cache tests | `uv run pytest -q tests/security/test_retrieval_cache_isolation.py` | PASS |
+| F04-AC05 | Explainability: trace shows a safe policy reason without leaking source title/content. | 2 | golden redaction projection plus reviewer check | `uv run pytest -q tests/unit/policy/test_public_reason_codes.py tests/security/test_restricted_title_redaction.py` | PASS |
 
 ## Feature 5 - hybrid retrieval with Embed v4
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F05-AC01 | Decisive evidence: held-out Recall@10 is measured against the preregistered baseline and published whether it passes or fails. | 2/5 | raw case-level retrieval bundle | `uv run python -m resolveflow.evaluation.cli retrieval --dataset "$DATASET_VERSION" --builds lexical,embed,hybrid,hybrid-rerank --output "$RESULT_DIR"` | PLANNED |
-| F05-AC02 | Identifier preservation: exact error-code evidence remains retrievable. | 2 | targeted lexical/hybrid regression | `uv run pytest -q tests/integration/test_retrieval_identifiers.py` | PLANNED |
-| F05-AC03 | Authorization: search plans include the eligibility predicate. | 2 | SQL/query-plan security test | `uv run pytest -q tests/integration/test_authorized_search_plan.py` | PLANNED |
-| F05-AC04 | Trace completeness: candidates retain vector, lexical, and fused ranks where applicable. | 2 | candidate serialization test | `uv run pytest -q tests/integration/test_retrieval_trace.py` | PLANNED |
+| F05-AC01 | Decisive evidence: held-out Recall@10 is measured against the preregistered baseline and published whether it passes or fails. | 2/5 | raw case-level retrieval bundle | `uv run python -m resolveflow.evaluation.cli retrieval --dataset "$DATASET_VERSION" --builds lexical,embed,hybrid,hybrid-rerank --output "$RESULT_DIR"` | IN PROGRESS |
+| F05-AC02 | Identifier preservation: exact error-code evidence remains retrievable. | 2 | targeted lexical/hybrid regression | `uv run pytest -q tests/integration/test_retrieval_identifiers.py` | PASS |
+| F05-AC03 | Authorization: search plans include the eligibility predicate. | 2 | SQL/query-plan security test | `uv run pytest -q tests/integration/test_authorized_search_plan.py` | PASS |
+| F05-AC04 | Trace completeness: candidates retain vector, lexical, and fused ranks where applicable. | 2 | candidate serialization test | `uv run pytest -q tests/integration/test_retrieval_trace.py` | PASS |
 
 ## Feature 6 - Rerank v4 Fast-Pro decision policy
 
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
-| F06-AC01 | Pairing: Fast and Pro receive identical authorized candidate payloads. | 2/5 | payload-ID/order/hash contract test | `uv run pytest -q tests/contract/test_rerank_pairing.py` | PLANNED |
+| F06-AC01 | Pairing: Fast and Pro receive identical authorized candidate payloads. | 2/5 | payload-ID/order/hash contract test | `uv run pytest -q tests/contract/test_rerank_pairing.py` | PASS |
 | F06-AC02 | Statistical honesty: results show estimates, exact N, and uncertainty, not selected winners. | 5 | result-schema/report validation | `uv run pytest -q tests/unit/evaluation/test_paired_intervals.py tests/unit/evaluation/test_report_claims.py` | PLANNED |
-| F06-AC03 | Policy clarity: every Pro call has a declared escalation reason. | 2 | model-policy unit/telemetry test | `uv run pytest -q tests/unit/retrieval/test_rerank_policy.py -k escalation_reason` | PLANNED |
+| F06-AC03 | Policy clarity: every Pro call has a declared escalation reason. | 2 | model-policy unit/telemetry test | `uv run pytest -q tests/unit/retrieval/test_rerank_policy.py -k escalation_reason` | PASS |
 | F06-AC04 | Operational budget: public live mode never makes an uncontrolled double call. | 6 | live-budget security test | `uv run pytest -q tests/security/test_public_rerank_budget.py` | PLANNED |
 
 ## Feature 7 - bounded Command A+ agent loop

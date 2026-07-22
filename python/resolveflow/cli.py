@@ -6,8 +6,10 @@ from pathlib import Path
 from resolveflow.agent.fixture import FixtureAgent
 from resolveflow.config import Settings
 from resolveflow.context.fixture import FixtureContextRepository
+from resolveflow.ingestion.fixtures import load_hero_corpus, validate_corpus
 from resolveflow.intake.web import canonical_hero_case
 from resolveflow.orchestrator import ResolveOrchestrator
+from resolveflow.retrieval.metrics import evaluate_fixture_split, fixture_metric_paths
 
 ROOT = Path(__file__).resolve().parents[2]
 PUBLISHED = ROOT / "data" / "published"
@@ -50,3 +52,19 @@ def preflight() -> None:
     if loaded["provenance"] != "recorded_fixture":
         raise SystemExit("snapshot provenance is not recorded_fixture")
     print(f"Preflight passed: {path}")
+
+
+def validate_corpus_command() -> None:
+    corpus = load_hero_corpus()
+    validate_corpus(corpus)
+    print(
+        "Corpus validation passed: "
+        f"{len(corpus.artifacts)} artifacts, {len(corpus.versions)} versions, "
+        f"{len(corpus.chunks)} chunks, {len(corpus.embeddings)} embeddings"
+    )
+
+
+def retrieval_fixture_evaluation() -> None:
+    for path in fixture_metric_paths():
+        for observation in evaluate_fixture_split(path):
+            print(observation.model_dump_json())

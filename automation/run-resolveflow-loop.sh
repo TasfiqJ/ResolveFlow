@@ -57,15 +57,15 @@ LOG_DIR="${CODEX_LOG_DIR:-$HOME/.resolveflow-codex-logs/$RUN_ID}"
 mkdir -p "$LOG_DIR"
 
 STAGES=(
-  "00-plan|map the build|high"
-  "01-foundation|start the engine|medium"
-  "02-retrieval|teach the retriever|medium"
-  "03-agent-safety|lock the doors|high"
-  "04-actions-audit|jira waits nicely|high"
-  "05-replay-gate|make replay real|high"
-  "06-public-validation|polish the control room|medium"
-  "07-final-audit|tests are happy|high"
-  "08-publish|ship the snapshots|medium"
+  "00-plan|Define the implementation roadmap and acceptance gates|high"
+  "01-foundation|Build the shared ResolveFlow foundation|medium"
+  "02-retrieval|Add authorized retrieval and rerank controls|medium"
+  "03-agent-safety|Add bounded agent and safety controls|high"
+  "04-actions-audit|Add approval-gated actions and audit trails|high"
+  "05-replay-gate|Add Replay evaluation and release gates|high"
+  "06-public-validation|Add public validation and control-room UX|medium"
+  "07-final-audit|Complete the final audit and release checks|high"
+  "08-publish|Publish the verified snapshot site|medium"
 )
 
 check_human_gate() {
@@ -247,7 +247,7 @@ for i in "${!STAGES[@]}"; do
 
       git add -A
       git diff --cached --check
-      git commit -m "$commit_message checkpoint"
+      git commit -m "$commit_message (checkpoint)"
       git push origin main
       start_sha="$(git rev-parse HEAD)"
       echo "Checkpoint pushed: $stage @ $(git rev-parse --short HEAD)"
