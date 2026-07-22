@@ -1,0 +1,244 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+need() {
+  command -v "$1" >/dev/null 2>&1 || {
+    echo "Missing required command: $1" >&2
+    exit 2
+  }
+}
+
+need git
+need python3
+
+if [[ "$(git branch --show-current)" != "main" ]]; then
+  echo "Verification must run on main." >&2
+  exit 1
+fi
+
+git diff --check
+bash -n scripts/verify.sh
+bash -n automation/run-resolveflow-loop.sh
+[[ -x scripts/verify.sh ]] || {
+  echo "scripts/verify.sh is not executable." >&2
+  exit 1
+}
+
+python3 - <<'PY'
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+from urllib.parse import unquote
+
+root = Path.cwd()
+errors: list[str] = []
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        errors.append(message)
+
+
+required = [
+    "AGENTS.md",
+    "docs/CODEX_MASTER_PROMPT_ResolveFlow.md",
+    "docs/IMPLEMENTATION_PLAN.md",
+    "docs/ACCEPTANCE_MATRIX.md",
+    "docs/CODEX_STATUS.md",
+    "docs/DECISIONS.md",
+    "docs/reference/ResolveFlow_Replay_Master_Plan.pdf",
+    "automation/COMMON.md",
+    "automation/codex-result.schema.json",
+    "automation/run-resolveflow-loop.sh",
+    "docs/HUMAN_SIGNOFF.example.json",
+    "scripts/verify.sh",
+]
+for relative in required:
+    require((root / relative).is_file(), f"missing required file: {relative}")
+
+specs = sorted((root / "docs/spec").glob("[0-9][0-9]_*.md"))
+require(len(specs) == 19, f"expected 19 numbered specification documents, found {len(specs)}")
+for index, path in enumerate(specs):
+    require(path.name.startswith(f"{index:02d}_"), f"unexpected specification order/name: {path.name}")
+
+checksum_doc = (root / "docs/spec/SHA256SUMS.md").read_text(encoding="utf-8")
+checksum_rows = re.findall(r"\| `([0-9a-f]{64})` \| `([^`]+)` \|", checksum_doc)
+require(len(checksum_rows) == 23, f"expected 23 specification checksum rows, found {len(checksum_rows)}")
+for expected, relative in checksum_rows:
+    path = root / "docs/spec" / relative
+    if not path.is_file():
+        errors.append(f"checksum target missing: docs/spec/{relative}")
+        continue
+    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    require(actual == expected, f"checksum mismatch: docs/spec/{relative}")
+
+pdf = root / "docs/reference/ResolveFlow_Replay_Master_Plan.pdf"
+if pdf.is_file():
+    pdf_bytes = pdf.read_bytes()
+    expected_pdf_hash = "4d3b59808ff1de93a05d15a131ba3a4c11db35694c12cc97bdfecff6149febe2"
+    require(hashlib.sha256(pdf_bytes).hexdigest() == expected_pdf_hash, "master-plan PDF checksum mismatch")
+    require(pdf_bytes.startswith(b"%PDF-"), "master-plan reference is not a PDF")
+    require(b"%%EOF" in pdf_bytes[-2048:], "master-plan PDF has no terminal EOF marker")
+
+matrix_path = root / "docs/ACCEPTANCE_MATRIX.md"
+matrix = matrix_path.read_text(encoding="utf-8") if matrix_path.is_file() else ""
+matrix_rows: dict[str, list[str]] = {}
+for line in matrix.splitlines():
+    cells = [cell.strip() for cell in line.split("|")[1:-1]] if line.startswith("|") else []
+    if cells and re.fullmatch(r"F\d{2}-AC\d{2}", cells[0]):
+        require(len(cells) == 6, f"acceptance row {cells[0]} does not have six fields")
+        if len(cells) == 6:
+            require(cells[5] in {"PLANNED", "IN PROGRESS", "PASS", "FAIL", "BLOCKED", "NOT APPLICABLE"}, f"invalid status on {cells[0]}")
+            require(bool(cells[1]), f"missing criterion text on {cells[0]}")
+            require(bool(cells[3]), f"missing evidence description on {cells[0]}")
+            require(bool(cells[4]), f"missing exact command or human item on {cells[0]}")
+        require(cells[0] not in matrix_rows, f"duplicate acceptance-matrix ID: {cells[0]}")
+        matrix_rows[cells[0]] = cells
+matrix_ids = list(matrix_rows)
+require(len(matrix_ids) == 78, f"expected 78 acceptance-matrix rows, found {len(matrix_ids)}")
+
+source_total = 0
+for feature in range(1, 19):
+    feature_path = specs[feature] if len(specs) == 19 else None
+    if feature_path is None:
+        continue
+    feature_text = feature_path.read_text(encoding="utf-8")
+    match = re.search(r"### 8\.1 Acceptance criteria\n(.*?)\n## 9 ", feature_text, re.DOTALL)
+    if not match:
+        errors.append(f"acceptance table not found in {feature_path.name}")
+        continue
+    table_lines = [line for line in match.group(1).splitlines() if line.startswith("|")]
+    source_rows = [
+        line
+        for line in table_lines
+        if not re.match(r"^\|[-: ]+\|", line) and not line.lower().startswith("| **criterion")
+    ]
+    source_count = len(source_rows)
+    mapped = sorted(identifier for identifier in matrix_rows if int(identifier[1:3]) == feature)
+    expected_ids = [f"F{feature:02d}-AC{criterion:02d}" for criterion in range(1, source_count + 1)]
+    require(mapped == expected_ids, f"feature {feature:02d} source/matrix acceptance mapping differs")
+    for identifier, source_row in zip(expected_ids, source_rows):
+        source_criterion = source_row.split("|")[1].strip().replace("**", "")
+        mapped_criterion = matrix_rows.get(identifier, ["", ""])[1]
+        require(
+            mapped_criterion.lower().startswith(source_criterion.lower()),
+            f"{identifier} criterion does not match source criterion {source_criterion!r}",
+        )
+    source_total += source_count
+require(source_total == 78, f"expected 78 source acceptance criteria, found {source_total}")
+
+plan_path = root / "docs/IMPLEMENTATION_PLAN.md"
+plan = plan_path.read_text(encoding="utf-8") if plan_path.is_file() else ""
+milestone_positions = [plan.find(f"### Milestone {index} -") for index in range(1, 8)]
+require(all(position >= 0 for position in milestone_positions), "one or more milestone headings are missing")
+require(milestone_positions == sorted(milestone_positions), "milestones are not in dependency order")
+for phrase in [
+    "make bootstrap",
+    "make lint",
+    "make typecheck",
+    "make test-unit",
+    "make test-integration",
+    "make test-contract",
+    "make test-security",
+    "make test-replay",
+    "make e2e",
+    "make replay-smoke",
+    "make evaluate-candidate",
+    "make preflight",
+    "Migration ownership",
+    "Rollback and migration policy",
+    "Verification expansion contract",
+]:
+    require(phrase in plan, f"implementation plan is missing required contract: {phrase}")
+
+adr_paths = sorted((root / "docs/adr").glob("ADR-*.md"))
+require(len(adr_paths) >= 12, f"expected at least 12 ADRs, found {len(adr_paths)}")
+adr_sections = [
+    "## Context",
+    "## Options considered",
+    "## Decision",
+    "## Consequences",
+    "## Rejected alternatives",
+    "## Reversal trigger",
+]
+for path in adr_paths:
+    text = path.read_text(encoding="utf-8")
+    for section in adr_sections:
+        require(section in text, f"{path.relative_to(root)} is missing {section}")
+
+markdown_paths = [path for path in root.rglob("*.md") if ".git" not in path.parts]
+link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+for path in markdown_paths:
+    text = path.read_text(encoding="utf-8")
+    fences = sum(1 for line in text.splitlines() if line.lstrip().startswith("```"))
+    require(fences % 2 == 0, f"unbalanced fenced code block: {path.relative_to(root)}")
+    for raw_target in link_pattern.findall(text):
+        target = raw_target.strip()
+        if target.startswith(("http://", "https://", "mailto:", "#")):
+            continue
+        if target.startswith("<") and target.endswith(">"):
+            target = target[1:-1]
+        elif " \"" in target:
+            target = target.split(" \"", 1)[0]
+        target = unquote(target.split("#", 1)[0])
+        if not target:
+            continue
+        linked = (path.parent / target).resolve()
+        require(linked.exists(), f"broken local link in {path.relative_to(root)}: {raw_target}")
+
+planning_paths = [
+    root / "docs/IMPLEMENTATION_PLAN.md",
+    root / "docs/ACCEPTANCE_MATRIX.md",
+    root / "docs/CODEX_STATUS.md",
+    root / "docs/DECISIONS.md",
+    *adr_paths,
+]
+unfinished_pattern = re.compile(r"\b(?:PLACEHOLDER|TODO|TBD)\b")
+for path in planning_paths:
+    if path.is_file():
+        require(not unfinished_pattern.search(path.read_text(encoding="utf-8")), f"unfinished marker in {path.relative_to(root)}")
+
+for relative in ["automation/codex-result.schema.json", "docs/HUMAN_SIGNOFF.example.json"]:
+    try:
+        json.loads((root / relative).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"invalid JSON in {relative}: {exc}")
+
+tracked = subprocess.run(
+    ["git", "ls-files"], check=True, capture_output=True, text=True
+).stdout.splitlines()
+for relative in tracked:
+    lowered = relative.lower()
+    secret_file = lowered.endswith((".pem", ".p12", ".pfx", ".key"))
+    environment_file = bool(re.search(r"(^|/)\.env(?:\.|$)", lowered)) and not lowered.endswith(".env.example")
+    if secret_file or environment_file:
+        errors.append(f"likely secret-bearing file is tracked: {relative}")
+
+secret_pattern = re.compile(
+    r"(?:sk-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|ghp_[A-Za-z0-9]{30,}|ATATT[0-9A-Za-z_-]{20,})"
+)
+for relative in tracked:
+    path = root / relative
+    if not path.is_file() or path.stat().st_size > 1_000_000:
+        continue
+    try:
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        continue
+    require(not secret_pattern.search(text), f"secret-like token found in tracked file: {relative}")
+
+if errors:
+    print("Stage 00 verification failed:")
+    for error in errors:
+        print(f"- {error}")
+    raise SystemExit(1)
+
+print("Stage 00 verification passed: sources, checksums, plan, 78 acceptance mappings, ADRs, links, JSON, shell syntax, and secret hygiene.")
+PY

@@ -1,6 +1,6 @@
 # ResolveFlow Replay decisions and discovery register
 
-**Log version:** 1.0
+**Log version:** 1.1
 
 **Last updated:** 2026-07-21
 
@@ -24,6 +24,7 @@ This file records reversible planning assumptions, contradictions, blockers, and
 | D-012 | Store the discovered 87-page master PDF at the required repository path and record its checksum. | The repository bundle initially omitted the named path, but the authoritative file existed in the supplied local build pack. | A verified newer master-plan version supersedes it with an explicit source record. |
 | D-013 | Work on `main` only. | Latest user instruction explicitly prohibits subbranches. | User explicitly changes the Git workflow again. |
 | D-014 | Do not add product code in this planning task. | Explicit task boundary. | A later task names Milestone 1. |
+| D-015 | Make `scripts/verify.sh` dependency-light in Stage 00 and expand it cumulatively with each milestone. | The outer loop needs an executable verifier now, while product toolchains and lockfiles do not exist yet. | Milestone 1 expands it with locked toolchain commands while preserving all current checks and the no-credential default. |
 
 ## 2. Contradiction register
 

@@ -1,6 +1,6 @@
 # ResolveFlow Replay acceptance matrix
 
-**Matrix version:** 1.0
+**Matrix version:** 1.1
 
 **Planning date:** 2026-07-21
 
@@ -145,7 +145,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | F12-AC01 | Duplicate issue count is zero across forced timeout and retry tests. | 4 | fault-injection integration suite | `uv run pytest -q tests/integration/test_action_faults.py -k duplicate_prevention` | PLANNED |
 | F12-AC02 | Lost approved action count is zero in restart tests within configured retention. | 4 | worker restart/lease suite | `uv run pytest -q tests/integration/test_action_restart.py` | PLANNED |
 | F12-AC03 | Backoff is bounded and observable. | 4 | fake-clock retry unit test | `uv run pytest -q tests/unit/actions/test_retry_policy.py` | PLANNED |
-| F12-AC04 | Permanent failures reach dead letter with an operator-readable reason. | 4 | dead-letter integration and browser test | `uv run pytest -q tests/integration/test_action_dead_letter.py` | PLANNED |
+| F12-AC04 | Dead letter: permanent failures reach dead letter with an operator-readable reason. | 4 | dead-letter integration and browser test | `uv run pytest -q tests/integration/test_action_dead_letter.py` | PLANNED |
 | F12-AC05 | Worker crash: another worker safely reclaims expired work after a crash. | 4 | concurrent PostgreSQL lease test | `uv run pytest -q tests/integration/test_job_leases.py -k reclaim_after_crash` | PLANNED |
 
 ## Feature 13 - complete audit trace and run diff
@@ -153,8 +153,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | ID | Criterion / pass condition | Milestone | Planned evidence | Exact command or human item | Status |
 |---|---|---:|---|---|---|
 | F13-AC01 | Reconstructability: a maintainer can explain final route/action from stored events alone. | 4 | OPS-F13-RECONSTRUCT runbook exercise | Human/operational item: blinded run ID, reconstruction worksheet, discrepancies, maintainer/date/build | PLANNED |
-| F13-AC02 | Public trace exposes no secrets, tokens, hidden prompts, restricted content, or private paths. | 4/6 | redaction tests plus gitleaks/high-entropy scan | `uv run pytest -q tests/security/test_public_trace_redaction.py` | PLANNED |
-| F13-AC03 | Event ordering is stable and timestamps are coherent. | 4 | audit schema/order contract | `uv run pytest -q tests/integration/test_audit_ordering.py` | PLANNED |
+| F13-AC02 | Redaction: public trace exposes no secrets, tokens, hidden prompts, restricted content, or private paths. | 4/6 | redaction tests plus gitleaks/high-entropy scan | `uv run pytest -q tests/security/test_public_trace_redaction.py` | PLANNED |
+| F13-AC03 | Ordering: event sequence is stable and timestamps are coherent. | 4 | audit schema/order contract | `uv run pytest -q tests/integration/test_audit_ordering.py` | PLANNED |
 | F13-AC04 | Diff accuracy: a known role/corpus mutation appears exactly once in the comparison. | 4/5 | golden diff test | `uv run pytest -q tests/replay/test_run_diff.py` | PLANNED |
 
 ## Feature 14 - Replay scenario compiler
@@ -172,7 +172,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 |---|---|---:|---|---|---|
 | F15-AC01 | Pre-registration: gate-file commit predates final held-out results. | 5 | Git chronology integrity test | `uv run pytest -q tests/replay/test_evaluation_chronology.py` | PLANNED |
 | F15-AC02 | Hard-gate behavior: a seeded forbidden citation blocks release. | 5 | negative gate test and CI artifact | `uv run pytest -q tests/replay/test_release_gate_negative.py -k forbidden_citation` | PLANNED |
-| F15-AC03 | Local and CI aggregation produce identical verdict/hash from identical records. | 5 | reproducibility test | `uv run pytest -q tests/replay/test_verdict_reproducibility.py` | PLANNED |
+| F15-AC03 | Reproducibility: local and CI aggregation produce identical verdict/hash from identical records. | 5 | reproducibility test | `uv run pytest -q tests/replay/test_verdict_reproducibility.py` | PLANNED |
 | F15-AC04 | Failure evidence: verdict links to every failing replay. | 5/6 | bundle schema and results-page test | `uv run pytest -q tests/unit/evaluation/test_failure_links.py` | PLANNED |
 
 ## Feature 16 - human review and practitioner scoring
@@ -182,7 +182,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | F16-AC01 | Blinding: review UX exposes no build/model labels and gold route is hidden until submission. | 6 | browser and export-schema tests | `pnpm --dir apps/web exec playwright test tests/browser/review-blinding.spec.ts` | PLANNED |
 | F16-AC02 | Domain fit: relevant reviewer roles are genuinely collected and disclosed in aggregate. | 6 | HUMAN-F16-DOMAIN-FIT | Human item: consented aggregate role/familiarity table with exact reviewer/case counts | PLANNED |
 | F16-AC03 | No fabricated scale: exact reviewer and case counts appear beside every percentage. | 6 | report assertion plus real review export | `uv run pytest -q tests/unit/evaluation/test_human_review_reporting.py -k exact_counts` | PLANNED |
-| F16-AC04 | At least one genuine reviewer disagreement is discussed. | 6 | HUMAN-F16-DISAGREEMENT | Human item: disagreement excerpt/adjudication linked to anonymized review IDs; if none occurs, report that fact rather than inventing one and keep this row unmet | PLANNED |
+| F16-AC04 | Disagreements: at least one genuine reviewer disagreement is discussed. | 6 | HUMAN-F16-DISAGREEMENT | Human item: disagreement excerpt/adjudication linked to anonymized review IDs; if none occurs, report that fact rather than inventing one and keep this row unmet | PLANNED |
 
 ## Feature 17 - one validated multilingual slice
 
@@ -207,6 +207,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | ID | Evidence | Exact command/item | Milestone | Status |
 |---|---|---|---:|---|
+| X-00 | Planning sources, checksums, all 78 acceptance mappings, ADR structure, links, JSON/shell syntax, and secret hygiene validate without external credentials | `scripts/verify.sh` | 0 | PASS |
 | X-01 | Clean-clone snapshot bootstrap without credentials | `make bootstrap seed-demo test replay-smoke snapshot-hero e2e preflight` | 1 | PLANNED |
 | X-02 | Empty-to-head and reversible migration check | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | 1+ | PLANNED |
 | X-03 | Repository and public-build secret scan | `gitleaks detect --source . --no-banner --redact` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PLANNED |
