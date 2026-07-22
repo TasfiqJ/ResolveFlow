@@ -1,0 +1,3 @@
+rollout_id,tenant_id,service,region,change,status,completed_at,synthetic
+rollout-payments-2026-07-15,tenant_heliopay_synthetic,payments-api,ca-central,issuer-routing-v3,completed,2026-07-15T14:05:00Z,true
+

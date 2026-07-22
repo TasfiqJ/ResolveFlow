@@ -1,0 +1,9 @@
+{
+  "artifact_id": "prior-incident-1042",
+  "version": "1",
+  "synthetic": true,
+  "error_code": "PYM-431",
+  "route": "Payments Platform",
+  "resolution": "Rollback only after cluster and error-rate verification."
+}
+

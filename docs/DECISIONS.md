@@ -1,6 +1,6 @@
 # ResolveFlow Replay decisions and discovery register
 
-**Log version:** 1.1
+**Log version:** 1.2
 
 **Last updated:** 2026-07-21
 
@@ -25,6 +25,11 @@ This file records reversible planning assumptions, contradictions, blockers, and
 | D-013 | Work on `main` only. | Latest user instruction explicitly prohibits subbranches. | User explicitly changes the Git workflow again. |
 | D-014 | Do not add product code in this planning task. | Explicit task boundary. | A later task names Milestone 1. |
 | D-015 | Make `scripts/verify.sh` dependency-light in Stage 00 and expand it cumulatively with each milestone. | The outer loop needs an executable verifier now, while product toolchains and lockfiles do not exist yet. | Milestone 1 expands it with locked toolchain commands while preserving all current checks and the no-credential default. |
+| D-016 | Lock the canonical hero to fictional HelioPay, `PYM-431`, `rollout-payments-2026-07-15`, `payments-api`, `ca-central`, and Payments Platform. | This is internally consistent with the governing master prompt and preserves the deliberately missing cluster ID. | A new versioned fixture supersedes the hero before evaluation lock. |
+| D-017 | Use deterministic string IDs in the Stage 01 fixture and defer the production sortable-ID generator choice. | Recorded fixture identifiers must be stable; UUIDv7/ULID behavior is not needed until runtime persistence creates arbitrary objects. | Milestone 2 or 4 introduces runtime-generated persisted identifiers. |
+| D-018 | Canonicalize JSON with sorted keys, compact UTF-8, NFC strings, and UTC timestamps at second precision; prefix hashes with `sha256:`. | The foundation snapshot needs reproducible, explainable content hashes without security-sensitive floating point values. | A versioned canonicalization schema is required for additional numeric evidence. |
+| D-019 | Keep the Stage 01 verifier fixture-backed and explicitly label it `fixture_supported`. | A complete no-key vertical slice is required, while claim-level semantic verification belongs to Milestone 3. | Milestone 3 replaces the fixture verifier behind the same typed boundary. |
+| D-020 | Use Python 3.13 in containers and lockfiles while retaining Python 3.10 source compatibility for the current development host. | uv verified Python 3.13.14 and all selected dependencies; broader developer compatibility remains useful for the package. | A dependency or language feature requires raising the minimum after compatibility tests. |
 
 ## 2. Contradiction register
 
@@ -33,7 +38,18 @@ This file records reversible planning assumptions, contradictions, blockers, and
 | C-001 | PDF/overview: Vercel + Railway + Neon; master prompt: zero spend + GitHub Pages | Higher-priority master prompt wins; dynamic stack is local, public is static Pages. | RESOLVED BY ADR-012 |
 | C-002 | Feature docs: real Slack/Jira demonstration required; master prompt: treat credentials unavailable and keep adapters disabled | Implement full boundaries/contracts/synthetic state machines; live evidence is optional and credential/task-authorized. | RESOLVED BY ADR-009 |
 | C-003 | PDF: 36 human-authored truths; master prompt: autonomous output must not be called human-authored | Use synthetic-agent-authored candidates with pending human review. | RESOLVED BY ADR-010 |
-| C-004 | PDF/master docs use English/French hero variations and different error/customer IDs | Milestone 1 locks one English, internally consistent fixture and records a source-traceable decision. | OPEN UNTIL M1 |
+| C-004 | PDF/master docs use English/French hero variations and different error/customer IDs | Milestone 1 locked the English HelioPay/PYM-431 fixture in D-016. | RESOLVED IN M1 |
+
+## 2.1 Milestone 1 discovered facts
+
+| Fact IDs | Recorded value | Evidence |
+|---|---|---|
+| U-001 | Node 24.18.0, pnpm 10.32.0, Next.js 16.2.11, React 19.2.8, TypeScript 5.9.2, Vitest 3.2.4 are locked for the foundation. | Runtime output, npm registry metadata retrieved 2026-07-21, `pnpm-lock.yaml` |
+| U-002 | Python 3.13.14 lock environment; FastAPI 0.116.1, Pydantic 2.13.4, SQLAlchemy 2.0.43, Alembic 1.16.5, asyncpg 0.30.0, Ruff 0.12.11, mypy 1.17.1, pytest 8.4.1. | `uv.lock`, successful local checks on 2026-07-21 |
+| U-003 | PostgreSQL 17-compatible pgvector development image `pgvector/pgvector:pg17`; tag is locked but its immutable digest remains a Milestone 7 hardening item. | Successful Compose health and reversible migration cycle on 2026-07-21 |
+| U-008-U-010 | Fictional HelioPay tenant/customer, values in D-016, canonical web case schema, and only one missing-field clarification (`cluster_id`). | `data/truths/hero-payments-001.json`, domain tests |
+| U-012-U-013 | Canonicalization is D-018; schema version is `1.0`; initial event names are the six public trace events in the fixture. | Hash and orchestration tests |
+| U-067 | Liveness is process health; readiness validates configuration. Database dependency readiness remains for the persistence milestone. | FastAPI integration tests |
 | C-005 | Overview treats image evidence as shipped; master prompt calls it optional after core | Keep schema/adapter boundary; ship only if core and accessibility gates are complete. | RESOLVED FOR PLAN |
 | C-006 | PDF permits public live mode with daily spend stop; hard rule is spend exactly zero | Live is off; only a confirmed zero-charge key and hard call counter may enable a bounded local/staging subset. | RESOLVED BY ADR-009/012 |
 | C-007 | PDF phase/week sequence differs from the task's seven milestone names | Task milestone names/order govern; features are remapped without changing their dependencies. | RESOLVED |

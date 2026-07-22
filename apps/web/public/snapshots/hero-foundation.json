@@ -1,0 +1,207 @@
+{
+  "action": {
+    "action_type": "create_jira_issue",
+    "connector": "synthetic_not_dispatched",
+    "state": "pending_approval",
+    "summary": "Investigate PYM-431 after issuer-routing-v3 rollout",
+    "team": "Payments Platform"
+  },
+  "build_id": "foundation-v1",
+  "case": {
+    "case_id": "case_hero_payments_001",
+    "case_time": "2026-07-15T14:22:00Z",
+    "channel": "#payments-incidents",
+    "checksum": "sha256:00a7c525a566630489a813aeae1b8ad535a3d327430b6c840ff17255bdfe6682",
+    "customer_id": "cust_heliopay_001",
+    "error_code": "PYM-431",
+    "language_hint": "en",
+    "missing_fields": [
+      "cluster_id"
+    ],
+    "raw_text": "HelioPay card transactions started failing with PYM-431 after rollout rollout-payments-2026-07-15. Cluster ID is not available.",
+    "received_at": "2026-07-15T14:22:00Z",
+    "region": "ca-central",
+    "reporter": "Maya Chen (synthetic)",
+    "schema_version": "1.0",
+    "service": "payments-api",
+    "severity": "high",
+    "source_system": "web",
+    "synthetic": true,
+    "tenant_id": "tenant_heliopay_synthetic"
+  },
+  "commit": "3dc0d6816d93",
+  "content_hash": "sha256:5ecdac17fa5f806288e2ec40bc1f6454df025952253ed63fa73ec4fe8c80dc62",
+  "context": [
+    {
+      "as_of": "2026-07-15T14:22:00Z",
+      "checksum": "sha256:5f6ef9f9b5a3f3b275831b797ce80ae3ea4abae5995fb455f21c4aac7351c655",
+      "data": {
+        "customer_id": "cust_heliopay_001",
+        "region": "ca-central",
+        "tier": "enterprise"
+      },
+      "operation": "get_customer_profile",
+      "provenance_ids": [
+        "customer-row-001"
+      ],
+      "status": "ok"
+    },
+    {
+      "as_of": "2026-07-15T14:22:00Z",
+      "checksum": "sha256:a7e1aabe1da045a836fb1eded9102aa4abacba9ee5bd3b190e2b9f609d779d95",
+      "data": {
+        "reason": "cluster_id_missing_from_report"
+      },
+      "operation": "get_active_clusters",
+      "provenance_ids": [],
+      "status": "not_found"
+    },
+    {
+      "as_of": "2026-07-15T14:22:00Z",
+      "checksum": "sha256:49a519ce6436267ba514ccbdaa134fe47006045050f27474a7c853714f879922",
+      "data": {
+        "change": "issuer-routing-v3",
+        "rollout_id": "rollout-payments-2026-07-15",
+        "service": "payments-api",
+        "status": "completed_before_failures"
+      },
+      "operation": "get_rollouts",
+      "provenance_ids": [
+        "rollout-row-20260715"
+      ],
+      "status": "ok"
+    },
+    {
+      "as_of": "2026-07-15T14:22:00Z",
+      "checksum": "sha256:f0a9a925fc2fdb6f82987e0fb93a8ca378f4c94a944ef95c490e8e39b84b5a49",
+      "data": {
+        "incident_id": "inc-synth-1042",
+        "matching_error": "PYM-431"
+      },
+      "operation": "get_open_incidents",
+      "provenance_ids": [
+        "incident-row-1042"
+      ],
+      "status": "ok"
+    }
+  ],
+  "corpus_version": "hero-corpus-1.0",
+  "generated_at": "2026-07-21T00:00:00Z",
+  "model_policy": "fixture-only-1.0",
+  "provenance": "recorded_fixture",
+  "response": {
+    "citations": [
+      {
+        "citation_id": "cite_rollout_001",
+        "excerpt": "issuer-routing-v3 completed before PYM-431 failures",
+        "locator": "row rollout-payments-2026-07-15",
+        "source_id": "rollout-row-20260715",
+        "title": "Synthetic rollout record",
+        "version": "1"
+      },
+      {
+        "citation_id": "cite_runbook_001",
+        "excerpt": "Identify the affected cluster and compare error rates before rollback.",
+        "locator": "section 2: preconditions",
+        "source_id": "runbook-payments-rollback-v3",
+        "title": "Payments rollback runbook",
+        "version": "3"
+      }
+    ],
+    "provider": "recorded_fixture",
+    "recommended_steps": [
+      "Confirm the affected cluster before executing a rollback.",
+      "Compare PYM-431 rates before and after rollout-payments-2026-07-15.",
+      "Prepare an inert Jira proposal for Payments Platform review."
+    ],
+    "route": "Payments Platform",
+    "status": "verified_fixture",
+    "summary": "The failures align with the issuer-routing-v3 rollout. Route this synthetic incident to Payments Platform and verify rollback readiness before any change.",
+    "unknowns": [
+      "The affected cluster ID is not available."
+    ],
+    "verifier_status": "fixture_supported"
+  },
+  "run_id": "run_hero_foundation_001",
+  "schema_version": "1.0",
+  "trace": [
+    {
+      "actor": "resolveflow-service",
+      "component": "intake",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_001",
+      "event_name": "case.normalized",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "source": "web"
+      },
+      "sequence": 1
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "context",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_002",
+      "event_name": "context.enriched",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "needs_information",
+      "safe_detail": {
+        "operations": 4
+      },
+      "sequence": 2
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "retrieval",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_003",
+      "event_name": "fixture.evidence.selected",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "mode": "eligible_fixture"
+      },
+      "sequence": 3
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "agent",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_004",
+      "event_name": "fixture.response.loaded",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "provider": "recorded_fixture"
+      },
+      "sequence": 4
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "verifier",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_005",
+      "event_name": "fixture.citations.checked",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "citations": 2
+      },
+      "sequence": 5
+    },
+    {
+      "actor": "resolveflow-service",
+      "component": "actions",
+      "correlation_id": "run_hero_foundation_001",
+      "event_id": "evt_006",
+      "event_name": "proposal.created",
+      "occurred_at": "2026-07-15T14:22:00Z",
+      "outcome": "ok",
+      "safe_detail": {
+        "state": "pending_approval"
+      },
+      "sequence": 6
+    }
+  ]
+}

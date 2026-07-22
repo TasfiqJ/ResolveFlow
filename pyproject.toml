@@ -1,0 +1,56 @@
+[project]
+name = "resolveflow-replay"
+version = "0.1.0"
+description = "Snapshot-first deployment gate for a synthetic enterprise incident agent"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "alembic==1.16.5",
+  "asyncpg==0.30.0",
+  "fastapi==0.116.1",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.10.1",
+  "sqlalchemy==2.0.43",
+  "uvicorn==0.35.0",
+]
+
+[dependency-groups]
+dev = [
+  "httpx==0.28.1",
+  "mypy==1.17.1",
+  "pytest==8.4.1",
+  "pytest-asyncio==1.1.0",
+  "ruff==0.12.11",
+]
+
+[project.scripts]
+resolveflow-api = "resolveflow.api.main:run"
+resolveflow-worker = "resolveflow.worker.main:run"
+resolveflow-seed = "resolveflow.cli:seed"
+resolveflow-snapshot = "resolveflow.cli:snapshot"
+resolveflow-preflight = "resolveflow.cli:preflight"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["python/resolveflow"]
+
+[tool.pytest.ini_options]
+pythonpath = ["python"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["resolveflow"]
+mypy_path = "python"
+plugins = ["pydantic.mypy"]

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "truth_id": "hero-payments-001",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "human_review_status": "pending"
+  },
+  "tenant": "HelioPay (fictional)",
+  "region": "ca-central",
+  "severity": "high",
+  "error_code": "PYM-431",
+  "rollout_id": "rollout-payments-2026-07-15",
+  "correct_route": "Payments Platform",
+  "required_unknowns": ["cluster_id"],
+  "permitted_action": "propose_create_jira_issue_only"
+}
+

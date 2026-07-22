@@ -1,1 +1,14 @@
-/tmp/
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+*.tsbuildinfo
+apps/web/.next/
+apps/web/out/
+test-results/
+.coverage
+tmp/

@@ -13,6 +13,14 @@ need() {
 
 need git
 need python3
+need uv
+need pnpm
+need node
+need docker
+
+export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/resolveflow-uv-cache}"
+export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
+export PNPM_HOME="${PNPM_HOME:-/tmp/resolveflow-pnpm}"
 
 if [[ "$(git branch --show-current)" != "main" ]]; then
   echo "Verification must run on main." >&2
@@ -173,7 +181,10 @@ for path in adr_paths:
     for section in adr_sections:
         require(section in text, f"{path.relative_to(root)} is missing {section}")
 
-markdown_paths = [path for path in root.rglob("*.md") if ".git" not in path.parts]
+ignored_markdown_parts = {".git", ".venv", "node_modules", ".next", "out", "tmp"}
+markdown_paths = [
+    path for path in root.rglob("*.md") if not ignored_markdown_parts.intersection(path.parts)
+]
 link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 for path in markdown_paths:
     text = path.read_text(encoding="utf-8")
@@ -242,3 +253,56 @@ if errors:
 
 print("Stage 00 verification passed: sources, checksums, plan, 78 acceptance mappings, ADRs, links, JSON, shell syntax, and secret hygiene.")
 PY
+
+echo "Stage 01: validating locked setup and runtime configuration"
+uv lock --check
+pnpm install --frozen-lockfile --offline --store-dir /tmp/resolveflow-pnpm-store
+docker compose config --quiet
+
+for required in \
+  pyproject.toml uv.lock package.json pnpm-lock.yaml docker-compose.yml alembic.ini \
+  python/resolveflow/api/main.py python/resolveflow/worker/main.py \
+  migrations/versions/0001_foundation.py data/truths/hero-payments-001.json \
+  data/published/hero-foundation.json apps/web/public/snapshots/hero-foundation.json; do
+  [[ -f "$required" ]] || {
+    echo "Missing Stage 01 artifact: $required" >&2
+    exit 1
+  }
+done
+
+echo "Stage 01: Python lint, formatting, and types"
+uv run ruff check python tests
+uv run ruff format --check python tests
+uv run mypy python/resolveflow
+
+echo "Stage 01: web lint, formatting, and types"
+pnpm --dir apps/web lint
+pnpm --dir apps/web format:check
+pnpm --dir apps/web typecheck
+
+echo "Stage 01: unit and vertical-slice integration tests"
+uv run pytest -q tests/unit tests/integration
+pnpm --dir apps/web test
+
+echo "Stage 01: deterministic snapshot and static browser smoke"
+uv run resolveflow-snapshot
+pnpm --dir apps/web build
+node tests/browser/snapshot-smoke.mjs
+uv run resolveflow-preflight
+
+echo "Stage 01: reversible PostgreSQL migration cycle"
+docker compose up -d db
+for attempt in $(seq 1 30); do
+  db_state="$(docker inspect --format '{{.State.Health.Status}}' resolveflow-db-1 2>/dev/null || true)"
+  [[ "$db_state" == "healthy" ]] && break
+  sleep 1
+done
+[[ "$(docker inspect --format '{{.State.Health.Status}}' resolveflow-db-1)" == "healthy" ]] || {
+  echo "PostgreSQL did not become healthy." >&2
+  exit 1
+}
+uv run alembic upgrade head
+uv run alembic downgrade -1
+uv run alembic upgrade head
+
+echo "Stage 01 verification passed: scaffold, types, tests, snapshot export, browser smoke, and reversible migrations."
