@@ -22,10 +22,10 @@
 
 ## Publication
 
-- [ ] GitHub Pages workflow completes successfully.
-- [ ] The public URL returns the technical-preview homepage.
-- [ ] At least one nested route and one checksummed snapshot are reachable.
-- [ ] No live provider, Slack, Jira, database, session, or write credential is present.
-- [ ] The observed deployment URL and workflow result are added to the final report.
+- [x] GitHub Pages workflow completes successfully.
+- [x] The public URL returns the technical-preview homepage.
+- [x] At least one nested route and both checksummed snapshots are reachable.
+- [x] No live provider, Slack, Jira, database, session, or write credential is present.
+- [x] The observed deployment URL and workflow result are added to the final report.
 
 Unchecked items are pending measurements, not implied successes.

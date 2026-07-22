@@ -2,6 +2,8 @@
 
 ResolveFlow Replay is a deployment gate for enterprise agents.
 
+**Live technical preview:** [tasfiqj.github.io/ResolveFlow](https://tasfiqj.github.io/ResolveFlow/)
+
 The current credential-free build demonstrates one clearly labeled synthetic payments incident
 moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level
 verification, exact approval controls, deterministic Replay, paired unsafe/guarded comparison,

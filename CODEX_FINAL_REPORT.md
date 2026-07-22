@@ -6,7 +6,7 @@
 
 **Release profile:** `technical_preview`
 
-**Rollback target:** `fddb5aa6a46d8c6a24d9fe1cb238fa9fc453992c`
+**Rollback target:** `e30f56714dcbc57fc861c1eeb0e2d4dbf3dfa56c`
 
 ## Outcome
 
@@ -58,4 +58,12 @@ The complete limitation register is in `docs/KNOWN_LIMITATIONS.md`. Promotion to
 
 ## Publication
 
-Publication has not yet been verified. The workflow result, public URL, and post-push checks will be recorded only after they are observed.
+GitHub Pages publication was observed and verified on 2026-07-22:
+
+- Public URL: [https://tasfiqj.github.io/ResolveFlow/](https://tasfiqj.github.io/ResolveFlow/)
+- Successful workflow: [run 29927371263](https://github.com/TasfiqJ/ResolveFlow/actions/runs/29927371263) at commit `9f81f866fe70e7fe453f1b1a670d82c6a3bb9914`
+- Build and deploy jobs both completed successfully.
+- Homepage and `/about/` returned HTTP 200 with the technical-preview, pending-human-validation, and honest-limitations copy.
+- Public hero and Replay snapshots returned HTTP 200 and matched repository SHA-256 values `acfe2a0f...2b80` and `49f5da29...7ac9`.
+
+The exact publication observation is recorded in `docs/deployment-reports/2026-07-22-pages-9f81f86.md`.

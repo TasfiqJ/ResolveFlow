@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Stage 07 technical-preview audit complete; publication verification pending
+**Product implementation:** Complete technical preview, audited and published
 
-**Active work:** Stage 08 GitHub Pages publication and post-push verification
+**Active work:** Final publication record and release tag
 
 ## Current repository facts
 
@@ -15,7 +15,7 @@
 - The public shell is snapshot-first and visibly labels its output `Recorded fixture` and its intake `Slack-style simulation`.
 - FastAPI exposes health/version, canonical case/run, exact action approve/reject, chronological events, redacted/full trace, and deterministic JSON/Markdown export routes.
 - Alembic revision `0001_foundation` owns tenants, cases, agent runs, append-oriented audit rows, and job foundations. Its upgrade/downgrade/upgrade cycle passed against the Compose PostgreSQL service.
-- The normal build and tests require no Cohere key. One deterministic draft fixture evaluation occurred; no live provider call, Slack/Jira write, deployment, human review, cost claim, held-out evaluation, or final release verdict occurred.
+- The normal build and tests require no Cohere key. One deterministic draft fixture evaluation and one static GitHub Pages deployment occurred; no live provider call, Slack/Jira write, human review, cost claim, held-out evaluation, or final release verdict occurred.
 - The shared Resolve path now runs a deterministic fixture-backed bounded Command protocol with four typed allowlisted tools, strict local validation, authorization, per-tool timeout, and fixed round/provider-call/token/wall-clock budgets.
 - Stage 02 adds a checksummed synthetic corpus with six immutable artifact versions/chunks, explicit parser/chunker provenance, effective intervals, data-quality validation, frozen corpus/identity/ACL snapshots, and deterministic re-ingestion.
 - The shared Resolve path now performs authorization before lexical/vector ranking, reciprocal-rank fusion, deduplication, per-artifact diversity limits, deterministic reranking, and candidate-level rank/score/provenance tracing.
@@ -52,7 +52,7 @@
 - Jira staging configuration validates one HTTPS development site/project and fixed issue/team/priority mappings, while the real adapter remains disabled and public mode cannot contain write authority.
 - The private/static review workflow blinds and deterministically randomizes A/B outputs. Empty export and exact-count analysis commands report 0 reviewers/0 cases; no reviewer response, role evidence, percentage, or disagreement is invented.
 - The exploratory French fixture is synthetic-agent-authored, pending fluent-human signoff, excluded from claimed results, and unable to expand public case/action authority. Public quality claims remain English-only.
-- GitHub Pages static deployment is prepared but has not yet been triggered. No deployment/public URL is claimed before observation.
+- GitHub Pages published the credential-free static export at `https://tasfiqj.github.io/ResolveFlow/`; workflow run `29927371263`, nested-route checks, and both public snapshot hashes passed.
 
 ## Milestone status
 
@@ -113,9 +113,9 @@ One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIO
 - No Cohere key was available or required; no live model call was made.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
-- Milestone work through commit `fddb5aa` is pushed to `origin/main`; the final audit hardening changes are the next coherent checkpoint.
-- No merge, deployment, tag, release, or publication is claimed yet.
+- Audit, restore, and Pages enablement work through commit `9f81f86` is pushed to `origin/main`.
+- Static publication is verified. No merge, live-provider/connector release, or production-readiness verdict is claimed.
 
 ## Immediate next action
 
-Commit and push the verified audit checkpoint, prove a clean-clone restore, then enable and verify the GitHub Pages workflow and public URL.
+Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.
