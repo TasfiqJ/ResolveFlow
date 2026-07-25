@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Complete technical preview with a story-first public experience
+**Product implementation:** Complete technical preview with a published story-first public experience
 
-**Active work:** Post-release public-site usability redesign and publication
+**Active work:** None; the post-release public-site usability redesign is published
 
 ## Current repository facts
 
@@ -121,6 +121,8 @@ One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIO
 | `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
 | `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
 | In-app browser review at desktop width | PASS, product purpose, primary demo action, recorded boundaries, and laptop first viewport visually verified |
+| GitHub `validate` workflow run `30175863829` | PASS, both `verify` and `replay-gates` jobs |
+| GitHub Pages workflow run `30175863810` | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
 
 The redesign changes information architecture and presentation only. It does not add live-provider, connector, reviewer, held-out, or deployment evidence.
 
@@ -129,8 +131,8 @@ The redesign changes information architecture and presentation only. It does not
 - No Cohere key was available or required; no live model call was made.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
-- Audit, restore, and Pages enablement work through commit `9f81f86` is pushed to `origin/main`.
-- Static publication is verified. No merge, live-provider/connector release, or production-readiness verdict is claimed.
+- The story-first redesign (`a88e3d0`) and CI setup correction (`2280e03`) are pushed to `origin/main`.
+- Static publication is verified at `https://tasfiqj.github.io/ResolveFlow/`. No live-provider/connector release or production-readiness verdict is claimed.
 
 ## Immediate next action
 
