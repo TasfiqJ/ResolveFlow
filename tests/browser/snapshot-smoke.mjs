@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile("apps/web/out/index.html", "utf8");
-assert.match(html, /Slack-style simulation/);
-assert.match(html, /Recorded run/);
+assert.match(html, /What if a workplace AI sounds right/);
+assert.match(html, /Recorded synthetic case/);
 assert.match(html, /Technical preview/);
-assert.match(html, /human validation remains pending/i);
+assert.match(html, /0 reviewers \/ 0 cases/i);
 assert.match(html, /Payments Platform/);
 assert.match(html, /cluster ID is not available/i);
+assert.match(html, /No inflated claims/i);
 assert.doesNotMatch(html, /Run live with Cohere/);
 for (const route of [
   "demo",

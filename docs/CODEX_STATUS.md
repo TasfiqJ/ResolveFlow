@@ -1,18 +1,18 @@
 # ResolveFlow Replay status
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-25
 
 **Current branch:** `main`
 
-**Product implementation:** Complete technical preview, audited and published
+**Product implementation:** Complete technical preview with a story-first public experience
 
-**Active work:** Final publication record and release tag
+**Active work:** Post-release public-site usability redesign and publication
 
 ## Current repository facts
 
 - The foundation is a modular Python monolith, a separate worker runtime, one PostgreSQL 17-compatible development database, and a Next.js 16 static-exportable web app.
 - A web-created, clearly synthetic HelioPay payments case follows the shared `ResolveOrchestrator` path through named context operations, a governed fixture-backed cited result, an explicit missing cluster ID, an inert Jira proposal, and 14 hash-linked chronological trace events.
-- The public shell is snapshot-first and visibly labels its output `Recorded fixture` and its intake `Slack-style simulation`.
+- The public shell is snapshot-first and immediately labels the hero experience as a recorded synthetic case, technical preview, and no-external-write environment.
 - FastAPI exposes health/version, canonical case/run, exact action approve/reject, chronological events, redacted/full trace, and deterministic JSON/Markdown export routes.
 - Alembic revision `0001_foundation` owns tenants, cases, agent runs, append-oriented audit rows, and job foundations. Its upgrade/downgrade/upgrade cycle passed against the Compose PostgreSQL service.
 - The normal build and tests require no Cohere key. One deterministic draft fixture evaluation and one static GitHub Pages deployment occurred; no live provider call, Slack/Jira write, human review, cost claim, held-out evaluation, or final release verdict occurred.
@@ -45,7 +45,7 @@
 - FastAPI now exposes only the predefined `POST /v1/replays`, `GET /v1/replays/{id}`, and `GET /v1/releases/{build}` fixture interfaces; arbitrary manifests/builds remain rejected.
 - Alembic revision `0005_replay_release_gate` owns draft truth/scenario/expectation, paired Replay, metric, comparison, gate, and result-bundle records, including database guards against falsely locked truth rows or final-publication flags.
 - The static product now exports `/`, `/demo`, `/replay`, `/results`, `/architecture`, `/methodology`, `/about`, `/review`, and one pre-generated `/runs/run_hero_foundation_001` audit page, plus a useful unknown-artifact page.
-- Homepage and demo expose the synthetic case, authorized evidence, verified response, inert action, and observable trace. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
+- Homepage and demo now explain the product as a six-part guided story: problem, shared Resolve/Replay/Gate workflow, one recorded case, deterministic controls, proof and limits, and optional technical detail. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
 - Canonical hero and Replay result JSON are stored with reconstructable canonical/file checksums and copied byte-for-byte into the browser asset tree. Generated-browser bundles are scanned for secret-like values and server-only credential names.
 - Public live inference remains disabled. A local API boundary accepts one predefined case and five named mutations and enforces IP/session/global quotas, one active run per session, a bounded queue, deadline, and kill switch with a recorded fallback.
 - Slack request HMAC/timestamp verification, challenge/event parsing, deduplication, immediate queued acknowledgement, canonical normalization, and safe audit events are implemented with synthetic signed contracts; no real Slack credential or request was used.
@@ -107,6 +107,22 @@ Local checks do not imply GitHub Actions, provider, connector, deployment, or hu
 | isolated clean-clone restore | PASS at pushed commit `e30f567`; frozen install, Pages build, route smoke, and published hashes reproduced |
 
 One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIONS.md`; no test was skipped or muted.
+
+## Post-release public UX refinement
+
+| Command / review | Result |
+|---|---|
+| `pnpm --dir apps/web format:check` | PASS |
+| `pnpm --dir apps/web test` | PASS, 2 story-first snapshot component tests |
+| `pnpm --dir apps/web typecheck` | PASS |
+| `pnpm --dir apps/web lint` | PASS, zero warnings |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, all public routes statically exported with GitHub Pages paths |
+| `node tests/browser/snapshot-smoke.mjs` | PASS, guided homepage, honest evidence limits, and every public route present |
+| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
+| `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
+| In-app browser review at desktop width | PASS, product purpose, primary demo action, recorded boundaries, and laptop first viewport visually verified |
+
+The redesign changes information architecture and presentation only. It does not add live-provider, connector, reviewer, held-out, or deployment evidence.
 
 ## External work and credentials
 
