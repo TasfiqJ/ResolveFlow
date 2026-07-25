@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with a performance-led portfolio experience
 
-**Active work:** Performance-led portfolio redesign pending publication
+**Active work:** None; the performance-led portfolio redesign is published
 
 ## Current repository facts
 
@@ -139,6 +139,9 @@ The redesign changes information architecture and presentation only. It does not
 | `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
 | `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
 | In-app browser review at desktop width | PASS, full first-viewport hierarchy, animated Replay engine, primary action, and recorded control room visually verified |
+| GitHub `validate` workflow run `30176794288` | PASS, both `verify` and `replay-gates` jobs |
+| GitHub Pages workflow run `30176794289` | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
+| Production browser review at `7b57e8b` | PASS, builder attribution, product definition, Replay visualization, recorded boundaries, and responsive first viewport verified on the published site |
 
 The supplied dark technical reference was recreated with native HTML/CSS motion and deterministic content. No third-party animation runtime, hidden attribution, or runtime inference dependency was added.
 
@@ -147,7 +150,7 @@ The supplied dark technical reference was recreated with native HTML/CSS motion 
 - No Cohere key was available or required; no live model call was made.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
-- The story-first redesign (`a88e3d0`) and CI setup correction (`2280e03`) are pushed to `origin/main`.
+- The performance-led portfolio redesign (`7b57e8b`) is pushed to `origin/main`; its validation and Pages publication workflows passed.
 - Static publication is verified at `https://tasfiqj.github.io/ResolveFlow/`. No live-provider/connector release or production-readiness verdict is claimed.
 
 ## Immediate next action
