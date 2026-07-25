@@ -4,9 +4,9 @@
 
 **Current branch:** `main`
 
-**Product implementation:** Complete technical preview with a published story-first public experience
+**Product implementation:** Complete technical preview with a performance-led portfolio experience
 
-**Active work:** None; the post-release public-site usability redesign is published
+**Active work:** Performance-led portfolio redesign pending publication
 
 ## Current repository facts
 
@@ -45,7 +45,7 @@
 - FastAPI now exposes only the predefined `POST /v1/replays`, `GET /v1/replays/{id}`, and `GET /v1/releases/{build}` fixture interfaces; arbitrary manifests/builds remain rejected.
 - Alembic revision `0005_replay_release_gate` owns draft truth/scenario/expectation, paired Replay, metric, comparison, gate, and result-bundle records, including database guards against falsely locked truth rows or final-publication flags.
 - The static product now exports `/`, `/demo`, `/replay`, `/results`, `/architecture`, `/methodology`, `/about`, `/review`, and one pre-generated `/runs/run_hero_foundation_001` audit page, plus a useful unknown-artifact page.
-- Homepage and demo now explain the product as a six-part guided story: problem, shared Resolve/Replay/Gate workflow, one recorded case, deterministic controls, proof and limits, and optional technical detail. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
+- Homepage and demo now open as a technical control system: the first viewport names Tasfiq Jasimuddin as the end-to-end engineer, defines ResolveFlow as an AI-agent release gate, visualizes the Replay engine, and leads into a three-panel recorded control room, system architecture, engineering proof, ownership scope, and evidence routes. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
 - Canonical hero and Replay result JSON are stored with reconstructable canonical/file checksums and copied byte-for-byte into the browser asset tree. Generated-browser bundles are scanned for secret-like values and server-only credential names.
 - Public live inference remains disabled. A local API boundary accepts one predefined case and five named mutations and enforces IP/session/global quotas, one active run per session, a bounded queue, deadline, and kill switch with a recorded fallback.
 - Slack request HMAC/timestamp verification, challenge/event parsing, deduplication, immediate queued acknowledgement, canonical normalization, and safe audit events are implemented with synthetic signed contracts; no real Slack credential or request was used.
@@ -125,6 +125,22 @@ One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIO
 | GitHub Pages workflow run `30175863810` | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
 
 The redesign changes information architecture and presentation only. It does not add live-provider, connector, reviewer, held-out, or deployment evidence.
+
+## Performance-led portfolio redesign
+
+| Command / review | Result |
+|---|---|
+| `pnpm --dir apps/web format:check` | PASS |
+| `pnpm --dir apps/web test` | PASS, 2 portfolio-story and evidence-boundary component tests |
+| `pnpm --dir apps/web typecheck` | PASS |
+| `pnpm --dir apps/web lint` | PASS, zero warnings |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, all public routes statically exported |
+| `node tests/browser/snapshot-smoke.mjs` | PASS, builder attribution, release-gate definition, recorded provenance, proof limits, and every public route present |
+| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
+| `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
+| In-app browser review at desktop width | PASS, full first-viewport hierarchy, animated Replay engine, primary action, and recorded control room visually verified |
+
+The supplied dark technical reference was recreated with native HTML/CSS motion and deterministic content. No third-party animation runtime, hidden attribution, or runtime inference dependency was added.
 
 ## External work and credentials
 

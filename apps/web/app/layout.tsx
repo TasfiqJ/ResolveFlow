@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "ResolveFlow — Know when an AI agent is safe to ship",
+  title: "ResolveFlow — The AI agent release gate",
   description:
-    "ResolveFlow solves a workplace incident, replays the same AI agent under failure, and turns the evidence into a clear release verdict.",
+    "Tasfiq Jasimuddin engineered ResolveFlow to stress-test enterprise AI agents under failure and turn auditable evidence into a release verdict.",
   openGraph: {
-    title: "ResolveFlow — Know when an AI agent is safe to ship",
+    title: "ResolveFlow — The AI agent release gate",
     description:
-      "Resolve one incident. Replay the same AI agent under failure. Gate the release with evidence.",
+      "I built the release gate AI agents are missing. Resolve, replay, verify, and decide what ships.",
     url: "https://tasfiqj.github.io/ResolveFlow/",
     siteName: "ResolveFlow",
     images: [
@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ResolveFlow — Know when an AI agent is safe to ship",
+    title: "ResolveFlow — The AI agent release gate",
     description:
-      "Resolve one incident. Replay the same AI agent under failure. Gate the release with evidence.",
+      "I built the release gate AI agents are missing. Resolve, replay, verify, and decide what ships.",
     images: ["https://tasfiqj.github.io/ResolveFlow/og.png"],
   },
 };
@@ -43,17 +43,23 @@ export default function RootLayout({
           Skip to content
         </a>
         <header className="topbar">
-          <a className="brand" href="" aria-label="ResolveFlow Replay home">
+          <a className="brand" href="" aria-label="ResolveFlow home">
             <span className="brandMark">RF</span>
-            <span>ResolveFlow</span>
+            <span>
+              <b>RESOLVEFLOW</b>
+              <small>AI RELEASE SYSTEM</small>
+            </span>
           </a>
           <nav aria-label="Primary navigation">
-            <a href="#what-it-does">What it does</a>
-            <a href="#how-it-works">How it works</a>
-            <a href="#proof">Proof &amp; limits</a>
+            <a href="#demo">Replay demo</a>
+            <a href="#engineering">Engineering</a>
+            <a href="#proof">Proof</a>
           </nav>
-          <a className="navAction" href="#demo">
-            See the demo
+          <a
+            className="navAction"
+            href="https://github.com/TasfiqJ/ResolveFlow"
+          >
+            View source ↗
           </a>
         </header>
         {children}

@@ -217,6 +217,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-07 | Every exported public route checked from the production artifact | `node tests/browser/snapshot-smoke.mjs` | 7 | PASS |
 | X-08 | Final release-profile, claim, and placeholder audit | `uv run python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json && uv run python scripts/preflight.py --strict` | 7 | PASS |
 | X-09 | Story-first public experience explains the product before exposing technical detail while retaining recorded provenance and absent-evidence disclosures | `pnpm --dir apps/web test && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build && node tests/browser/snapshot-smoke.mjs` plus in-app browser review | post-release UX | PASS |
+| X-10 | Performance-led portfolio experience identifies the builder, defines the product, demonstrates the recorded Replay gate, and exposes verifiable engineering depth without unsupported claims | `pnpm --dir apps/web test && pnpm --dir apps/web typecheck && pnpm --dir apps/web lint && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build && node tests/browser/snapshot-smoke.mjs` plus in-app browser review | post-release UX | PASS |
 
 ## Update rules
 

@@ -1,385 +1,520 @@
+import type { CSSProperties } from "react";
 import snapshot from "../public/snapshots/hero-foundation.json";
-import React from "react";
 
-const releaseSteps = [
-  {
-    number: "01",
-    label: "Resolve",
-    title: "Solve one real workflow",
-    copy: "The agent investigates a realistic incident, cites the evidence it used, and says what it still does not know.",
-  },
-  {
-    number: "02",
-    label: "Replay",
-    title: "Change the conditions",
-    copy: "The same production path runs again with revoked access, hostile documents, missing context, and connector failure.",
-  },
-  {
-    number: "03",
-    label: "Gate",
-    title: "Make a release decision",
-    copy: "Hard safety failures are checked first. Only then does quality count toward ship, ship with limits, or no ship.",
-  },
-];
+const starField = [
+  [8, 18, 0],
+  [14, 72, 1.4],
+  [19, 41, 0.8],
+  [27, 13, 2.2],
+  [32, 83, 0.3],
+  [39, 29, 1.7],
+  [47, 64, 2.8],
+  [53, 9, 0.6],
+  [58, 88, 2],
+  [66, 22, 1.1],
+  [71, 53, 2.5],
+  [78, 79, 0.4],
+  [84, 35, 1.9],
+  [91, 16, 0.9],
+  [94, 68, 2.7],
+] as const;
 
-const trustControls = [
+const systemLayers = [
+  ["01", "INTAKE", "Typed case"],
+  ["02", "AUTH", "Filter first"],
+  ["03", "RETRIEVE", "Rank evidence"],
+  ["04", "VERIFY", "Close claims"],
+  ["05", "APPROVE", "Bind payload"],
+  ["06", "REPLAY", "Break safely"],
+] as const;
+
+const engineeringCards = [
   {
-    number: "01",
-    title: "Access checked before search",
-    copy: "Evidence the active role cannot see is removed before ranking, not hidden after the model reads it.",
+    code: "ACL.01",
+    title: "Authorization before retrieval",
+    copy: "Restricted evidence is removed before search, ranking, caching, or model context. A role downgrade cannot widen access.",
+    proof: "NEGATIVE SECURITY TESTS",
   },
   {
-    number: "02",
-    title: "Every claim has a source",
-    copy: "Material facts must point back to an authorized, current, exact source span.",
+    code: "EVG.02",
+    title: "A verifiable evidence graph",
+    copy: "Every material claim closes over an authorized, current, exact source span. Missing facts remain explicit unknowns.",
+    proof: "DETERMINISTIC CLAIM CLOSURE",
   },
   {
-    number: "03",
-    title: "Unknown stays unknown",
-    copy: "Missing context is kept visible instead of being filled with a plausible guess.",
+    code: "ACT.03",
+    title: "Exactly-bound actions",
+    copy: "A Jira proposal is inert until a human approves the exact payload digest. Retries reconcile before any second effect.",
+    proof: "NO PUBLIC WRITE AUTHORITY",
   },
   {
-    number: "04",
-    title: "Actions cannot slip through",
-    copy: "The public demo produces an inert proposal only. No Slack or Jira write can happen.",
+    code: "RPL.04",
+    title: "Production-path replay",
+    copy: "The same Resolve orchestrator runs controlled mutations, compares builds, and evaluates hard failures before quality.",
+    proof: "ONE SHARED CODE PATH",
   },
-];
+] as const;
+
+const proofStats = [
+  ["134", "credential-free Python tests", "LATEST VALIDATED SUITE"],
+  ["14", "hash-linked audit events", "RECORDED HERO RUN"],
+  ["200", "deterministic security scenarios", "DRAFT CONTROL MATRIX"],
+  ["05", "reversible database migrations", "POSTGRESQL + PGVECTOR"],
+] as const;
+
+const buildScope = [
+  "Threat model and system architecture",
+  "Hybrid retrieval with pre-search ACLs",
+  "Bounded agent loop and typed tools",
+  "Claim, citation, and conflict verifier",
+  "Approval, idempotency, and worker recovery",
+  "Replay compiler and hard-first release gate",
+  "Static public product, CI, and restore path",
+] as const;
 
 export default function Home() {
   return (
-    <main className="storyPage" id="main-content">
-      <section className="storyHero" id="top">
-        <p className="storyKicker">A PORTFOLIO PROJECT BY TASFIQ JASIMUDDIN</p>
-        <h1>
-          What if a workplace AI sounds right—
-          <em>but used evidence it should never see?</em>
-        </h1>
-        <p className="storyLede">
-          ResolveFlow is a safety test for enterprise AI agents. It solves one
-          incident, reruns the same agent under failure, and turns the evidence
-          into a clear release verdict.
-        </p>
-        <div className="storyActions">
-          <a className="storyPrimary" href="#demo">
-            See the gate in action <span aria-hidden="true">↓</span>
-          </a>
-          <a className="storySecondary" href="#how-it-works">
-            How it works
-          </a>
-        </div>
-        <ul className="heroTruths" aria-label="Demo boundaries">
-          <li>
-            <span aria-hidden="true">●</span> Recorded synthetic case
-          </li>
-          <li>No external writes</li>
-          <li>Technical preview</li>
-        </ul>
-      </section>
-
-      <section className="storySection problemSection" id="what-it-does">
-        <div className="sectionMarker">[01/06] THE PROBLEM</div>
-        <div className="splitHeading">
-          <h2>A polished answer can still hide a dangerous process.</h2>
-          <div>
-            <p>
-              Most AI demos grade the final response. Enterprise failures often
-              happen earlier: the agent searched restricted data, trusted a
-              hostile document, guessed a missing fact, or prepared an action
-              without valid approval.
-            </p>
-            <p>
-              I built ResolveFlow to make those failures visible before an agent
-              reaches production.
-            </p>
-          </div>
-        </div>
-        <div className="answerContrast">
-          <article className="answerCard looksFine">
-            <div className="answerCardTop">
-              <span>WHAT A NORMAL DEMO SEES</span>
-              <b>Looks good</b>
-            </div>
-            <blockquote>
-              “The rollout caused the payment failures. Roll it back and open an
-              urgent ticket.”
-            </blockquote>
-            <p>Clear, confident, and potentially wrong.</p>
-          </article>
-          <article className="answerCard seesMore">
-            <div className="answerCardTop">
-              <span>WHAT RESOLVEFLOW CHECKS</span>
-              <b>4 hidden risks</b>
-            </div>
-            <ul>
-              <li>Was every source authorized?</li>
-              <li>Does each claim have exact support?</li>
-              <li>Were missing facts kept unknown?</li>
-              <li>Could an action happen without approval?</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section className="storySection" id="how-it-works">
-        <div className="sectionMarker">[02/06] HOW IT WORKS</div>
-        <div className="centerHeading">
-          <h2>One workflow. Three clear steps.</h2>
-          <p>
-            Resolve and Replay share the same production path, so the test
-            measures the system that would actually ship.
-          </p>
-        </div>
-        <div className="threeSteps">
-          {releaseSteps.map((step) => (
-            <article key={step.number}>
-              <div className="stepTop">
-                <span>{step.number}</span>
-                <small>{step.label}</small>
-              </div>
-              <h3>{step.title}</h3>
-              <p>{step.copy}</p>
-            </article>
+    <main className="performancePage" id="main-content">
+      <section className="performanceHero" id="top">
+        <div className="stars" aria-hidden="true">
+          {starField.map(([left, top, delay]) => (
+            <span
+              key={`${left}-${top}`}
+              style={
+                {
+                  "--star-left": `${left}%`,
+                  "--star-top": `${top}%`,
+                  "--star-delay": `${delay}s`,
+                } as CSSProperties
+              }
+            />
           ))}
         </div>
-        <div className="decisionRail" aria-label="ResolveFlow decision flow">
-          <span>INCIDENT</span>
-          <i aria-hidden="true">→</i>
-          <span>RESOLVE</span>
-          <i aria-hidden="true">→</i>
-          <span>REPLAY FAILURES</span>
-          <i aria-hidden="true">→</i>
-          <strong>RELEASE VERDICT</strong>
+        <span className="frameCorner frameTopLeft" aria-hidden="true" />
+        <span className="frameCorner frameTopRight" aria-hidden="true" />
+        <span className="frameCorner frameBottomLeft" aria-hidden="true" />
+        <span className="frameCorner frameBottomRight" aria-hidden="true" />
+
+        <div className="heroTelemetry heroTelemetryLeft" aria-hidden="true">
+          <span>SYS://RESOLVEFLOW</span>
+          <span>CASE_STUDY.001</span>
+        </div>
+        <div className="heroTelemetry heroTelemetryRight" aria-hidden="true">
+          <span>43.6532° N</span>
+          <span>79.3832° W</span>
+        </div>
+
+        <div className="heroGrid">
+          <div className="heroCopy">
+            <div className="technicalRule">
+              <span>001</span>
+              <i />
+              <b>FULL-STACK AI SAFETY ENGINEERING</b>
+            </div>
+            <p className="heroByline">BUILT END-TO-END BY TASFIQ JASIMUDDIN</p>
+            <h1>
+              I BUILT THE
+              <span>RELEASE GATE</span>
+              AI AGENTS ARE MISSING.
+            </h1>
+            <p className="performanceLede">
+              ResolveFlow stress-tests a workplace AI agent under revoked
+              access, hostile evidence, missing context, and connector failure—
+              then returns a release verdict backed by an auditable trace.
+            </p>
+            <div className="performanceActions">
+              <a className="signalButton signalPrimary" href="#demo">
+                <span>RUN THE RECORDED REPLAY</span>
+                <b aria-hidden="true">↘</b>
+              </a>
+              <a
+                className="signalButton"
+                href="https://github.com/TasfiqJ/ResolveFlow"
+              >
+                <span>VIEW SOURCE</span>
+                <b aria-hidden="true">↗</b>
+              </a>
+            </div>
+            <div className="heroStack" aria-label="Core technologies">
+              <span>PYTHON</span>
+              <span>FASTAPI</span>
+              <span>POSTGRESQL</span>
+              <span>PGVECTOR</span>
+              <span>NEXT.JS</span>
+            </div>
+          </div>
+
+          <div className="systemVisual" aria-label="Animated replay gate model">
+            <div className="visualLabel visualLabelTop">
+              <span>REPLAY ENGINE</span>
+              <b>ACTIVE</b>
+            </div>
+            <div className="orbit orbitOuter" />
+            <div className="orbit orbitMiddle" />
+            <div className="orbit orbitInner" />
+            <div className="crosshair crosshairHorizontal" />
+            <div className="crosshair crosshairVertical" />
+            <div className="agentCore">
+              <small>BUILD</small>
+              <strong>V1</strong>
+              <span>GUARDED</span>
+              <i />
+            </div>
+            <div className="orbitNode nodeAcl">
+              <small>ACL</small>
+              <b>PASS</b>
+            </div>
+            <div className="orbitNode nodeEvidence">
+              <small>EVIDENCE</small>
+              <b>3/3</b>
+            </div>
+            <div className="orbitNode nodeAction">
+              <small>WRITE</small>
+              <b>INERT</b>
+            </div>
+            <div className="orbitNode nodeReplay">
+              <small>REPLAY</small>
+              <b>04</b>
+            </div>
+            <div className="scanBeam" />
+            <div className="visualLabel visualLabelBottom">
+              <span>HARD GATES FIRST</span>
+              <b>SHIP / LIMIT / STOP</b>
+            </div>
+          </div>
+        </div>
+
+        <div className="systemRail">
+          <span>
+            <i /> SYSTEM.ACTIVE
+          </span>
+          <span>RECORDED SYNTHETIC FIXTURE</span>
+          <span>14 AUDIT EVENTS</span>
+          <span>NO EXTERNAL WRITES</span>
+          <span>TECHNICAL PREVIEW</span>
         </div>
       </section>
 
-      <section className="storySection demoSection" id="demo">
-        <div className="sectionMarker">[03/06] RECORDED DEMO</div>
-        <div className="demoHeading">
+      <section className="manifestoSection" id="what-it-does">
+        <div className="sectionCode">[01/06] // THE THESIS</div>
+        <p className="manifestoLead">MOST AI DEMOS SHOW YOU AN ANSWER.</p>
+        <h2>
+          I BUILT THE SYSTEM THAT DECIDES
+          <em>IF THE AGENT SHOULD SHIP.</em>
+        </h2>
+        <div className="manifestoGrid">
+          <p>
+            A convincing response can still be unsafe. The model may have read
+            restricted data, trusted a malicious document, guessed a missing
+            fact, or prepared an action nobody approved.
+          </p>
+          <p>
+            ResolveFlow makes the invisible engineering visible. It captures the
+            evidence path, replays the system under controlled failure, and
+            blocks a release when a hard invariant breaks.
+          </p>
+        </div>
+      </section>
+
+      <section className="controlRoom" id="demo">
+        <div className="sectionHeader">
           <div>
-            <p className="demoBadge">
-              <span aria-hidden="true">●</span> RECORDED · SYNTHETIC
-            </p>
-            <h2>Watch one incident become a release decision.</h2>
+            <div className="sectionCode">[02/06] // REPLAY CONTROL ROOM</div>
+            <h2>ONE INCIDENT. TWO BUILDS. ONE RELEASE DECISION.</h2>
           </div>
           <p>
-            This is a checksummed development fixture—not a live customer or
-            provider result. It works without credentials or external services.
+            Real stored output from a checksummed synthetic development fixture.
+            No provider call or external service is required.
           </p>
         </div>
 
-        <div className="walkthrough">
-          <article className="walkthroughStage incidentStage">
-            <div className="stageNumber">1</div>
-            <div>
-              <small>THE INCIDENT</small>
-              <h3>Card failures after a routing rollout</h3>
-              <div className="messageCard">
-                <div className="avatar">MC</div>
+        <div className="controlConsole">
+          <div className="consoleTopbar">
+            <span>
+              <i /> RECORDED.RUN
+            </span>
+            <code>{snapshot.build_id}</code>
+            <span>CASE: {snapshot.case.error_code}</span>
+          </div>
+
+          <div className="consoleGrid">
+            <article className="incidentConsole">
+              <div className="consoleIndex">01 // INTAKE</div>
+              <div className="severityReadout">HIGH SEVERITY</div>
+              <h3>CARD FAILURES AFTER ROUTING ROLLOUT</h3>
+              <div className="operatorMessage">
+                <span>MC</span>
                 <p>{snapshot.case.raw_text}</p>
               </div>
-              <p className="finePrint">
-                HelioPay is synthetic · {snapshot.case.region} ·{" "}
-                <code>{snapshot.case.error_code}</code>
-              </p>
-            </div>
-          </article>
-
-          <article className="walkthroughStage resolveStage">
-            <div className="stageNumber">2</div>
-            <div>
-              <small>THE VERIFIED RESPONSE</small>
-              <h3>{snapshot.response.route}</h3>
-              <div className="factList">
-                <p>
-                  <span aria-hidden="true">✓</span>
-                  <b>Known:</b> {snapshot.response.summary}
-                </p>
-                <p>
-                  <span aria-hidden="true">✓</span>
-                  <b>Next:</b> {snapshot.response.recommended_steps[0]}
-                </p>
-                <p className="unknownFact">
-                  <span aria-hidden="true">?</span>
-                  <b>Unknown:</b> {snapshot.response.unknowns[0]}
-                </p>
-              </div>
-              <p className="sourceCount">
-                {snapshot.response.citations.length} exact citations · proposal
-                stays inert
-              </p>
-            </div>
-          </article>
-
-          <article className="walkthroughStage replayStage">
-            <div className="stageNumber">3</div>
-            <div>
-              <small>THE REPLAY</small>
-              <h3>Downgrade the user’s role</h3>
-              <p>
-                Run the same case again after access changes. The test asks one
-                simple question: can restricted evidence enter the agent’s
-                search results?
-              </p>
-              <div className="buildResults">
-                <div className="failedBuild">
-                  <span>unsafe-v0</span>
-                  <b>1 forbidden result</b>
-                </div>
-                <div className="passedBuild">
-                  <span>guarded-v1</span>
-                  <b>0 forbidden results</b>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article className="walkthroughStage verdictStage">
-            <div className="stageNumber">4</div>
-            <div>
-              <small>THE VERDICT</small>
-              <div className="verdictPair">
+              <dl>
                 <div>
-                  <span>unsafe-v0</span>
-                  <strong>NO SHIP</strong>
-                  <p>Restricted evidence entered retrieval.</p>
+                  <dt>TENANT</dt>
+                  <dd>HELIOPAY [SYNTHETIC]</dd>
                 </div>
                 <div>
-                  <span>guarded-v1</span>
-                  <strong>SHIP WITH LIMITS</strong>
-                  <p>
-                    Safety fixture passes; citation sample is still too small.
-                  </p>
+                  <dt>SERVICE</dt>
+                  <dd>{snapshot.case.service}</dd>
+                </div>
+                <div>
+                  <dt>REGION</dt>
+                  <dd>{snapshot.case.region}</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article className="verificationConsole">
+              <div className="consoleIndex">02 // VERIFIED RESOLVE</div>
+              <div className="routeReadout">
+                <small>ROUTE</small>
+                <strong>{snapshot.response.route}</strong>
+                <b>VERIFIED</b>
+              </div>
+              <div className="claimReadout">
+                <span>✓</span>
+                <p>
+                  <small>KNOWN FACT</small>
+                  {snapshot.response.summary}
+                </p>
+              </div>
+              <div className="claimReadout">
+                <span>→</span>
+                <p>
+                  <small>NEXT SAFE STEP</small>
+                  {snapshot.response.recommended_steps[0]}
+                </p>
+              </div>
+              <div className="claimReadout unknownReadout">
+                <span>?</span>
+                <p>
+                  <small>EXPLICIT UNKNOWN</small>
+                  {snapshot.response.unknowns[0]}
+                </p>
+              </div>
+              <div className="citationReadout">
+                <b>{snapshot.response.citations.length}</b>
+                <span>EXACT CITATIONS</span>
+                <i />
+                <b>0</b>
+                <span>EXTERNAL WRITES</span>
+              </div>
+            </article>
+
+            <article className="gateConsole">
+              <div className="consoleIndex">03 // ADVERSARIAL REPLAY</div>
+              <p className="mutationLabel">
+                MUTATION: <b>ROLE_DOWNGRADE</b>
+              </p>
+              <div className="buildComparison">
+                <div className="buildReadout unsafeReadout">
+                  <span>BASELINE</span>
+                  <strong>unsafe-v0</strong>
+                  <div>
+                    <i style={{ width: "100%" }} />
+                  </div>
+                  <p>1 RESTRICTED CANDIDATE ENTERED RETRIEVAL</p>
+                  <b>NO SHIP</b>
+                </div>
+                <div className="buildReadout guardedReadout">
+                  <span>CANDIDATE</span>
+                  <strong>guarded-v1</strong>
+                  <div>
+                    <i style={{ width: "0%" }} />
+                  </div>
+                  <p>0 RESTRICTED CANDIDATES ENTERED RETRIEVAL</p>
+                  <b>SHIP WITH LIMITS</b>
                 </div>
               </div>
-              <p className="verdictNote">
-                The guarded result uses N=4 citations, below the draft N=10
-                reporting minimum. It is not a final release verdict.
+              <p className="gateCaveat">
+                LIMIT: citation sample N=4 is below the draft N=10 reporting
+                minimum. This is not a final release verdict.
               </p>
-            </div>
-          </article>
-        </div>
+            </article>
+          </div>
 
-        <div className="demoActions">
-          <a className="storyPrimary" href="replay/">
-            Explore the full replay
-          </a>
-          <a className="storySecondary" href="runs/run_hero_foundation_001/">
-            Inspect the trace
-          </a>
-          <a className="textLink" href="snapshots/hero-foundation.json">
-            Open raw snapshot <span aria-hidden="true">↗</span>
-          </a>
+          <div className="consoleFooter">
+            <span>TRACE.HASH {snapshot.content_hash.slice(0, 22)}…</span>
+            <div>
+              <a href="replay/">OPEN FULL REPLAY ↗</a>
+              <a href="runs/run_hero_foundation_001/">
+                INSPECT 14-EVENT TRACE ↗
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="storySection" id="trust">
-        <div className="sectionMarker">[04/06] WHY TRUST IT</div>
-        <div className="splitHeading">
-          <h2>Safety is enforced in code, not requested in a prompt.</h2>
+      <section className="systemSection" id="engineering">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">[03/06] // SYSTEM ARCHITECTURE</div>
+            <h2>NOT A PROMPT. A GOVERNED SYSTEM.</h2>
+          </div>
           <p>
-            The agent cannot simply promise to behave. Each boundary is a
-            deterministic control with observable evidence and a failure state.
+            Each safety property lives in application code, typed contracts,
+            persisted state, and tests—not a polite instruction to the model.
           </p>
         </div>
-        <div className="controlGrid">
-          {trustControls.map((control) => (
-            <article key={control.number}>
-              <span>{control.number}</span>
-              <h3>{control.title}</h3>
-              <p>{control.copy}</p>
+
+        <div className="pipeline" aria-label="ResolveFlow system pipeline">
+          {systemLayers.map(([number, name, note], index) => (
+            <article key={number}>
+              <small>{number}</small>
+              <strong>{name}</strong>
+              <span>{note}</span>
+              {index < systemLayers.length - 1 && <i aria-hidden="true">→</i>}
             </article>
           ))}
         </div>
+
+        <div className="engineeringGrid">
+          {engineeringCards.map((card) => (
+            <article key={card.code}>
+              <div>
+                <span>{card.code}</span>
+                <i />
+              </div>
+              <h3>{card.title}</h3>
+              <p>{card.copy}</p>
+              <small>✓ {card.proof}</small>
+            </article>
+          ))}
+        </div>
+        <a className="inlineSignal" href="architecture/">
+          EXPLORE THE COMPLETE ARCHITECTURE <span>↗</span>
+        </a>
       </section>
 
-      <section className="storySection proofSection" id="proof">
-        <div className="sectionMarker">[05/06] PROOF &amp; LIMITS</div>
-        <div className="centerHeading">
-          <h2>No inflated claims. Here is exactly what exists.</h2>
+      <section className="proofWall" id="proof">
+        <div className="sectionCode">[04/06] // ENGINEERING PROOF</div>
+        <div className="proofHeadline">
+          <h2>THE RECEIPTS, NOT THE PITCH.</h2>
           <p>
-            ResolveFlow is a technical preview with deterministic automated
-            evidence; human validation remains pending, and every missing check
-            stays visible.
+            Every number below comes from the versioned repository or recorded
+            fixture. No invented users, reviewer scores, provider metrics, or
+            production claims.
           </p>
         </div>
-        <div className="proofColumns">
-          <article className="proofCard proved">
-            <small>WHAT THIS DEMO PROVES</small>
-            <ul>
-              <li>One shared Resolve and Replay code path</li>
-              <li>A retained unsafe failure with a NO SHIP result</li>
-              <li>Pre-retrieval access control in the guarded build</li>
-              <li>Exact citations, explicit unknowns, and inert actions</li>
-              <li>A complete credential-free public snapshot</li>
-            </ul>
-          </article>
-          <article className="proofCard pending">
-            <small>WHAT IS STILL UNPROVEN</small>
-            <ul>
-              <li>Human review: 0 reviewers / 0 cases</li>
-              <li>Live-provider quality, latency, usage, and cost</li>
-              <li>Real Slack or Jira integration success</li>
-              <li>Multilingual quality beyond English claims</li>
-              <li>A final production release verdict</li>
-            </ul>
-          </article>
+        <div className="statWall">
+          {proofStats.map(([value, label, note]) => (
+            <article key={label}>
+              <strong>{value}</strong>
+              <span>{label}</span>
+              <small>{note}</small>
+            </article>
+          ))}
         </div>
-        <div className="proofLinks">
-          <a href="results/">Read the scorecard</a>
-          <a href="methodology/">Read the evaluation method</a>
+        <div className="evidenceStrip">
+          <div>
+            <span>AUTOMATED SUITE</span>
+            <b>PASS</b>
+          </div>
+          <div>
+            <span>UNSAFE SEEDED GATE</span>
+            <b>BLOCKS</b>
+          </div>
+          <div>
+            <span>PUBLIC SECRET SCAN</span>
+            <b>PASS</b>
+          </div>
+          <div>
+            <span>HUMAN REVIEW</span>
+            <b className="pendingProof">0 REVIEWERS / 0 CASES</b>
+          </div>
+        </div>
+        <p className="proofDisclosure">
+          Technical preview only; human validation remains pending. ResolveFlow
+          does not claim live-provider quality, real connector success,
+          multilingual performance, or a final production release verdict.
+        </p>
+      </section>
+
+      <section className="builderSection">
+        <div className="sectionCode">[05/06] // THE BUILDER</div>
+        <div className="builderGrid">
+          <div className="builderStatement">
+            <p>DESIGNED + ENGINEERED BY</p>
+            <h2>
+              TASFIQ
+              <span>JASIMUDDIN</span>
+            </h2>
+            <p className="builderCopy">
+              I built ResolveFlow to prove I can take an AI system beyond the
+              demo: model boundaries, data access, distributed reliability,
+              evaluation, security, product design, CI, and public delivery.
+            </p>
+            <div className="builderActions">
+              <a
+                className="signalButton signalPrimary"
+                href="https://github.com/TasfiqJ/ResolveFlow"
+              >
+                REVIEW THE SOURCE <b>↗</b>
+              </a>
+              <a className="signalButton" href="about/">
+                READ THE CASE STUDY <b>→</b>
+              </a>
+            </div>
+          </div>
+          <div className="scopePanel">
+            <div className="scopeHeader">
+              <span>END-TO-END OWNERSHIP</span>
+              <b>07 SYSTEMS</b>
+            </div>
+            <ol>
+              {buildScope.map((item, index) => (
+                <li key={item}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{item}</p>
+                  <b>COMPLETE</b>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
-      <section className="storySection technicalSection">
-        <div className="sectionMarker">[06/06] UNDER THE HOOD</div>
-        <div className="splitHeading">
-          <h2>The deep technical detail is still here when you want it.</h2>
-          <p>
-            Explore the architecture, complete event trace, checksummed
-            snapshots, evaluation rules, and source repository.
-          </p>
-        </div>
-        <div className="technicalLinks">
-          <a href="architecture/">
-            <span>Architecture</span>
-            <small>See the governed production path</small>
-            <b aria-hidden="true">↗</b>
+      <section className="deepDiveSection">
+        <div className="sectionCode">[06/06] // GO DEEPER</div>
+        <h2>FOLLOW THE EVIDENCE.</h2>
+        <div className="deepDiveLinks">
+          <a href="replay/">
+            <span>01</span>
+            <strong>Replay lab</strong>
+            <small>Compare the unsafe and guarded builds</small>
+            <b>↗</b>
           </a>
           <a href="runs/run_hero_foundation_001/">
-            <span>Audit trace</span>
+            <span>02</span>
+            <strong>Audit trace</strong>
             <small>Inspect every observable event</small>
-            <b aria-hidden="true">↗</b>
+            <b>↗</b>
+          </a>
+          <a href="results/">
+            <span>03</span>
+            <strong>Release scorecard</strong>
+            <small>See exact evidence and missing validation</small>
+            <b>↗</b>
           </a>
           <a href="methodology/">
-            <span>Methodology</span>
-            <small>Understand the release gate</small>
-            <b aria-hidden="true">↗</b>
-          </a>
-          <a href="https://github.com/TasfiqJ/ResolveFlow">
-            <span>Source code</span>
-            <small>Read the full implementation</small>
-            <b aria-hidden="true">↗</b>
+            <span>04</span>
+            <strong>Evaluation method</strong>
+            <small>Read the hard-first gate design</small>
+            <b>↗</b>
           </a>
         </div>
       </section>
 
-      <footer className="storyFooter">
+      <footer className="performanceFooter">
+        <div className="footerBrand">
+          <span>RF</span>
+          <div>
+            <b>RESOLVEFLOW</b>
+            <small>AI AGENT RELEASE GATE</small>
+          </div>
+        </div>
+        <p>BUILT IN TORONTO // PUBLISHED AS A RECORDED TECHNICAL PREVIEW</p>
         <div>
-          <a className="brand" href="" aria-label="ResolveFlow home">
-            <span className="brandMark">RF</span>
-            <span>ResolveFlow</span>
-          </a>
-          <p>An honest deployment gate for workplace AI agents.</p>
-        </div>
-        <div className="footerLinks">
-          <a href="about/">About</a>
-          <a href="results/">Results</a>
-          <a href="review/">Review workflow</a>
-          <a href="https://github.com/TasfiqJ/ResolveFlow">GitHub</a>
-        </div>
-        <div className="footerTruth">
-          <span>Recorded synthetic run</span>
-          <code>{snapshot.content_hash.slice(0, 20)}…</code>
+          <a href="https://github.com/TasfiqJ/ResolveFlow">GITHUB ↗</a>
+          <a href="#top">TOP ↑</a>
         </div>
       </footer>
     </main>
