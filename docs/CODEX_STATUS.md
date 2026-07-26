@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** CI cache-cleanup repair validated in repository; remote validation and Pages results pending
+**Active work:** None; CI cache-cleanup repair validated and deployed
 
 ## Current repository facts
 
@@ -170,9 +170,9 @@ The supplied dark technical reference was recreated with native HTML/CSS motion 
 | `pnpm audit --dev --audit-level critical` | PASS at the critical threshold; one high-severity development-only `brace-expansion` advisory remains documented |
 | In-app browser review | PASS at desktop and 390px mobile widths for homepage, interactive Replay, and senior audit route |
 
-These checks were local results for the source revision containing this record. No successful
-GitHub Actions run, Pages deployment, live provider call, connector write, or human validation is
-claimed for this hardening change.
+These checks were local results for the source revision containing this record. Validation run
+`30208242771` and Pages run `30208242773` later passed for the CI repair that includes this
+hardening. No live provider call, connector write, or human validation is claimed.
 
 ## External work and credentials
 
@@ -180,8 +180,8 @@ claimed for this hardening change.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
 - The performance-led portfolio redesign (`7b57e8b`) is pushed to `origin/main`; its validation and Pages publication workflows passed.
-- The 2026-07-26 credibility-hardening source revision has no successful workflow or deployment
-  result recorded in this file.
+- The 2026-07-26 credibility-hardening revision passed validation run `30208242771` and Pages
+  build/deploy run `30208242773` after the pnpm cache-cleanup repair.
 - Static publication is verified at `https://tasfiqj.github.io/ResolveFlow/`. No live-provider/connector release or production-readiness verdict is claimed.
 
 ## Core evaluation-integrity audit
@@ -198,9 +198,9 @@ claimed for this hardening change.
 | Replay smoke, negative gate, and integrity-audit reproduction | PASS; candidate remains `NO_SHIP`, audit is 1/36 truths, 0/200 full Replays, and 5/5 stored payload controls |
 | public bundle scan, snapshot verifier, strict preflight | PASS |
 
-These checks were local results for the source revision containing this record. No PostgreSQL,
-container, dependency-audit, successful GitHub Actions, deployment, live-provider, connector, or
-human result is claimed for that revision.
+These checks were local results for the source revision containing this record. Validation run
+`30208242771` and Pages run `30208242773` passed after the CI repair. No current PostgreSQL,
+container, dependency-audit, live-provider, connector, or human result is claimed.
 
 ## Immediate next action
 
