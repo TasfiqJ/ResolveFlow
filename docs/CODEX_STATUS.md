@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** None; core evidence audit and fail-closed hardening complete; no workflow or deployment outcome is claimed
+**Active work:** CI cache-cleanup repair validated in repository; remote validation and Pages results pending
 
 ## Current repository facts
 

@@ -222,6 +222,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-12 | Workflows use immutable action SHAs and Pages cannot deploy before repository gates, browser checks, and strict preflight pass | action-reference check in `scripts/verify.sh` plus workflow review | post-release credibility | PASS (repository-controlled) |
 | X-13 | Release scoring distinguishes observed evidence from unexercised/unverified controls, recomputes audit hashes, and audits semantic dataset and declared-versus-executed matrix integrity | `uv run pytest -q tests/unit/evaluation/test_evidence_backed_scoring.py tests/unit/evaluation/test_integrity_audit.py tests/replay/test_verdict_reproducibility.py` plus `uv run resolveflow-evaluation audit-dataset --output /tmp/evaluation-integrity-audit.json` | post-release core audit | PASS (local; guarded candidate correctly `NO_SHIP`) |
 | X-14 | Live runtime composition switches Chat, Embed, and Rerank together, applies configured policy, derives provider provenance, and never sends unauthorized snapshot content for embedding | `uv run pytest -q tests/unit/test_composition.py tests/contract/test_live_retrieval_path.py` | post-release core audit | PASS (local; contract-only, no live provider call) |
+| X-15 | Push validation and Pages do not fail while saving an unused pnpm cache path | workflow audit, YAML parsing, and prior job annotations showing failure only in setup-node cache cleanup | post-release CI repair | PASS (repository fix; remote workflow result pending) |
 
 ## Update rules
 
