@@ -1,3 +1,14 @@
+import Link from "next/link";
+import integrity from "../../public/snapshots/evaluation-integrity-audit.json";
+import result from "../../public/snapshots/replay-development-result.json";
+
+const hardMetrics = result.candidate.metrics.filter(
+  (metric) => metric.family === "hard_invariant",
+);
+const observedHardMetrics = hardMetrics.filter(
+  (metric) => metric.evidence_status === "observed",
+);
+
 const metrics = [
   {
     label: "Forbidden candidates · unsafe-v0",
@@ -10,9 +21,24 @@ const metrics = [
     note: "development fixture",
   },
   {
-    label: "Verified citations · guarded-v1",
-    value: "4 / 4",
-    note: "deterministic fixture; N below draft minimum",
+    label: "Evidence-backed hard invariants",
+    value: `${observedHardMetrics.length} / ${hardMetrics.length}`,
+    note: "unexercised controls are not counted as passes",
+  },
+  {
+    label: "Unique semantic truth templates",
+    value: `${integrity.unique_semantic_truth_count} / ${integrity.catalog_entry_count}`,
+    note: "36 draft IDs currently duplicate one template",
+  },
+  {
+    label: "Security-matrix full Replay executions",
+    value: `${integrity.security_matrix_full_replay_execution_count} / ${integrity.security_matrix_declared_count}`,
+    note: "declared matrix cells are not execution evidence",
+  },
+  {
+    label: "Stored attack payload controls",
+    value: `${integrity.attack_payload_control_pass_count} / ${integrity.attack_payload_control_execution_count}`,
+    note: "deterministic detector executions, not full Replays",
   },
 ];
 
@@ -40,7 +66,9 @@ export default function ResultsPage() {
       <section className="scorecard panel">
         <div>
           <span>Hard invariants</span>
-          <strong>guarded fixture passes</strong>
+          <strong>
+            {observedHardMetrics.length}/{hardMetrics.length} observed · NO SHIP
+          </strong>
         </div>
         <div>
           <span>Quality evidence</span>
@@ -66,17 +94,23 @@ export default function ResultsPage() {
           retrieval.
         </p>
         <p>
-          <b>guarded-v1:</b> SHIP WITH LIMITS because citation precision has
-          N=4, below the draft N=10 minimum.
+          <b>guarded-v1:</b> NO SHIP. The role-downgrade authorization control
+          passes, but action dispatch was not exercised, public credential
+          absence was not independently verified, held-out data is unlocked, and
+          the draft truth catalog contains duplicate semantic templates.
         </p>
         <p className="fallbackNotice">
-          This result cannot be relabeled as a held-out or final release result.
+          A missing observation is now release-blocking evidence, not a zero
+          failure.
         </p>
         <div className="linkRow">
-          <a href="methodology/">Read the method</a>
-          <a href="snapshots/replay-development-result.json">
+          <Link href="/methodology/">Read the method</Link>
+          <Link href="/snapshots/replay-development-result.json">
             Raw checksummed result bundle
-          </a>
+          </Link>
+          <Link href="/snapshots/evaluation-integrity-audit.json">
+            Dataset integrity audit
+          </Link>
         </div>
       </section>
     </main>

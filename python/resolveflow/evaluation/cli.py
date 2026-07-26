@@ -3,6 +3,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from resolveflow.evaluation.integrity import (
+    audit_evaluation_integrity,
+    write_evaluation_integrity_audit,
+)
 from resolveflow.evaluation.io import verify_bundle_file, write_bundle
 from resolveflow.evaluation.models import ResultBundle
 from resolveflow.evaluation.runner import evaluate_manifest_pair
@@ -24,6 +28,8 @@ def _parser() -> argparse.ArgumentParser:
     report.add_argument("--output", type=Path, required=True)
     negative = commands.add_parser("negative-gate")
     negative.add_argument("--manifest", type=Path)
+    audit = commands.add_parser("audit-dataset")
+    audit.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -33,6 +39,21 @@ def _evaluate(path: Path) -> ResultBundle:
 
 def main() -> None:
     args = _parser().parse_args()
+    if args.command == "audit-dataset":
+        audit = audit_evaluation_integrity()
+        output, checksum_path = write_evaluation_integrity_audit(audit, args.output)
+        print(f"Evaluation integrity audit: {output}")
+        print(f"Evaluation integrity checksum: {checksum_path}")
+        print(
+            "Semantic truth templates: "
+            f"{audit.unique_semantic_truth_count}/{audit.catalog_entry_count}"
+        )
+        print(
+            "Security matrix full Replay executions: "
+            f"{audit.security_matrix_full_replay_execution_count}/"
+            f"{audit.security_matrix_declared_count}"
+        )
+        return
     if args.command == "report":
         bundle = verify_bundle_file(args.bundle)
         args.output.mkdir(parents=True, exist_ok=True)

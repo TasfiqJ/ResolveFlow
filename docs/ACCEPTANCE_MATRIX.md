@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Milestones 1-5 implemented; held-out locking, live evaluation, and human evidence remain planned
+**Current evidence state:** Milestones 1-7 implemented; held-out locking, live evaluation, and human evidence remain planned
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 
@@ -199,7 +199,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 |---|---|---:|---|---|---|
 | F18-AC01 | First load: hero scenario works without any provider call. | 1/6 | exported HTML and imported stored snapshot need no runtime network | `pnpm --dir apps/web build` and `node tests/browser/snapshot-smoke.mjs` | PASS |
 | F18-AC02 | Secret isolation: the browser bundle contains no Cohere, Slack, Jira, database, token, cookie, or secret material. | 6 | strict generated-bundle scan | `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | PASS |
-| F18-AC03 | Abuse resistance: only predefined input is accepted and rate/concurrency limits are enforced when local live mode is enabled. | 6 | kill switch, allowlist, session/IP/global quota, queue, concurrency, and deadline tests | `uv run pytest -q tests/security/test_public_live_limits.py` | PASS |
+| F18-AC03 | Abuse resistance: only predefined input is accepted and rate/concurrency limits are enforced when local live mode is enabled. | 6 | limiter unit controls pass, but live admission now fails closed because no bounded executor consumes tickets | `uv run pytest -q tests/security/test_public_live_limits.py tests/integration/test_public_live_api.py` | BLOCKED |
 | F18-AC04 | Honest provenance: snapshot and live runs are unmistakably distinguished. | 6 | recorded/live status copy and public-claim assertions | `node tests/browser/snapshot-smoke.mjs` and `uv run pytest -q tests/security/test_public_claims.py` | PASS |
 | F18-AC05 | Graceful degradation: provider/API/database/connector degradation leaves a complete honest snapshot demo. | 6 | live kill-switch response names stored fallback; static routes have no backend dependency | `uv run pytest -q tests/security/test_public_live_limits.py tests/integration/test_api.py` and `node tests/browser/snapshot-smoke.mjs` | PASS |
 
@@ -211,13 +211,17 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 | X-01 | Credential-free foundation verification: locked setup, seed/snapshot, static/unit/integration/browser checks, preflight, and local PostgreSQL migration cycle | `scripts/verify.sh` | 1 | PASS |
 | X-02 | Empty-to-head and reversible migration check | `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | 1+ | PASS |
 | X-03 | Repository and public-build secret scan | pinned Gitleaks container in `scripts/verify.sh` and `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | every milestone / 7 | PASS |
-| X-04 | Candidate evaluation from a frozen Replay manifest | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` | 5/7 | PASS |
+| X-04 | Candidate evaluation from a frozen Replay manifest; expected nonzero release-block exit is retained | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:f09b20e24727f952d2499ac8e35bfa9c47a3791ac71689c7e3c940abd01bb990 --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` | 5/7 | PASS (`NO_SHIP` as designed) |
 | X-05 | Report regenerated without provider calls | `uv run resolveflow-evaluation report --bundle /tmp/resolveflow-stage05-result.json --output /tmp/resolveflow-stage05-report` | 5/7 | PASS |
 | X-06 | Restore snapshot experience on a clean machine | `docs/restore-reports/2026-07-22-e30f567.md` with machine/runtime, commands, hashes, observed result, and discrepancies | 7 | PASS |
-| X-07 | Every exported public route checked from the production artifact | `node tests/browser/snapshot-smoke.mjs` | 7 | PASS |
+| X-07 | Every exported public route checked from the production artifact with a fast content/provenance smoke | `node tests/browser/snapshot-smoke.mjs` | 7 | PASS |
 | X-08 | Final release-profile, claim, and placeholder audit | `uv run python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json && uv run python scripts/preflight.py --strict` | 7 | PASS |
 | X-09 | Story-first public experience explains the product before exposing technical detail while retaining recorded provenance and absent-evidence disclosures | `pnpm --dir apps/web test && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build && node tests/browser/snapshot-smoke.mjs` plus in-app browser review | post-release UX | PASS |
 | X-10 | Performance-led portfolio experience identifies the builder, defines the product, demonstrates the recorded Replay gate, and exposes verifiable engineering depth without unsupported claims | `pnpm --dir apps/web test && pnpm --dir apps/web typecheck && pnpm --dir apps/web lint && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build && node tests/browser/snapshot-smoke.mjs` plus in-app browser review | post-release UX | PASS |
+| X-11 | Chromium exercises core and nested navigation, Replay interaction, keyboard behavior, WCAG A/AA checks, and mobile overflow against the Pages-prefixed exported artifact | `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | post-release credibility | PASS (local, 9 tests) |
+| X-12 | Workflows use immutable action SHAs and Pages cannot deploy before repository gates, browser checks, and strict preflight pass | action-reference check in `scripts/verify.sh` plus workflow review | post-release credibility | PASS (repository-controlled) |
+| X-13 | Release scoring distinguishes observed evidence from unexercised/unverified controls, recomputes audit hashes, and audits semantic dataset and declared-versus-executed matrix integrity | `uv run pytest -q tests/unit/evaluation/test_evidence_backed_scoring.py tests/unit/evaluation/test_integrity_audit.py tests/replay/test_verdict_reproducibility.py` plus `uv run resolveflow-evaluation audit-dataset --output /tmp/evaluation-integrity-audit.json` | post-release core audit | PASS (local; guarded candidate correctly `NO_SHIP`) |
+| X-14 | Live runtime composition switches Chat, Embed, and Rerank together, applies configured policy, derives provider provenance, and never sends unauthorized snapshot content for embedding | `uv run pytest -q tests/unit/test_composition.py tests/contract/test_live_retrieval_path.py` | post-release core audit | PASS (local; contract-only, no live provider call) |
 
 ## Update rules
 

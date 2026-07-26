@@ -20,6 +20,7 @@ from resolveflow.policy.authorization import AuthorizationPolicy, make_identity_
 from resolveflow.policy.replay import UnsafeReplayAuthorizationPolicy
 from resolveflow.retrieval.engine import HybridRetriever
 from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter, FixtureRerankAdapter
+from resolveflow.retrieval.ports import EmbeddingPort, RerankPort
 
 
 class ResolveRunConfiguration(FrozenModel):
@@ -40,17 +41,26 @@ class ResolveRunConfiguration(FrozenModel):
 class ResolveOrchestrator:
     """Shared production path used by web intake, fixtures, snapshots, and future Replay."""
 
-    def __init__(self, context_repository: ContextRepository, agent: GovernedAgent) -> None:
+    def __init__(
+        self,
+        context_repository: ContextRepository,
+        agent: GovernedAgent,
+        *,
+        embedding_adapter: EmbeddingPort | None = None,
+        rerank_adapter: RerankPort | None = None,
+    ) -> None:
         self.context_repository = context_repository
         self.agent = agent
         self.corpus = load_hero_corpus()
-        self.retriever = HybridRetriever(
-            self.corpus,
-            AuthorizationPolicy(),
-            FixtureEmbeddingAdapter(),
-            FixtureRerankAdapter(),
-        )
+        self.embedding_adapter = embedding_adapter or FixtureEmbeddingAdapter()
+        self.rerank_adapter = rerank_adapter or FixtureRerankAdapter()
         self.latest_proposal: ActionProposal | None = None
+
+    @property
+    def provenance(self) -> Literal["recorded_fixture", "live_provider"]:
+        return (
+            "live_provider" if self.agent.provider.provider_name == "cohere" else "recorded_fixture"
+        )
 
     def run(
         self, case: CanonicalCase, configuration: ResolveRunConfiguration | None = None
@@ -83,8 +93,8 @@ class ResolveOrchestrator:
         retriever = HybridRetriever(
             configuration.corpus,
             policy,
-            FixtureEmbeddingAdapter(),
-            FixtureRerankAdapter(),
+            self.embedding_adapter,
+            self.rerank_adapter,
         )
         retrieval = retriever.retrieve(case.raw_text, identity)
         governed = self.agent.resolve(
@@ -137,6 +147,7 @@ class ResolveOrchestrator:
             "verifier_enforcement": configuration.verifier_enforcement,
         }
         body = {
+            "provenance": self.provenance,
             "generated_at": configuration.generated_at,
             "run_id": run_id,
             "build_id": configuration.build_id,

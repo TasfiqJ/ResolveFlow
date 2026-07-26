@@ -133,7 +133,7 @@ class ActionBoundary(FrozenModel):
 
 class RunSnapshot(FrozenModel):
     schema_version: Literal["1.0"] = "1.0"
-    provenance: Literal["recorded_fixture"] = "recorded_fixture"
+    provenance: Literal["recorded_fixture", "live_provider"] = "recorded_fixture"
     generated_at: datetime
     run_id: str
     build_id: str
@@ -152,7 +152,7 @@ class RunSnapshot(FrozenModel):
     security_events: tuple[dict[str, Any], ...]
     forbidden_effect_score: dict[str, Any]
     action: ActionBoundary
-    trace: tuple[TraceEvent, ...]
+    trace: tuple[AuditEvent, ...]
     run_inputs: dict[str, Any] = Field(default_factory=dict)
     content_hash: str
 

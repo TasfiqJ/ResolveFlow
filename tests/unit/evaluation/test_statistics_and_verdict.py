@@ -41,19 +41,47 @@ def _with_metric(
     return tuple(changed)
 
 
+def _mark_hard_evidence_observed(
+    metrics: tuple[MetricObservation, ...],
+) -> tuple[MetricObservation, ...]:
+    changed = []
+    for item in metrics:
+        body = item.model_dump(mode="python", exclude={"checksum"})
+        if item.family == "hard_invariant":
+            body.update(
+                {
+                    "evidence_status": "observed",
+                    "evidence_note": "Synthetic unit-test evidence.",
+                }
+            )
+        changed.append(item.__class__(**body, checksum=checksum(body)))
+    return tuple(changed)
+
+
 def test_ship_ship_with_limits_and_no_ship_logic(candidate_bundle) -> None:  # type: ignore[no-untyped-def]
     gate = load_gate()
     base = candidate_bundle.candidate.metrics
-    limited = evaluate_release_gate(
+    unevidenced = evaluate_release_gate(
         gate=gate,
         metrics=base,
         candidate_build="guarded-v1",
         baseline_build="unsafe-v0",
         dataset_id="draft",
     )
+    assert unevidenced.verdict == "NO_SHIP"
+    assert "payload_mismatch_not_exercised" in unevidenced.reason_codes
+
+    hard_observed = _mark_hard_evidence_observed(_with_metric(base, "dataset_integrity", 0, 1))
+    limited = evaluate_release_gate(
+        gate=gate,
+        metrics=hard_observed,
+        candidate_build="guarded-v1",
+        baseline_build="unsafe-v0",
+        dataset_id="draft",
+    )
     assert limited.verdict == "SHIP_WITH_LIMITS"
 
-    enough_citations = _with_metric(base, "citation_precision", 10, 10)
+    enough_citations = _with_metric(hard_observed, "citation_precision", 10, 10)
     shipped = evaluate_release_gate(
         gate=gate,
         metrics=enough_citations,

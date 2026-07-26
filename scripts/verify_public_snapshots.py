@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import RunSnapshot
+from resolveflow.evaluation.integrity import EvaluationIntegrityAudit
 from resolveflow.evaluation.io import verify_bundle_file
 
 
@@ -21,7 +23,22 @@ def main() -> None:
     web_result = Path("apps/web/public/snapshots/replay-development-result.json")
     if web_result.read_bytes() != result_path.read_bytes():
         raise SystemExit("web result snapshot differs from canonical published result")
-    print("Public snapshot integrity passed: hero and Replay result checksums verified")
+    audit_path = Path("data/published/evaluation-integrity-audit.json")
+    audit = EvaluationIntegrityAudit.model_validate(
+        json.loads(audit_path.read_text(encoding="utf-8"))
+    )
+    if checksum(audit.model_dump(mode="python", exclude={"checksum"})) != audit.checksum:
+        raise SystemExit("evaluation integrity audit canonical checksum mismatch")
+    expected_file_hash = audit_path.with_suffix(".json.sha256").read_text().split()[0]
+    if hashlib.sha256(audit_path.read_bytes()).hexdigest() != expected_file_hash:
+        raise SystemExit("evaluation integrity audit file checksum mismatch")
+    web_audit = Path("apps/web/public/snapshots/evaluation-integrity-audit.json")
+    if web_audit.read_bytes() != audit_path.read_bytes():
+        raise SystemExit("web evaluation integrity audit differs from canonical artifact")
+    print(
+        "Public snapshot integrity passed: hero, Replay result, and evaluation "
+        "integrity checksums verified"
+    )
 
 
 if __name__ == "__main__":

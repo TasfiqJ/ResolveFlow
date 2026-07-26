@@ -15,6 +15,8 @@
 - [x] Static production build succeeds with the `/ResolveFlow` base path.
 - [x] Public bundle secret scan and snapshot checksum verification pass.
 - [x] Browser smoke covers all exported routes.
+- [x] Real Chromium journeys cover core navigation, Replay interaction, keyboard skip navigation, WCAG A/AA rules, and mobile overflow.
+- [x] GitHub Actions are pinned to full commit SHAs and Pages deployment depends on repository gates and strict preflight.
 - [x] PostgreSQL migration upgrade, downgrade, re-upgrade, and database tests pass.
 - [x] Release documentation, license, source notes, limitations, rollback, and postmortem are complete.
 - [x] Isolated clean clone restores the Pages build and checksummed snapshot experience.

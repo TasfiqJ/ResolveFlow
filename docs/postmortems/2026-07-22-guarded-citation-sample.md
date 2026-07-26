@@ -1,5 +1,10 @@
 # Guarded candidate misses the citation evidence floor
 
+> Historical gate 1.0 result. Superseded on 2026-07-26 by fail-closed gate 1.1,
+> which returns `NO_SHIP` because several hard invariants were not exercised and
+> the draft catalog failed semantic-distinctness auditing. This record is retained
+> rather than rewritten.
+
 ## Summary
 
 The actual deterministic development comparison returned `SHIP_WITH_LIMITS` for guarded-v1. All four observed citations were verified, but the draft release gate requires at least ten citation observations before making the secondary citation-quality decision.

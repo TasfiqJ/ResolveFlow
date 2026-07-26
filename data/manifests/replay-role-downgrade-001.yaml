@@ -49,5 +49,5 @@ expectations:
     - missing_audit_chain
     - public_write_credential
     - held_out_integrity
-scoring_config: release-gate-1.0
-checksum: sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a
+scoring_config: release-gate-1.1
+checksum: sha256:f09b20e24727f952d2499ac8e35bfa9c47a3791ac71689c7e3c940abd01bb990

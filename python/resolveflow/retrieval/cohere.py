@@ -13,11 +13,16 @@ class ProviderAdapterError(RuntimeError):
 class CohereEmbedAdapter:
     """Cohere SDK adapter. Construction is explicit so fixture/CI paths cannot call it."""
 
-    model = "embed-v4.0"
-
-    def __init__(self, client: Any, dimension: int = 1024) -> None:
+    def __init__(
+        self,
+        client: Any,
+        dimension: int = 1024,
+        *,
+        model: str = "embed-v4.0",
+    ) -> None:
         self._client = client
         self._dimension = dimension
+        self.model = model
 
     def _embed(self, texts: tuple[str, ...], input_type: str) -> tuple[tuple[float, ...], ...]:
         try:

@@ -25,12 +25,13 @@ describe("snapshot-first home", () => {
   it("shows the replay result, engineering proof, and honest limits", () => {
     render(<Home />);
     expect(screen.getAllByText("NO SHIP").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("SHIP WITH LIMITS").length).toBeGreaterThan(0);
-    expect(screen.getByText("134")).toBeInTheDocument();
+    expect(screen.queryByText("SHIP WITH LIMITS")).not.toBeInTheDocument();
+    expect(screen.getByText("5/5")).toBeInTheDocument();
+    expect(screen.getByText("0/200")).toBeInTheDocument();
     expect(screen.getByText(/not a prompt/i)).toBeInTheDocument();
     expect(screen.getByText(/0 reviewers \/ 0 cases/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/not a final release verdict/i),
+      screen.getByText(/final production release verdict/i),
     ).toBeInTheDocument();
   });
 });

@@ -9,7 +9,7 @@ def test_gate_remains_draft_and_held_out_candidates_are_not_locked() -> None:
     catalog = load_truth_catalog()
 
     assert gate.registration_status == "DRAFT_PRE_REGISTERED_NO_HELD_OUT_RESULTS"
-    assert gate.declared_commit == "uncommitted-stage-05"
+    assert gate.declared_commit == "uncommitted-core-audit"
     assert catalog.lock_status == "DRAFT_NOT_LOCKED"
     assert all(
         item.lock_status == "DRAFT_NOT_LOCKED"

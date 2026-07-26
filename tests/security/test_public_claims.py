@@ -14,4 +14,6 @@ def test_multilingual_scope_is_honest() -> None:
 def test_recorded_and_live_labels_are_not_conflated() -> None:
     public_copy = "\n".join(path.read_text() for path in Path("apps/web/app").rglob("*.tsx"))
     assert "RECORDED" in public_copy
-    assert "Live mode off" in public_copy
+    assert "recorded snapshot" in public_copy
+    assert "Public live inference is disabled" in public_copy
+    assert "Run live with Cohere" not in public_copy

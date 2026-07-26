@@ -8,6 +8,7 @@ from pydantic import Field
 from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.evidence import stable_id
 from resolveflow.domain.hashing import checksum
+from resolveflow.domain.models import AuditEvent
 
 
 class AuditRecord(FrozenModel):
@@ -85,3 +86,19 @@ def verify_audit_chain(events: tuple[AuditRecord, ...]) -> bool:
             return False
         previous = event.event_hash
     return True
+
+
+def verify_snapshot_audit_chain(events: tuple[AuditEvent, ...]) -> bool:
+    """Verify the public run-event chain instead of trusting its stored hash fields."""
+    previous: str | None = None
+    for expected, event in enumerate(events, 1):
+        if event.sequence != expected or event.previous_event_hash != previous:
+            return False
+        body = event.model_dump(
+            mode="python",
+            exclude={"event_id", "event_hash"},
+        )
+        if checksum(body) != event.event_hash:
+            return False
+        previous = event.event_hash
+    return bool(events)

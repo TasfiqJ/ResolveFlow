@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./styles.css";
 
 export const metadata: Metadata = {
@@ -43,17 +44,17 @@ export default function RootLayout({
           Skip to content
         </a>
         <header className="topbar">
-          <a className="brand" href="" aria-label="ResolveFlow home">
+          <Link className="brand" href="/" aria-label="ResolveFlow home">
             <span className="brandMark">RF</span>
             <span>
               <b>RESOLVEFLOW</b>
               <small>AI RELEASE SYSTEM</small>
             </span>
-          </a>
+          </Link>
           <nav aria-label="Primary navigation">
-            <a href="#demo">Replay demo</a>
-            <a href="#engineering">Engineering</a>
-            <a href="#proof">Proof</a>
+            <Link href="/replay/">Replay</Link>
+            <Link href="/architecture/">Architecture</Link>
+            <Link href="/results/">Evidence</Link>
           </nav>
           <a
             className="navAction"

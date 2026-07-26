@@ -10,10 +10,16 @@ verification, exact approval controls, deterministic Replay, paired unsafe/guard
 and a hard-invariant-first release gate. The public page is snapshot-first: it needs no Cohere
 key, database, Slack workspace, or Jira site.
 
-Current status: technical preview. One actual deterministic development fixture blocks unsafe-v0
-with `NO_SHIP`; guarded-v1 receives `SHIP_WITH_LIMITS` because the draft citation sample is below
-its minimum N. This is not a held-out, live-provider, human-reviewed, or final release result. No
-external write is represented by the fixture.
+Current status: technical preview with a fail-closed `NO_SHIP` decision for both builds. Unsafe-v0
+admits a forbidden candidate. Guarded-v1 fixes that authorization failure, but the gate now refuses
+to credit unexercised action/deployment invariants as zero failures and detects that 36 draft truth
+IDs collapse to one semantic template. This is not a held-out, live-provider, human-reviewed, or
+final release result. No external write is represented by the fixture.
+
+The integrity artifact also separates 5/5 stored attack payloads exercising their deterministic
+controls from the still-unexecuted 0/200 full Replay matrix. Live mode is contract-wired as one
+Chat/Embed/Rerank composition with provider-derived provenance and ACL filtering before document
+embedding, but no live call or provider result is claimed.
 
 ## Snapshot quick start
 
@@ -29,8 +35,8 @@ Open `http://localhost:3000`. The UI says **Recorded run** and **Slack-style sim
 its provenance is unambiguous.
 
 The static route set includes `/demo`, `/replay`, the published run trace, `/results`,
-`/architecture`, `/methodology`, `/about`, and a private/static `/review` workflow. Public live
-mode is disabled; a complete recorded fallback remains available without an API.
+`/architecture`, `/methodology`, `/about`, `/audit`, and a private/static `/review` workflow.
+Public live mode is disabled; a complete recorded fallback remains available without an API.
 
 ## Full local development
 
@@ -66,7 +72,7 @@ make replay-smoke
 CANDIDATE_BUILD=guarded-v1 \
 BASELINE_BUILD=unsafe-v0 \
 DATASET_VERSION=replay-development-draft-1.0 \
-MANIFEST_LOCK_HASH=sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a \
+MANIFEST_LOCK_HASH=sha256:f09b20e24727f952d2499ac8e35bfa9c47a3791ac71689c7e3c940abd01bb990 \
 make evaluate-candidate
 ```
 
@@ -102,7 +108,8 @@ scripts/verify.sh
 The verifier runs source-integrity checks, locked setup validation, Python and web lint/types,
 unit/integration/Replay tests, deterministic bundle reproduction, negative release gates,
 reversible PostgreSQL migrations, all static routes, snapshot checksums, browser-bundle secret
-scan, and browser smoke. It never calls Cohere, Slack, Jira, or a paid service.
+scan, static artifact smoke, and real Chromium journeys with WCAG A/AA checks. It never calls
+Cohere, Slack, Jira, or a paid service.
 
 ## Fixture and interfaces
 
@@ -112,7 +119,8 @@ scan, and browser smoke. It never calls Cohere, Slack, Jira, or a paid service.
 - Checksummed Replay result: `data/published/replay-development-result.json`
 - Shared Resolve path: `python/resolveflow/orchestrator.py`
 - Replay manifest: `data/manifests/replay-role-downgrade-001.yaml`
-- Draft gate: `eval/configs/release-gate-1.0.yaml`
+- Current fail-closed draft gate: `eval/configs/release-gate-1.1.yaml`
+- Evaluation integrity audit: `data/published/evaluation-integrity-audit.json`
 - Release profile: `docs/HUMAN_SIGNOFF.json`
 - Release checklist and limits: `docs/RELEASE_CHECKLIST.md`, `docs/KNOWN_LIMITATIONS.md`
 

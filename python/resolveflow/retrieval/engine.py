@@ -38,6 +38,9 @@ class HybridRetriever:
         self.rrf_constant = rrf_constant
         self.diversity_cap = diversity_cap
         self._cache: dict[str, RetrievalTrace] = {}
+        self._document_embedding_cache: dict[
+            tuple[str, str, tuple[str, ...]], dict[str, tuple[float, ...]]
+        ] = {}
 
     def retrieve(
         self,
@@ -75,7 +78,32 @@ class HybridRetriever:
         ]
 
         query_vector = self.embedder.embed_query(query)
-        embedding_by_chunk = {item.chunk_id: item.vector for item in self.corpus.embeddings}
+        stored_embeddings = {
+            item.chunk_id: item.vector
+            for item in self.corpus.embeddings
+            if item.model == self.embedder.model
+        }
+        if all(chunk.chunk_id in stored_embeddings for chunk in eligible_chunks):
+            embedding_by_chunk = stored_embeddings
+            embedding_source = "stored_snapshot"
+        else:
+            authorized_ids = tuple(chunk.chunk_id for chunk in eligible_chunks)
+            embedding_cache_key = (
+                self.corpus.snapshot.snapshot_id,
+                self.embedder.model,
+                authorized_ids,
+            )
+            embedding_by_chunk = self._document_embedding_cache.get(embedding_cache_key, {})
+            if not embedding_by_chunk:
+                vectors = self.embedder.embed_documents(
+                    tuple(chunk.content for chunk in eligible_chunks)
+                )
+                embedding_by_chunk = {
+                    chunk.chunk_id: vector
+                    for chunk, vector in zip(eligible_chunks, vectors, strict=True)
+                }
+                self._document_embedding_cache[embedding_cache_key] = embedding_by_chunk
+            embedding_source = "computed_authorized_candidates"
         vector_scored = [
             (chunk, _cosine(query_vector, embedding_by_chunk[chunk.chunk_id]))
             for chunk in eligible_chunks
@@ -175,6 +203,8 @@ class HybridRetriever:
             "eligible_chunk_count": len(eligible_chunks),
             "lexical_candidate_ids": tuple(item.chunk_id for item, _ in lexical),
             "vector_candidate_ids": tuple(item.chunk_id for item, _ in vector),
+            "embedding_model": self.embedder.model,
+            "embedding_source": embedding_source,
             "rerank_model": rerank_model or self.reranker.model,
             "rerank_escalation_reason": escalation_reason,
             "rerank_payload_checksum": checksum(payload_body),

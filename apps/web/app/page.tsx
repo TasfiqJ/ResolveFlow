@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import integrity from "../public/snapshots/evaluation-integrity-audit.json";
 import snapshot from "../public/snapshots/hero-foundation.json";
 
 const starField = [
@@ -56,10 +57,30 @@ const engineeringCards = [
 ] as const;
 
 const proofStats = [
-  ["134", "credential-free Python tests", "LATEST VALIDATED SUITE"],
-  ["14", "hash-linked audit events", "RECORDED HERO RUN"],
-  ["200", "deterministic security scenarios", "DRAFT CONTROL MATRIX"],
-  ["05", "reversible database migrations", "POSTGRESQL + PGVECTOR"],
+  {
+    value: `${integrity.attack_payload_control_pass_count}/${integrity.attack_payload_control_execution_count}`,
+    label: "stored attack payloads exercising expected controls",
+    note: "DETERMINISTIC CONTROL EXECUTIONS",
+    href: "snapshots/evaluation-integrity-audit.json",
+  },
+  {
+    value: "14",
+    label: "hash-linked audit events",
+    note: "RECORDED HERO RUN",
+    href: "runs/run_hero_foundation_001/",
+  },
+  {
+    value: `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count}`,
+    label: "security matrix cells executed as full Replays",
+    note: "DECLARATION IS NOT EXECUTION",
+    href: "snapshots/evaluation-integrity-audit.json",
+  },
+  {
+    value: "05",
+    label: "reversible database migrations",
+    note: "POSTGRESQL + PGVECTOR",
+    href: "https://github.com/TasfiqJ/ResolveFlow/tree/main/migrations/versions",
+  },
 ] as const;
 
 const buildScope = [
@@ -321,12 +342,12 @@ export default function Home() {
                     <i style={{ width: "0%" }} />
                   </div>
                   <p>0 RESTRICTED CANDIDATES ENTERED RETRIEVAL</p>
-                  <b>SHIP WITH LIMITS</b>
+                  <b>NO SHIP</b>
                 </div>
               </div>
               <p className="gateCaveat">
-                LIMIT: citation sample N=4 is below the draft N=10 reporting
-                minimum. This is not a final release verdict.
+                BLOCKED: hard action/deployment evidence is unexercised and 36
+                draft truth IDs collapse to one semantic template.
               </p>
             </article>
           </div>
@@ -395,12 +416,14 @@ export default function Home() {
           </p>
         </div>
         <div className="statWall">
-          {proofStats.map(([value, label, note]) => (
-            <article key={label}>
-              <strong>{value}</strong>
-              <span>{label}</span>
-              <small>{note}</small>
-            </article>
+          {proofStats.map((stat) => (
+            <a href={stat.href} key={stat.label}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+              <small>
+                {stat.note} <b aria-hidden="true">↗</b>
+              </small>
+            </a>
           ))}
         </div>
         <div className="evidenceStrip">
@@ -498,6 +521,12 @@ export default function Home() {
             <span>04</span>
             <strong>Evaluation method</strong>
             <small>Read the hard-first gate design</small>
+            <b>↗</b>
+          </a>
+          <a href="audit/">
+            <span>05</span>
+            <strong>Senior engineering audit</strong>
+            <small>See the gaps, fixes, and remaining promotion gates</small>
             <b>↗</b>
           </a>
         </div>

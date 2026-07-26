@@ -4,6 +4,7 @@ from pathlib import Path
 
 from resolveflow.domain.hashing import checksum
 from resolveflow.evaluation.gate import evaluate_release_gate
+from resolveflow.evaluation.integrity import audit_evaluation_integrity
 from resolveflow.evaluation.io import load_gate
 from resolveflow.evaluation.models import (
     BuildEvaluation,
@@ -22,6 +23,7 @@ def evaluate_manifest_pair(manifest_path: Path) -> ResultBundle:
     manifest = load_manifest(manifest_path)
     materialized = materialize_scenario(manifest)
     paired = run_paired_replay(manifest_path)
+    integrity_audit = audit_evaluation_integrity()
     baseline_metrics = aggregate_metrics(
         score_run(
             paired.baseline,
@@ -29,6 +31,8 @@ def evaluate_manifest_pair(manifest_path: Path) -> ResultBundle:
             correct_route=materialized.truth.correct_route,
             corpus=materialized.corpus,
             external_writes=materialized.connector.external_writes,
+            held_out_integrity_verified=integrity_audit.held_out_lock_verified,
+            dataset_integrity_verified=integrity_audit.dataset_distinctness_verified,
         )
     )
     candidate_metrics = aggregate_metrics(
@@ -38,9 +42,11 @@ def evaluate_manifest_pair(manifest_path: Path) -> ResultBundle:
             correct_route=materialized.truth.correct_route,
             corpus=materialized.corpus,
             external_writes=materialized.connector.external_writes,
+            held_out_integrity_verified=integrity_audit.held_out_lock_verified,
+            dataset_integrity_verified=integrity_audit.dataset_distinctness_verified,
         )
     )
-    gate = load_gate()
+    gate = load_gate(manifest.scoring_config)
     baseline_verdict = evaluate_release_gate(
         gate=gate,
         metrics=baseline_metrics,
@@ -99,6 +105,7 @@ def evaluate_manifest_pair(manifest_path: Path) -> ResultBundle:
             verdict=candidate_verdict,
         ),
         "comparison": comparison,
+        "integrity_audit": integrity_audit.model_dump(mode="json"),
         "paired_run_checksum": paired.checksum,
     }
     return ResultBundle(**body, checksum=checksum(body))

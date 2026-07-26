@@ -24,6 +24,8 @@ class MetricObservation(FrozenModel):
     value: float = Field(ge=0.0, le=1.0)
     interval: WilsonInterval
     unit: Literal["proportion"] = "proportion"
+    evidence_status: Literal["observed", "not_exercised", "not_verified"] = "observed"
+    evidence_note: str | None = None
     base_truth_clusters: tuple[str, ...]
     source_run_ids: tuple[str, ...]
     failing_replay_links: tuple[str, ...] = ()
@@ -89,6 +91,8 @@ class GateOutcome(FrozenModel):
     denominator: int
     value: float
     threshold: float
+    evidence_status: Literal["observed", "not_exercised", "not_verified"] = "observed"
+    evidence_note: str | None = None
     failing_replay_links: tuple[str, ...] = ()
 
 
@@ -132,5 +136,6 @@ class ResultBundle(FrozenModel):
     baseline: BuildEvaluation
     candidate: BuildEvaluation
     comparison: ExperimentComparison
+    integrity_audit: dict[str, object]
     paired_run_checksum: str
     checksum: str

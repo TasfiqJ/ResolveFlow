@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "out");
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
+const basePath = (process.env.BASE_PATH ?? "").replace(/\/+$/, "");
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
@@ -22,9 +23,20 @@ const contentTypes = {
 
 createServer(async (request, response) => {
   try {
-    const pathname = decodeURIComponent(
+    const requestPathname = decodeURIComponent(
       new URL(request.url ?? "/", "http://localhost").pathname,
     );
+    if (
+      basePath &&
+      requestPathname !== basePath &&
+      !requestPathname.startsWith(`${basePath}/`)
+    ) {
+      response.writeHead(404).end("Not found");
+      return;
+    }
+    const pathname = basePath
+      ? requestPathname.slice(basePath.length) || "/"
+      : requestPathname;
     const relative = pathname.endsWith("/")
       ? `${pathname}index.html`
       : pathname;

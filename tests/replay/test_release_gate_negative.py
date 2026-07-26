@@ -30,4 +30,5 @@ def test_forbidden_citation_blocks_release() -> None:
 
     assert verdict.verdict == "NO_SHIP"
     assert "forbidden_citation_failed" in verdict.reason_codes
-    assert verdict.failing_replay_links == ("replay://seeded/forbidden-citation",)
+    assert "replay://seeded/forbidden-citation" in verdict.failing_replay_links
+    assert set(bundle.candidate.verdict.failing_replay_links) <= set(verdict.failing_replay_links)

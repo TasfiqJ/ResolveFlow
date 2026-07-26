@@ -14,10 +14,8 @@ from resolveflow.actions.models import (
     RejectionCommand,
 )
 from resolveflow.actions.service import ActionService
-from resolveflow.agent.fixture import FixtureChatAdapter
-from resolveflow.agent.service import GovernedAgent
+from resolveflow.composition import build_orchestrator
 from resolveflow.config import get_settings
-from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.models import CaseCreate, HealthResponse, RunSnapshot, VersionResponse
 from resolveflow.evaluation.models import ResultBundle
@@ -29,14 +27,14 @@ from resolveflow.intake.slack import (
     parse_slack_event,
 )
 from resolveflow.intake.web import canonical_hero_case
-from resolveflow.orchestrator import ResolveOrchestrator, _git_sha
+from resolveflow.orchestrator import _git_sha
 from resolveflow.public.live import LiveRequest, PublicLiveLimiter, PublicLiveRejected
 from resolveflow.replay.io import manifest_path
 from resolveflow.telemetry.export import export_run_json, export_run_markdown
 from resolveflow.telemetry.projection import public_projection
 
 app = FastAPI(title="ResolveFlow Replay API", version=__version__)
-orchestrator = ResolveOrchestrator(FixtureContextRepository(), GovernedAgent(FixtureChatAdapter()))
+orchestrator = build_orchestrator(get_settings())
 action_service = ActionService()
 action_store: dict[str, ActionProposal] = {}
 replay_store: dict[str, ResultBundle] = {}
@@ -156,6 +154,18 @@ def submit_public_live(
     request: Request,
 ) -> dict[str, object]:
     settings = get_settings()
+    if settings.public_live_mode:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "public_live_executor_unavailable",
+                "fallback": "/snapshots/hero-foundation.json",
+                "message": (
+                    "Live admission is disabled until a bounded executor persists and "
+                    "completes accepted tickets."
+                ),
+            },
+        )
     public_live_limiter.enabled = settings.public_live_mode and settings.cohere_allow_live
     public_live_limiter.daily_global_limit = settings.public_live_daily_limit
     public_live_limiter.session_daily_limit = settings.public_live_session_limit

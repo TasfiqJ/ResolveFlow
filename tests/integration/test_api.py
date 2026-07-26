@@ -82,7 +82,8 @@ def test_public_replay_and_release_interfaces_are_predefined() -> None:
     body = replay.json()
     assert body["content_label"] == "DRAFT_PENDING_HUMAN_REVIEW"
     assert body["baseline"]["verdict"]["verdict"] == "NO_SHIP"
-    assert body["candidate"]["verdict"]["verdict"] == "SHIP_WITH_LIMITS"
+    assert body["candidate"]["verdict"]["verdict"] == "NO_SHIP"
+    assert "dataset_integrity_failed" in body["candidate"]["verdict"]["reason_codes"]
 
     fetched = client.get(f"/v1/replays/{body['bundle_id']}")
     assert fetched.status_code == 200

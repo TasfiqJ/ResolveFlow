@@ -269,6 +269,14 @@ for relative in tracked:
         continue
     require(not secret_pattern.search(text), f"secret-like token found in tracked file: {relative}")
 
+workflow_action = re.compile(r"^\s*(?:-\s+)?uses:\s+([^@\s]+)@([^\s#]+)", re.MULTILINE)
+for workflow in sorted((root / ".github" / "workflows").glob("*.yml")):
+    for action, reference in workflow_action.findall(workflow.read_text(encoding="utf-8")):
+        require(
+            bool(re.fullmatch(r"[0-9a-f]{40}", reference)),
+            f"{workflow.relative_to(root)} action is not pinned to a full commit SHA: {action}@{reference}",
+        )
+
 if errors:
     print("Stage 00 verification failed:")
     for error in errors:
@@ -281,11 +289,16 @@ PY
 echo "Stage 01: validating locked setup and runtime configuration"
 uv lock --check
 pnpm install --frozen-lockfile --lockfile-only --offline
+pnpm --dir apps/web exec playwright install chromium
 docker compose config --quiet
 
 echo "Stage 07: dependency and reachable-history secret audits"
 uv run --with pip-audit pip-audit
-pnpm audit
+# Runtime dependencies are release-critical. The development toolchain is also
+# checked, but its documented high-severity brace-expansion advisory cannot be
+# force-overridden without breaking ESLint 9's current plugin stack.
+pnpm audit --prod --audit-level high
+pnpm audit --dev --audit-level critical
 docker run --rm -v "$ROOT:/repo" \
   ghcr.io/gitleaks/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
   detect --source=/repo --no-banner --redact
@@ -338,13 +351,17 @@ for required in \
   python/resolveflow/replay/models.py python/resolveflow/replay/io.py \
   python/resolveflow/replay/mutations.py python/resolveflow/replay/materialize.py \
   python/resolveflow/replay/runner.py python/resolveflow/evaluation/models.py \
+  python/resolveflow/evaluation/integrity.py python/resolveflow/composition.py \
   python/resolveflow/evaluation/statistics.py python/resolveflow/evaluation/scoring.py \
   python/resolveflow/evaluation/gate.py python/resolveflow/evaluation/runner.py \
   migrations/versions/0005_replay_release_gate.py \
   data/truths/replay-base-truths-1.0.yaml \
   data/manifests/replay-role-downgrade-001.yaml \
   data/manifests/security-scenario-candidates-1.0.yaml \
+  data/published/evaluation-integrity-audit.json \
+  apps/web/public/snapshots/evaluation-integrity-audit.json \
   eval/configs/replay-builds-1.0.yaml eval/configs/release-gate-1.0.yaml \
+  eval/configs/release-gate-1.1.yaml \
   .github/workflows/release-evaluation.yml; do
   [[ -f "$required" ]] || {
     echo "Missing Stage 05 artifact: $required" >&2
@@ -388,13 +405,24 @@ echo "Stage 05: Replay materialization, shared-path pairing, and release gates"
 uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml >/tmp/resolveflow-replay-dry-run.json
 uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml
 uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml
+uv run resolveflow-evaluation audit-dataset \
+  --output /tmp/resolveflow-evaluation-integrity-audit.json
+cmp /tmp/resolveflow-evaluation-integrity-audit.json \
+  data/published/evaluation-integrity-audit.json
+set +e
 uv run resolveflow-evaluation evaluate \
   --candidate guarded-v1 \
   --baseline unsafe-v0 \
   --dataset replay-development-draft-1.0 \
-  --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a \
+  --lock sha256:f09b20e24727f952d2499ac8e35bfa9c47a3791ac71689c7e3c940abd01bb990 \
   --manifest data/manifests/replay-role-downgrade-001.yaml \
   --output /tmp/resolveflow-stage05-result.json
+evaluation_status=$?
+set -e
+[[ "$evaluation_status" -eq 1 ]] || {
+  echo "Fail-closed draft candidate was expected to return NO_SHIP" >&2
+  exit 1
+}
 uv run resolveflow-evaluation report \
   --bundle /tmp/resolveflow-stage05-result.json \
   --output /tmp/resolveflow-stage05-report
@@ -405,6 +433,7 @@ pnpm --dir apps/web build
 uv run python scripts/scan_public_build.py --path apps/web/out --strict
 uv run python scripts/verify_public_snapshots.py
 node tests/browser/snapshot-smoke.mjs
+pnpm --dir apps/web e2e
 uv run resolveflow-preflight
 
 echo "Stage 06: exact-count review tooling and multilingual claim boundary"

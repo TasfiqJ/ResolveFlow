@@ -66,8 +66,10 @@ review-analysis:
 	uv run resolveflow-review analyze --input "$(REVIEW_EXPORT)" --output /tmp/resolveflow-review-analysis.json
 
 e2e: snapshot-hero
+	pnpm --dir apps/web exec playwright install chromium
 	pnpm --dir apps/web build
 	node tests/browser/snapshot-smoke.mjs
+	pnpm --dir apps/web e2e
 
 preflight:
 	uv run resolveflow-preflight

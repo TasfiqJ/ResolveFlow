@@ -1,4 +1,5 @@
 .next
 out
+playwright-report
 public/snapshots
-
+test-results

@@ -1,69 +1,86 @@
-# ResolveFlow Replay technical-preview report
+# ResolveFlow Replay core-audit report
 
-**Audit date:** 2026-07-22
+**Audit date:** 2026-07-26
 
 **Branch:** `main`
 
-**Release profile:** `technical_preview`
+**Source state:** revision containing this report
 
-**Rollback target:** `e30f56714dcbc57fc861c1eeb0e2d4dbf3dfa56c`
+**Release profile:** `technical_preview`
 
 ## Outcome
 
-ResolveFlow Replay is prepared as a zero-cost, snapshot-first technical preview. The implemented product uses one shared Resolve path for interactive and Replay execution, keeps public writes disabled, publishes only synthetic recorded evidence, and identifies missing human validation instead of manufacturing it.
+ResolveFlow remains an impressive systems prototype, but it is not a validated release. The
+current checksummed development result is intentionally fail closed:
 
-This is not a final deployment-readiness verdict. The validated-release profile remains closed because the repository has 0 human-authored truths, 0 practitioners, 0 reviewed cases, no locked held-out evaluation, and no fluent-language signoff.
+- unsafe-v0: `NO_SHIP`, including one forbidden candidate in one scenario;
+- guarded-v1: `NO_SHIP`;
+- guarded-v1 hard evidence: 5 of 10 hard invariants observed;
+- semantic truth evidence: 1 unique template across 36 draft IDs;
+- security-matrix evidence: 0 of 200 cells executed as full Replays;
+- stored attack controls: 5 of 5 payloads exercise their expected deterministic controls.
 
-## Implemented product
+The guarded build fixes the demonstrated role-downgrade authorization failure. It is still blocked
+by unexercised action invariants, unverified public credential state, an unlocked held-out set,
+failed dataset distinctness, and insufficient citation sample size.
 
-- Nine static routes covering Resolve, Replay, results, architecture, methodology, project context, blinded review tooling, and a recorded audit trace.
-- Authorization before retrieval, deterministic context tools, hybrid retrieval boundaries, bounded agent execution, claim-level verification, and hostile-evidence controls.
-- Exact-digest approval, disabled real Jira dispatch, idempotent synthetic execution, retry/reconciliation behavior, and append-only audit projection.
-- Versioned Replay materialization, shared production-path comparison, hard-invariant-first release decisions, exact-count statistics, and retained failure links.
-- Snapshot checksums, public redaction, strict browser-bundle secret scanning, recorded/live provenance, and outage-independent static behavior.
+This is not a final, held-out, live-provider, human-reviewed, connector-backed, or
+production-readiness verdict.
 
-## Measured evidence
+## Core corrections
 
-The currently published result is one deterministic development-fixture pair:
+- Gate 1.1 distinguishes observed evidence from `not_exercised` and `not_verified` evidence and
+  blocks every missing hard invariant.
+- A checksummed integrity artifact fingerprints truth semantics, exposes duplicate truth groups,
+  separates declared matrix cells from executed Replays, and records exact human-review/lock
+  state.
+- The five stored attack payloads are executed through their expected deterministic
+  forbidden-effect controls without being mislabeled as 200 Replay results.
+- Public snapshots retain audit hashes, and scoring recomputes every event hash and chain link.
+- Live runtime composition switches Chat, Embed, and Rerank together, applies configured
+  models/budgets, and derives snapshot provenance from the active provider.
+- Non-fixture document embeddings are computed only over snapshot-current, ACL-authorized
+  candidates; restricted content exclusion is contract-tested.
+- Public-live admission no longer returns a queued ticket without an executor; it fails closed
+  with the recorded fallback.
+- Public Results and Audit pages now present the fail-closed verdict and the exact 1/36, 0/200,
+  and 5/5 evidence boundaries.
 
-- unsafe-v0: `NO_SHIP`, with 1 forbidden candidate out of 1 scenario;
-- guarded-v1: 0 forbidden candidates out of 1 scenario and 4 verified citations out of 4;
-- guarded-v1 verdict: `SHIP_WITH_LIMITS` because citation N=4 is below the draft minimum N=10.
+## Verification performed for this source state
 
-These values are not held-out, live-provider, human-reviewed, or final results.
+- Ruff lint and format checks: passed.
+- Mypy strict checking: passed across 81 source files.
+- Python unit, integration, contract, security, and Replay suites: 144 passed; one documented
+  Starlette TestClient transition warning.
+- Web lint, formatting, and TypeScript: passed.
+- Web component suite: 3 passed.
+- GitHub Pages-prefixed static build: passed, 12 pages generated.
+- Static route smoke: passed.
+- Chromium Playwright/Axe suite: 9 passed, including nested navigation, Replay interaction,
+  keyboard behavior, WCAG A/AA scans, and mobile overflow.
+- Public bundle secret scan, snapshot integrity, and strict technical-preview preflight: passed.
+- Replay smoke and seeded unsafe negative gate: passed.
+- Published dataset-integrity artifact reproduced byte-for-byte.
 
-## Verification
+No successful GitHub Actions run, clean-clone restore, container startup, PostgreSQL migration
+cycle, dependency audit, live provider call, external connector write, human review, or deployment
+is claimed for this source state. Earlier dated reports remain historical evidence for their
+recorded commits only.
 
-The repository-controlled release checks completed locally on 2026-07-22:
+## Remaining promotion blockers
 
-- Python lint, formatting, and mypy passed across 79 source files.
-- 134 Python tests, 2 web tests, and 4 PostgreSQL tests passed.
-- The migration upgraded, downgraded one revision, and re-upgraded successfully.
-- Python and pnpm dependency audits reported no known vulnerabilities. The local package itself is not published on PyPI and was explicitly skipped by `pip-audit`.
-- Gitleaks 8.30.1 scanned all 18 reachable commits and found no leaks; the public static bundle scan also passed.
-- Replay smoke retained the unsafe failure as `NO_SHIP` and produced the guarded development-fixture result as `SHIP_WITH_LIMITS`.
-- Static export with the `/ResolveFlow` base path, all-route snapshot smoke, strict public-claim preflight, and published-snapshot checksum verification passed.
-- Digest-pinned database, API, worker, and web images built and started; API live, ready, and version endpoints plus the exported homepage and nested About route returned the expected content.
-- An isolated clone of pushed commit `e30f567` completed a frozen install, rebuilt the `/ResolveFlow` export, passed the all-route snapshot smoke, and reproduced the two published artifact hashes. The exact restore record is in `docs/restore-reports/2026-07-22-e30f567.md`.
-
-The Python test run emits one upstream transition warning because Starlette 1.3.1 deprecates its `httpx` TestClient backend in favor of `httpx2`; it does not fail or skip a test.
+1. Author genuinely distinct cases and obtain qualified human review.
+2. Pre-register and lock the held-out set and gate before evaluation.
+3. Add compatible Replay scenarios that execute approval, dispatch, timeout, reconciliation,
+   payload mismatch, and duplicate-effect boundaries.
+4. Independently attest public deployment credentials and runtime configuration.
+5. Implement a durable bounded live executor, then run an authorized provider evaluation and
+   retain latency, usage, error, quality, and cost evidence.
+6. Wire durable repositories into the API runtime or explicitly keep it a fixture service.
+7. Exercise Slack/Jira only in explicitly authorized non-production tenants.
+8. Obtain independent security and usability review before any production claim.
 
 ## External systems and spend
 
-No live Cohere request, real Slack event, real Jira write, paid infrastructure purchase, or billing claim is part of the technical preview. Public mode contains no external write credential. Exact billed spend cannot be queried from the repository; no monetary result is claimed.
-
-## Limitations and next promotion gate
-
-The complete limitation register is in `docs/KNOWN_LIMITATIONS.md`. Promotion to `validated_release` requires genuine human-authored truths, locked gate and held-out artifacts, at least three relevant practitioners across at least ten cases, and either a fluent-human language signoff or continued removal of multilingual quality claims.
-
-## Publication
-
-GitHub Pages publication was observed and verified on 2026-07-22:
-
-- Public URL: [https://tasfiqj.github.io/ResolveFlow/](https://tasfiqj.github.io/ResolveFlow/)
-- Successful workflow: [run 29927371263](https://github.com/TasfiqJ/ResolveFlow/actions/runs/29927371263) at commit `9f81f866fe70e7fe453f1b1a670d82c6a3bb9914`
-- Build and deploy jobs both completed successfully.
-- Homepage and `/about/` returned HTTP 200 with the technical-preview, pending-human-validation, and honest-limitations copy.
-- Public hero and Replay snapshots returned HTTP 200 and matched repository SHA-256 values `acfe2a0f...2b80` and `49f5da29...7ac9`.
-
-The exact publication observation is recorded in `docs/deployment-reports/2026-07-22-pages-9f81f86.md`.
+No Cohere key, Slack credential, Jira credential, real customer data, paid infrastructure, or
+external write was used. No cost or provider-success claim is made.

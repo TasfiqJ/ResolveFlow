@@ -180,6 +180,8 @@ class RetrievalTrace(FrozenModel):
     eligible_chunk_count: int
     lexical_candidate_ids: tuple[str, ...]
     vector_candidate_ids: tuple[str, ...]
+    embedding_model: str
+    embedding_source: Literal["stored_snapshot", "computed_authorized_candidates"]
     rerank_model: str
     rerank_escalation_reason: str | None
     rerank_payload_checksum: str

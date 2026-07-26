@@ -6,7 +6,7 @@
 
 **Branch:** `main`
 
-**Status:** Milestones 1-6 implemented; Milestone 7 not started
+**Status:** Milestones 1-7 implemented; post-release credibility hardening complete
 **Authority:** `AGENTS.md` -> `docs/CODEX_MASTER_PROMPT_ResolveFlow.md` -> master-plan PDF -> feature specifications -> current official documentation -> repository conventions
 
 This plan turns the supplied ResolveFlow Replay blueprint into an ordered, testable build program. Resolve is the incident workflow; Replay is the product that decides whether a versioned candidate is fit for the declared deployment profile. The same production orchestration path must serve interactive Resolve runs, deterministic fixtures, recorded snapshots, and Replay.
@@ -311,7 +311,7 @@ The exact release-candidate sequence is explicit and nonautomatic: `make preflig
 | JavaScript dependency audit | `pnpm audit` |
 | Replay smoke | `uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml` |
 | Snapshot | `uv run resolveflow-snapshot` followed by checksum verification |
-| Candidate evaluation | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:b312f320243a4a3a3e34f664f5d55f9586f7273b1a5daf203eaf1febc3ca7f7a --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` |
+| Candidate evaluation | `uv run resolveflow-evaluation evaluate --candidate guarded-v1 --baseline unsafe-v0 --dataset replay-development-draft-1.0 --lock sha256:f09b20e24727f952d2499ac8e35bfa9c47a3791ac71689c7e3c940abd01bb990 --manifest data/manifests/replay-role-downgrade-001.yaml --output /tmp/resolveflow-stage05-result.json` |
 | Report regeneration | `uv run resolveflow-evaluation report --bundle /tmp/resolveflow-stage05-result.json --output /tmp/resolveflow-stage05-report` |
 | Preflight | `uv run python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json && uv run python scripts/preflight.py --strict` |
 

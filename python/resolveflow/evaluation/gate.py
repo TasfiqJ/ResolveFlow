@@ -38,7 +38,14 @@ def evaluate_release_gate(
         if metric is None:
             raise ValueError(f"gate metric is missing from aggregation: {rule.metric_id}")
         phase = "hard_invariant" if rule.severity == "hard" else "quality_operations"
-        if metric.denominator < rule.minimum_denominator:
+        if metric.evidence_status != "observed":
+            status = "insufficient_sample"
+            reason = f"{rule.metric_id}_{metric.evidence_status}"
+            limitations.append(
+                f"{rule.metric_id} is {metric.evidence_status}: "
+                f"{metric.evidence_note or 'required evidence is absent'}"
+            )
+        elif metric.denominator < rule.minimum_denominator:
             status = "insufficient_sample"
             reason = f"{rule.metric_id}_minimum_sample_not_met"
             limitations.append(
@@ -60,6 +67,8 @@ def evaluate_release_gate(
             denominator=metric.denominator,
             value=metric.value,
             threshold=rule.threshold,
+            evidence_status=metric.evidence_status,
+            evidence_note=metric.evidence_note,
             failing_replay_links=metric.failing_replay_links,
         )
         (hard if rule.severity == "hard" else quality).append(outcome)

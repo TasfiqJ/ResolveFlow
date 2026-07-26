@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -11,10 +12,13 @@ from resolveflow.domain.hashing import canonical_json, checksum
 from resolveflow.evaluation.models import ReleaseGateDefinition, ResultBundle
 
 ROOT = Path(__file__).resolve().parents[3]
-GATE_PATH = ROOT / "eval" / "configs" / "release-gate-1.0.yaml"
+GATE_PATH = ROOT / "eval" / "configs" / "release-gate-1.1.yaml"
 
 
-def load_gate(path: Path = GATE_PATH) -> ReleaseGateDefinition:
+def load_gate(gate_id: str | None = None) -> ReleaseGateDefinition:
+    if gate_id is not None and not re.fullmatch(r"release-gate-\d+\.\d+", gate_id):
+        raise ValueError(f"invalid release gate ID: {gate_id}")
+    path = ROOT / "eval" / "configs" / f"{gate_id}.yaml" if gate_id is not None else GATE_PATH
     raw: Any = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError("release gate YAML root must be an object")

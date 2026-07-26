@@ -19,6 +19,7 @@ for (const route of [
   "architecture",
   "methodology",
   "about",
+  "audit",
   "review",
   "runs/run_hero_foundation_001",
 ]) {
@@ -31,8 +32,9 @@ assert.match(review, /OUTPUT B/);
 assert.doesNotMatch(review, /unsafe-v0|guarded-v1/);
 const replay = await readFile("apps/web/out/replay/index.html", "utf8");
 assert.match(replay, /RECORDED/);
-assert.match(replay, /Live mode off/);
+assert.match(replay, /LIVE INFERENCE/);
 assert.match(replay, /complete checksummed recorded comparison/);
+assert.match(replay, /Know what is recorded/);
 const results = await readFile("apps/web/out/results/index.html", "utf8");
 assert.match(results, /0 reviewers \/ 0 cases/);
 assert.match(results, /technical preview only/i);
