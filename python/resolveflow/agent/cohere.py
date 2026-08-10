@@ -19,6 +19,23 @@ class CohereChatAdapter:
     """Official Cohere V2 Chat adapter. Construction is explicit and live-off by default."""
 
     provider_name = "cohere"
+    _unsupported_strict_schema_keys = frozenset(
+        {
+            "allOf",
+            "exclusiveMaximum",
+            "exclusiveMinimum",
+            "maximum",
+            "maxItems",
+            "maxLength",
+            "minimum",
+            "minItems",
+            "minLength",
+            "not",
+            "oneOf",
+            "pattern",
+            "uniqueItems",
+        }
+    )
 
     def __init__(
         self,
@@ -62,7 +79,7 @@ class CohereChatAdapter:
                     "function": {
                         "name": tool.name,
                         "description": tool.description,
-                        "parameters": tool.parameters,
+                        "parameters": self._strict_schema(tool.parameters),
                     },
                 }
                 for tool in request.tools
@@ -71,7 +88,7 @@ class CohereChatAdapter:
         else:
             kwargs["response_format"] = {
                 "type": "json_object",
-                "schema": request.response_schema,
+                "schema": self._strict_schema(request.response_schema),
             }
         try:
             raw = self.client.chat(**kwargs)
@@ -80,6 +97,26 @@ class CohereChatAdapter:
         except Exception as exc:
             raise ProviderError("provider_error") from exc
         return self._normalize(raw, request.model)
+
+    # Objects whose keys are caller-chosen NAMES rather than JSON Schema keywords.
+    # Dropping a key here would delete a real field (e.g. a property literally named
+    # "pattern") while leaving it listed in "required", producing an invalid schema.
+    _schema_name_maps = frozenset({"properties", "patternProperties", "$defs", "definitions"})
+
+    @classmethod
+    def _strict_schema(cls, value: Any, *, is_name_map: bool = False) -> Any:
+        """Project Pydantic schemas onto Cohere's supported strict-output subset."""
+        if isinstance(value, dict):
+            if is_name_map:
+                return {key: cls._strict_schema(item) for key, item in value.items()}
+            return {
+                key: cls._strict_schema(item, is_name_map=key in cls._schema_name_maps)
+                for key, item in value.items()
+                if key not in cls._unsupported_strict_schema_keys
+            }
+        if isinstance(value, list):
+            return [cls._strict_schema(item) for item in value]
+        return value
 
     @classmethod
     def _normalize(cls, raw: Any, model: str) -> ChatResponse:
@@ -131,14 +168,30 @@ class CohereChatAdapter:
         else:
             data = json.loads(json.dumps(raw, default=lambda value: value.__dict__))
 
+        def token_count(value: Any) -> int | None:
+            if isinstance(value, bool) or not isinstance(value, int | float):
+                return None
+            return max(0, int(value))
+
+        tokens = data.get("tokens") if isinstance(data, dict) else None
+        if isinstance(tokens, dict):
+            input_tokens = token_count(tokens.get("input_tokens"))
+            output_tokens = token_count(tokens.get("output_tokens"))
+            if input_tokens is not None and output_tokens is not None:
+                return ProviderUsage(
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+
         def find(names: tuple[str, ...]) -> int:
             stack: list[Any] = [data]
             while stack:
                 current = stack.pop()
                 if isinstance(current, dict):
                     for key, value in current.items():
-                        if key in names and isinstance(value, int):
-                            return value
+                        count = token_count(value)
+                        if key in names and count is not None:
+                            return count
                         stack.append(value)
                 elif isinstance(current, list):
                     stack.extend(current)

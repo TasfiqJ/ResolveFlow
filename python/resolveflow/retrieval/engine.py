@@ -151,7 +151,10 @@ class HybridRetriever:
             artifact_counts[version.artifact_id] = artifact_counts.get(version.artifact_id, 0) + 1
 
         documents = tuple(chunk_by_id[item].content for item in selected_ids)
-        reranked = self.reranker.rerank(query, documents, len(documents))
+        # A provider rerank with an empty document list and top_n=0 is rejected by the
+        # API and surfaces as a run-ending ProviderAdapterError. An identity with no
+        # eligible chunks must abstain cleanly, not fail the run.
+        reranked = self.reranker.rerank(query, documents, len(documents)) if documents else ()
         rerank_by_id = {
             selected_ids[input_index]: (rank, score)
             for rank, (input_index, score) in enumerate(reranked, 1)

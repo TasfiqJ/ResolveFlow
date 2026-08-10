@@ -14,6 +14,7 @@ This release is a technical preview, not a production-readiness verdict. It publ
 - The security matrix declares 200 Cartesian cells, but 0 are currently materialized and executed as full Replay runs. It contains 5 unique attack payloads for 20 declared family/variant slots. All 5 stored payloads exercise their expected deterministic forbidden-effect controls, but that bounded scanner evidence is not a full Replay or live-model result.
 - The published paired Replay stops at an inert proposal. Unapproved-write, payload-mismatch, duplicate-action, and deployment-credential hard gates are therefore unexercised or unverified in that result and are release-blocking under gate 1.1.
 - Automated checks do not constitute an independent security assessment or usability study.
+- Claim support is decided by unordered token overlap between the claim text and the model's own `exact_quote`, and `span_exact` accepts any substring of the source document, including the whole document. The model therefore chooses its own evidence window and the check has no locality, ordering, or negation handling. A claim that contradicts its cited passage can still be scored `supported` when it shares enough vocabulary with a wide quote, and an action claim built that way can mint a Jira proposal. Hostile documents are still refused by the `non_hostile_support` rule, so this affects authorized, non-hostile evidence only. Entailment-grade support checking is not implemented and no claim of it is made.
 
 ## Integration limits
 

@@ -8,11 +8,38 @@ from pydantic import BaseModel
 
 from resolveflow.domain.hashing import checksum
 
+# Matched against the WHOLE key, not as a substring. A substring match silently
+# redacted the audit signal this artifact exists to publish: "authorization" hit
+# `authorization_mode` and the ToolTrace `authorization` verdict, and "token" hit
+# `input_tokens`/`output_tokens`. Those are non-secret and must stay legible; the
+# credential-shaped variants below are still redacted, and _SECRET_VALUE continues
+# to scrub secret-shaped values wherever they appear.
 _SENSITIVE_KEY = re.compile(
-    r"(?:authorization|cookie|credential|secret|token|api[_-]?key|password|"
-    r"hidden[_-]?prompt|system[_-]?prompt|reasoning|chain[_-]?of[_-]?thought|"
-    r"stack|traceback|private[_-]?path|source[_-]?path|raw[_-]?payload|provider[_-]?payload)",
+    r"\A(?:"
+    r"[a-z0-9]*[_-]?(?:cookie|credentials?|secret|password|passphrase)(?:[_-][a-z0-9]+)*"
+    r"|[a-z0-9]*[_-]?api[_-]?keys?"
+    r"|authorization[_-]?(?:header|value)"
+    r"|(?:access|refresh|bearer|auth|session|signing|id|api)[_-]?tokens?"
+    r"|token"
+    r"|hidden[_-]?prompt|system[_-]?prompt"
+    r"|reasoning|chain[_-]?of[_-]?thought"
+    r"|stack|stack[_-]?trace|traceback"
+    r"|private[_-]?path|source[_-]?path"
+    r"|raw[_-]?payload|provider[_-]?payload"
+    r")\Z",
     re.I,
+)
+# Keys that the whole-key pattern would otherwise catch but which carry no secret
+# and are load-bearing for public auditability.
+_PUBLIC_SAFE_KEYS = frozenset(
+    {
+        "input_tokens",
+        "output_tokens",
+        "total_tokens",
+        "reasoning_tokens",
+        "billed_tokens",
+        "max_total_tokens",
+    }
 )
 _PRIVATE_PATH = re.compile(r"(?:[A-Za-z]:\\Users\\|/(?:home|Users|mnt/c/Users)/)[^\s]+")
 _SECRET_VALUE = re.compile(
@@ -23,7 +50,7 @@ _SECRET_VALUE = re.compile(
 
 
 def _project(value: Any, key: str | None = None) -> Any:
-    if key and _SENSITIVE_KEY.search(key):
+    if key and key.lower() not in _PUBLIC_SAFE_KEYS and _SENSITIVE_KEY.match(key):
         return "[REDACTED]"
     if isinstance(value, BaseModel):
         return _project(value.model_dump(mode="python"), key)

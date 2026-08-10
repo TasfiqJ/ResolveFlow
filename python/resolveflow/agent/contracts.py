@@ -10,6 +10,7 @@ from resolveflow.domain.base import FrozenModel
 
 class PassKind(str, Enum):
     EVIDENCE = "evidence"
+    FINDINGS = "findings"
     STRUCTURE = "structure"
 
 
@@ -70,11 +71,11 @@ class ChatRequest(FrozenModel):
 
     @model_validator(mode="after")
     def enforce_pass_boundary(self) -> ChatRequest:
-        if self.pass_kind is PassKind.STRUCTURE:
+        if self.pass_kind in {PassKind.FINDINGS, PassKind.STRUCTURE}:
             if self.documents or self.tools or self.strict_tools:
-                raise ValueError("structure pass cannot receive documents or tools")
+                raise ValueError("structured pass cannot receive documents or tools")
             if self.response_schema is None:
-                raise ValueError("structure pass requires a response schema")
+                raise ValueError("structured pass requires a response schema")
         elif self.response_schema is not None:
             raise ValueError("evidence pass cannot request structured output")
         return self
