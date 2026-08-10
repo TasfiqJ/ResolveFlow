@@ -23,7 +23,10 @@ class SlackEvent(BaseModel):
     model_config = ConfigDict(extra="ignore", frozen=True)
 
     event_id: str = Field(min_length=1)
-    event_time: int
+    # Bounded so an out-of-range value is a validation error at the authenticity
+    # boundary (mapped to a safe 401) instead of an OverflowError/OSError escaping
+    # datetime.fromtimestamp() as an unhandled 500. Upper bound is 9999-12-31Z.
+    event_time: int = Field(ge=0, le=253402300799)
     team_id: str = Field(min_length=1)
     event: dict[str, object]
 

@@ -139,6 +139,10 @@ async def test_postgresql_fts_and_pgvector_share_pre_authorized_relation() -> No
             "query": "payments rollback",
             "query_vector": "[1,0,0]",
             "candidate_k": 10,
+            "embedding_model": "fixture",
+            "embedding_dimension": 3,
+            "embedding_input_type": "search_document",
+            "preprocessing_version": "1",
         }
         adapter = PostgreSQLSearchAdapter(session)
         lexical = await adapter.lexical(parameters)

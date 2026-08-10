@@ -44,6 +44,10 @@ def _role_override(
 
 
 def _snapshot_versions(world: MutableWorld, version_ids: tuple[str, ...]) -> None:
+    # Callers pass tuple(<set>), whose order follows PYTHONHASHSEED. Canonicalize
+    # before anything order-sensitive so the derived snapshot_id — and therefore the
+    # materialization checksum, run_id and run content_hash — are byte-reproducible.
+    version_ids = tuple(sorted(set(version_ids)))
     chunks = {
         item.chunk_id
         for item in world.corpus.chunks

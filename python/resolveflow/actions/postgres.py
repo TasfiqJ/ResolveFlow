@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from datetime import datetime, timedelta
 from typing import Any, Literal
 
@@ -18,6 +19,12 @@ from resolveflow.actions.models import (
 from resolveflow.actions.service import ActionService
 from resolveflow.domain.base import FrozenModel
 from resolveflow.telemetry.audit import make_audit_record
+
+
+def _audit_lock_key(run_id: str) -> int:
+    """Deterministic signed 64-bit advisory-lock key for a run's audit sequence."""
+    digest = hashlib.sha256(run_id.encode("utf-8")).digest()[:8]
+    return int.from_bytes(digest, "big", signed=True)
 
 
 class JobLease(FrozenModel):
@@ -425,10 +432,21 @@ class PostgreSQLActionRepository:
         outcome: str,
         detail: dict[str, Any],
     ) -> None:
+        # `SELECT ... FOR UPDATE` cannot serialize this: it locks only the row it
+        # returns, so under READ COMMITTED a second appender re-reads that same tail row
+        # and never sees the successor the winner just inserted (and it locks nothing at
+        # all for a run's first event). Both then compute the same sequence and one hits
+        # uq_audit_run_sequence, rolling back a transaction whose external side effect
+        # has already happened. Serialize per run for the life of the transaction
+        # instead; the lock is released on commit or rollback.
+        await session.execute(
+            text("SELECT pg_advisory_xact_lock(:audit_lock_key)"),
+            {"audit_lock_key": _audit_lock_key(run_id)},
+        )
         result = await session.execute(
             text(
                 """SELECT sequence, event_hash FROM audit_events
-                   WHERE run_id = :run_id ORDER BY sequence DESC LIMIT 1 FOR UPDATE"""
+                   WHERE run_id = :run_id ORDER BY sequence DESC LIMIT 1"""
             ),
             {"run_id": run_id},
         )

@@ -74,7 +74,13 @@ def test_evidence_pass_maps_v2_tools_documents_and_strict_tools() -> None:
                     description="Read one rollout.",
                     parameters={
                         "type": "object",
-                        "properties": {"rollout_id": {"type": "string"}},
+                        "properties": {
+                            "rollout_id": {
+                                "type": "string",
+                                "minLength": 1,
+                                "pattern": r"^[a-z0-9-]+$",
+                            }
+                        },
                         "required": ["rollout_id"],
                     },
                     authority="read_only",
@@ -91,6 +97,8 @@ def test_evidence_pass_maps_v2_tools_documents_and_strict_tools() -> None:
     assert request["documents"]
     assert request["tools"]
     assert "response_format" not in request
+    parameters = request["tools"][0]["function"]["parameters"]
+    assert parameters["properties"]["rollout_id"] == {"type": "string"}
     assert response.tool_calls[0].name == "query_rollout_record"
     assert response.usage.total_tokens == 15
 
@@ -119,6 +127,28 @@ def test_structure_pass_sends_schema_but_no_tools_or_documents() -> None:
     assert "tools" not in request
     assert "documents" not in request
     assert request["response_format"]
+
+
+def test_usage_accepts_live_sdk_float_counts_and_prefers_total_tokens() -> None:
+    raw = _raw_response()
+    raw.usage = {
+        "billed_units": {"input_tokens": 5.0, "output_tokens": 2.0},
+        "tokens": {"input_tokens": 30.0, "output_tokens": 8.0, "reasoning_tokens": 6},
+    }
+
+    response = CohereChatAdapter(client=RecordingClient(raw)).chat(
+        ChatRequest(
+            pass_kind=PassKind.EVIDENCE,
+            model="command-a-plus-05-2026",
+            messages=({"role": "user", "content": "fixture"},),
+            max_tokens=64,
+            temperature=0,
+            seed=17,
+        )
+    )
+
+    assert response.usage.input_tokens == 30
+    assert response.usage.output_tokens == 8
 
 
 def test_timeout_is_normalized_without_live_provider() -> None:

@@ -27,6 +27,7 @@ from resolveflow.agent.ports import ChatProviderPort
 from resolveflow.agent.renderer import DeterministicRenderer, StructureSelection
 from resolveflow.agent.security import (
     ATTACK_PATTERNS,
+    FINDINGS_REPAIR_PROMPT,
     SYSTEM_PROMPT,
     SecurityEvent,
     detect_hostile_evidence,
@@ -90,23 +91,25 @@ class GovernedAgent:
         documents = self._documents(retrieval, corpus)
         registry = ToolRegistry(case, context)
         require_policy_lint_clean(SYSTEM_PROMPT, registry.definitions)
+        require_policy_lint_clean(FINDINGS_REPAIR_PROMPT, ())
         security_events = detect_hostile_evidence(documents)
         provider_traces: list[ProviderTrace] = []
         tool_traces: list[ToolTrace] = []
+        task_payload: dict[str, Any] = {
+            "case_id": case.case_id,
+            "tenant_id": case.tenant_id,
+            "error_code": case.error_code,
+            "service": case.service,
+            "missing_fields": case.missing_fields,
+            "task": "Return evidence-linked findings as JSON.",
+        }
+        if self.provider.provider_name == "cohere":
+            task_payload["required_output_schema"] = FirstPassFindings.model_json_schema()
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
-                "content": canonical_json(
-                    {
-                        "case_id": case.case_id,
-                        "tenant_id": case.tenant_id,
-                        "error_code": case.error_code,
-                        "service": case.service,
-                        "missing_fields": case.missing_fields,
-                        "task": "Return evidence-linked findings as JSON.",
-                    }
-                ),
+                "content": canonical_json(task_payload),
             },
         ]
         total_tokens = 0
@@ -187,7 +190,7 @@ class GovernedAgent:
                 terminal_reason = f"provider_finish_{response.finish_reason.value}"
                 break
             try:
-                findings = FirstPassFindings.model_validate_json(response.text)
+                findings = self._parse_findings(response.text)
             except (ValidationError, ValueError, json.JSONDecodeError):
                 provider_traces[-1] = provider_traces[-1].model_copy(
                     update={
@@ -195,8 +198,63 @@ class GovernedAgent:
                         "safe_error_code": "evidence_findings_invalid",
                     }
                 )
-                terminal_reason = "evidence_findings_invalid"
-                break
+                if (
+                    len(provider_traces) >= self.budgets.max_provider_calls - 1
+                    or self.budgets.max_total_tokens - total_tokens < 64
+                    or self._expired(started)
+                ):
+                    terminal_reason = "evidence_findings_invalid"
+                    break
+                repair_request = ChatRequest(
+                    pass_kind=PassKind.FINDINGS,
+                    model=self.model,
+                    messages=(
+                        {"role": "system", "content": FINDINGS_REPAIR_PROMPT},
+                        {
+                            "role": "user",
+                            "content": canonical_json(
+                                {
+                                    "case_id": case.case_id,
+                                    "malformed_findings_draft": response.text,
+                                }
+                            ),
+                        },
+                    ),
+                    response_schema=FirstPassFindings.model_json_schema(),
+                    max_tokens=min(
+                        self.budgets.max_output_tokens_per_call,
+                        self.budgets.max_total_tokens - total_tokens,
+                    ),
+                    temperature=0.0,
+                    seed=17,
+                )
+                repaired, repair_trace = self._provider_call(
+                    repair_request,
+                    len(provider_traces) + 1,
+                    timeout_seconds=max(
+                        0.001,
+                        self.budgets.wall_clock_seconds - (self.clock() - started),
+                    ),
+                )
+                provider_traces.append(repair_trace)
+                total_tokens += repair_trace.usage.total_tokens
+                if total_tokens > self.budgets.max_total_tokens:
+                    terminal_reason = "token_budget_exhausted"
+                    break
+                if repaired is None:
+                    terminal_reason = repair_trace.safe_error_code or repair_trace.status
+                    break
+                try:
+                    findings = self._parse_findings(repaired.text)
+                except (ValidationError, ValueError, json.JSONDecodeError):
+                    provider_traces[-1] = provider_traces[-1].model_copy(
+                        update={
+                            "status": "malformed",
+                            "safe_error_code": "evidence_findings_invalid",
+                        }
+                    )
+                    terminal_reason = "evidence_findings_invalid"
+                    break
 
         if findings is None:
             findings = FirstPassFindings(
@@ -272,6 +330,8 @@ class GovernedAgent:
                         }
                     )
                     terminal_reason = "structured_response_invalid"
+            elif total_tokens > self.budgets.max_total_tokens:
+                terminal_reason = "token_budget_exhausted"
             elif trace.safe_error_code:
                 terminal_reason = trace.safe_error_code
 
@@ -285,6 +345,18 @@ class GovernedAgent:
             provider_calls=len(provider_traces),
             total_tokens=total_tokens,
         )
+
+    @staticmethod
+    def _parse_findings(text: str) -> FirstPassFindings:
+        candidate = text.strip()
+        if candidate.startswith("```") and candidate.endswith("```"):
+            opening, separator, fenced = candidate.partition("\n")
+            # Tolerate CRLF line endings and trailing spaces on the info string;
+            # rejecting them burned a whole repair provider call on a well-formed body.
+            if not separator or opening.strip().lower() not in {"```", "```json"}:
+                raise ValueError("unsupported findings fence")
+            candidate = fenced[:-3].strip()
+        return FirstPassFindings.model_validate_json(candidate)
 
     @staticmethod
     def _observe_only_graph(graph: EvidenceGraph, findings: FirstPassFindings) -> EvidenceGraph:

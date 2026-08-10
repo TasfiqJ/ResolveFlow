@@ -176,7 +176,22 @@ hardening. No live provider call, connector write, or human validation is claime
 
 ## External work and credentials
 
-- No Cohere key was available or required; no live model call was made.
+- A user-supplied Cohere evaluation key is configured only in the ignored local `.env`; it is
+  absent from Git and the static public bundle. Public live mode remains disabled.
+- A bounded live adapter smoke on 2026-07-26 authenticated `command-a-plus-05-2026`
+  (30 input and 31 output tokens), returned 1,024-dimensional document/query vectors from
+  `embed-v4.0`, and ranked the relevant recovery document first with `rerank-v4.0-fast`.
+- A bounded end-to-end local hero run exercised six provider calls and four tool calls using
+  16,002 observed tokens. It produced three claims, but all three failed deterministic support
+  and the final selector failed schema validation; the system returned `needs_review`, no action,
+  and zero successful forbidden effects. This evidences live composition and fail-closed behavior,
+  not a successful live resolution or quality result.
+- The ignored local profile allows four tool rounds, seven provider calls, and 32,768 observed
+  tokens so one no-tools schema-repair pass can run before the final selector. Repository, CI,
+  public Pages, Slack, Jira, and action-write defaults remain unchanged and disabled.
+- Credential-isolated verification passed: 149 non-PostgreSQL tests, 4 PostgreSQL tests,
+  24 security tests, Ruff, MyPy across 81 source files, snapshot integrity, strict public-bundle
+  scanning, Docker Compose validation, and exact credential scans over tracked/public files.
 - No Slack or Jira credential was accessed and no external write occurred.
 - No paid resource was created.
 - The performance-led portfolio redesign (`7b57e8b`) is pushed to `origin/main`; its validation and Pages publication workflows passed.
