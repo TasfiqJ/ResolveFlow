@@ -217,6 +217,23 @@ These checks were local results for the source revision containing this record. 
 `30208242771` and Pages run `30208242773` passed after the CI repair. No current PostgreSQL,
 container, dependency-audit, live-provider, connector, or human result is claimed.
 
+## Static public transparency update
+
+- The homepage now states in the first viewport that the recruiter-facing site is a credential-free GitHub Pages artifact, not a live API demo.
+- A new deployment-reality section separates the public static export from the locally implemented FastAPI, worker, PostgreSQL/pgvector, and governed Cohere composition; it labels all remaining validation gaps as unclaimed.
+- The site adds dated recorded-verification counts (149 non-PostgreSQL tests, 4 PostgreSQL tests, 24 security tests, and 6 migration revisions) and links recruiters to the release scorecard and raw artifacts.
+- The FDE-style delivery narrative now follows the operating incident through the typed-contract intervention, Resolve, Replay, and the release decision. It describes the engineering work as policy-bound evidence, bounded model/tool calls, approval semantics, and recovery.
+- A project-owned social preview now matches the static-case-study framing; it contains no credentials, provider results, or invented metrics.
+
+| Command | Result |
+|---|---|
+| `pnpm --dir apps/web test -- page.test.tsx` | PASS, 2 tests |
+| `pnpm --dir apps/web typecheck` | PASS |
+| `pnpm --dir apps/web lint` | PASS, zero warnings |
+| `pnpm --dir apps/web format:check` | PASS |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 15 static routes |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | PASS, 9 Chromium/Axe tests |
+
 ## Immediate next action
 
 Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.

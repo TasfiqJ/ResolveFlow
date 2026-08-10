@@ -33,5 +33,17 @@ describe("snapshot-first home", () => {
     expect(
       screen.getByText(/final production release verdict/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/public by design\. local by proof/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/static, credential-free evidence viewer/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("149")).toBeInTheDocument();
+    expect(screen.getByText("24")).toBeInTheDocument();
+    expect(screen.getByText(/fde-style systems exercise/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/from incident to release decision/i),
+    ).toBeInTheDocument();
   });
 });

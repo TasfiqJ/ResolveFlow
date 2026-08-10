@@ -76,14 +76,70 @@ const proofStats = [
     href: "snapshots/evaluation-integrity-audit.json",
   },
   {
-    value: "05",
+    value: "06",
     label: "reversible database migrations",
     note: "POSTGRESQL + PGVECTOR",
-    href: "https://github.com/TasfiqJ/ResolveFlow/tree/main/migrations/versions",
+    href: "https://github.com/TasfiqJ/ResolveFlow/tree/fix/backend-audit/migrations/versions",
+  },
+] as const;
+
+const deliverySurfaces = [
+  {
+    label: "PUBLIC SITE",
+    title: "Static, credential-free evidence viewer",
+    copy: "This GitHub Pages build serves Next.js pages and checksummed JSON snapshots. It does not expose an API, a database, a model key, or a Slack/Jira connection to visitors.",
+    state: "WHAT A RECRUITER CAN INSPECT NOW",
+  },
+  {
+    label: "LOCAL RUNTIME",
+    title: "A governed Cohere composition behind the artifact",
+    copy: "The local stack composes Cohere Chat, Embed v4, and Rerank v4 as one authorized runtime alongside FastAPI, a worker, PostgreSQL with pgvector, typed contracts, migrations, and a shared Resolve/Replay orchestrator.",
+    state: "IMPLEMENTED LOCALLY · NOT PUBLICLY HOSTED",
+  },
+  {
+    label: "EVIDENCE BOUNDARY",
+    title: "Fail closed when the proof is incomplete",
+    copy: "The published comparison is a synthetic development fixture. Human review, held-out evaluation, live-provider quality, real connector success, and a final release verdict remain unclaimed.",
+    state: "TECHNICAL PREVIEW · NO SHIP",
+  },
+] as const;
+
+const verificationStats = [
+  ["149", "non-PostgreSQL tests", "credential-isolated recorded verification"],
+  ["04", "PostgreSQL tests", "durable state and retrieval coverage"],
+  ["24", "security tests", "access, tools, evidence, and public boundaries"],
+  ["06", "migration revisions", "versioned persistence evolution"],
+] as const;
+
+const storyBeats = [
+  {
+    number: "01",
+    label: "THE OPERATING PROBLEM",
+    title: "A fluent answer can still be unsafe.",
+    copy: "An agent may retrieve data the operator no longer has permission to see, treat hostile text as an instruction, invent a decisive fact, or prepare an action that no one approved.",
+  },
+  {
+    number: "02",
+    label: "THE FDE-STYLE INTERVENTION",
+    title: "Turn an incident into a governed workflow.",
+    copy: "ResolveFlow maps a messy payments report into typed intake, identity and access rules, evidence contracts, narrow tools, an approval boundary, and observable recovery instead of relying on a better prompt.",
+  },
+  {
+    number: "03",
+    label: "THE RESOLVE PATH",
+    title: "Earn each recommendation from evidence.",
+    copy: "The system filters eligibility before retrieval, ranks authorized evidence, verifies material claims, preserves unknowns, and keeps any Jira proposal inert until an operator approves its exact digest.",
+  },
+  {
+    number: "04",
+    label: "THE REPLAY PATH",
+    title: "Test the system when conditions change.",
+    copy: "Replay freezes the world, applies one declared mutation such as a role downgrade, reruns the shared path, compares builds, and blocks promotion when a hard invariant fails or evidence is missing.",
   },
 ] as const;
 
 const buildScope = [
+  "FDE-style workflow mapping: incident → contracts → safe operator path",
   "Threat model and system architecture",
   "Hybrid retrieval with pre-search ACLs",
   "Bounded agent loop and typed tools",
@@ -130,7 +186,7 @@ export default function Home() {
             <div className="technicalRule">
               <span>001</span>
               <i />
-              <b>FULL-STACK AI SAFETY ENGINEERING</b>
+              <b>STATIC CASE STUDY // FULL LOCAL IMPLEMENTATION</b>
             </div>
             <p className="heroByline">BUILT END-TO-END BY TASFIQ JASIMUDDIN</p>
             <h1>
@@ -143,10 +199,24 @@ export default function Home() {
               access, hostile evidence, missing context, and connector failure—
               then returns a release verdict backed by an auditable trace.
             </p>
+            <p className="fdeLede">
+              Built as an FDE-style systems exercise: translate a messy payments
+              incident into typed contracts, authorized evidence access, bounded
+              model/tool behavior, operator approval, and observable recovery.
+            </p>
+            <p className="heroDisclosure">
+              You are viewing a credential-free GitHub Pages artifact: recorded
+              evidence is public; the API, database, worker, optional Cohere
+              runtime, and external connectors are not exposed here.
+            </p>
             <div className="performanceActions">
               <a className="signalButton signalPrimary" href="#demo">
                 <span>RUN THE RECORDED REPLAY</span>
                 <b aria-hidden="true">↘</b>
+              </a>
+              <a className="signalButton" href="#deployment">
+                <span>WHAT IS DEPLOYED?</span>
+                <b aria-hidden="true">↓</b>
               </a>
               <a
                 className="signalButton"
@@ -207,17 +277,17 @@ export default function Home() {
 
         <div className="systemRail">
           <span>
-            <i /> SYSTEM.ACTIVE
+            <i /> PUBLIC.STATIC
           </span>
-          <span>RECORDED SYNTHETIC FIXTURE</span>
-          <span>14 AUDIT EVENTS</span>
+          <span>GITHUB PAGES EXPORT</span>
+          <span>14-EVENT RECORDED SYNTHETIC TRACE</span>
+          <span>LOCAL API + WORKER NOT EXPOSED</span>
           <span>NO EXTERNAL WRITES</span>
-          <span>TECHNICAL PREVIEW</span>
         </div>
       </section>
 
       <section className="manifestoSection" id="what-it-does">
-        <div className="sectionCode">[01/06] // THE THESIS</div>
+        <div className="sectionCode">[01/08] // THE THESIS</div>
         <p className="manifestoLead">MOST AI DEMOS SHOW YOU AN ANSWER.</p>
         <h2>
           I BUILT THE SYSTEM THAT DECIDES
@@ -237,10 +307,89 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="storySection" id="story">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">[02/08] // THE STORY</div>
+            <h2>FROM INCIDENT TO RELEASE DECISION.</h2>
+          </div>
+          <p>
+            The goal is not to make an AI agent sound convincing. The goal is to
+            make its operational path inspectable enough that a team can decide
+            whether it deserves a constrained pilot.
+          </p>
+        </div>
+        <div className="storyGrid">
+          {storyBeats.map((beat) => (
+            <article key={beat.number}>
+              <span>{beat.number}</span>
+              <small>{beat.label}</small>
+              <h3>{beat.title}</h3>
+              <p>{beat.copy}</p>
+            </article>
+          ))}
+        </div>
+        <p className="storyOutcome">
+          <b>THE HONEST OUTCOME:</b> guarded-v1 prevents the role-downgrade
+          authorization failure, yet remains <b>NO SHIP</b> because required
+          action, deployment, held-out, and human-review evidence is not
+          complete. That refusal is the product working as intended.
+        </p>
+      </section>
+
+      <section className="deploymentSection" id="deployment">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">[03/08] // DEPLOYMENT REALITY</div>
+            <h2>PUBLIC BY DESIGN. LOCAL BY PROOF.</h2>
+          </div>
+          <p>
+            This is not a disguised live demo. It is a static technical case
+            study designed to let a recruiter inspect the system, its evidence,
+            and its limits without granting a browser any operational access.
+          </p>
+        </div>
+
+        <div className="deliveryGrid">
+          {deliverySurfaces.map((surface) => (
+            <article key={surface.label}>
+              <span>{surface.label}</span>
+              <h3>{surface.title}</h3>
+              <p>{surface.copy}</p>
+              <small>{surface.state}</small>
+            </article>
+          ))}
+        </div>
+
+        <div className="verificationLedger">
+          <div>
+            <span>RECORDED VERIFICATION</span>
+            <h3>2026-07-26 · credential-isolated local evidence</h3>
+            <p>
+              These checks demonstrate engineering coverage, not production
+              performance or a release certificate. Read the limits alongside
+              the numbers.
+            </p>
+          </div>
+          <div className="verificationStats">
+            {verificationStats.map(([value, label, note]) => (
+              <article key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
+                <small>{note}</small>
+              </article>
+            ))}
+          </div>
+          <a className="inlineSignal" href="results/">
+            READ THE RELEASE SCORECARD <span>↗</span>
+          </a>
+        </div>
+      </section>
+
       <section className="controlRoom" id="demo">
         <div className="sectionHeader">
           <div>
-            <div className="sectionCode">[02/06] // REPLAY CONTROL ROOM</div>
+            <div className="sectionCode">[04/08] // REPLAY CONTROL ROOM</div>
             <h2>ONE INCIDENT. TWO BUILDS. ONE RELEASE DECISION.</h2>
           </div>
           <p>
@@ -367,7 +516,7 @@ export default function Home() {
       <section className="systemSection" id="engineering">
         <div className="sectionHeader">
           <div>
-            <div className="sectionCode">[03/06] // SYSTEM ARCHITECTURE</div>
+            <div className="sectionCode">[05/08] // SYSTEM ARCHITECTURE</div>
             <h2>NOT A PROMPT. A GOVERNED SYSTEM.</h2>
           </div>
           <p>
@@ -406,7 +555,7 @@ export default function Home() {
       </section>
 
       <section className="proofWall" id="proof">
-        <div className="sectionCode">[04/06] // ENGINEERING PROOF</div>
+        <div className="sectionCode">[06/08] // ENGINEERING PROOF</div>
         <div className="proofHeadline">
           <h2>THE RECEIPTS, NOT THE PITCH.</h2>
           <p>
@@ -452,7 +601,7 @@ export default function Home() {
       </section>
 
       <section className="builderSection">
-        <div className="sectionCode">[05/06] // THE BUILDER</div>
+        <div className="sectionCode">[07/08] // THE BUILDER</div>
         <div className="builderGrid">
           <div className="builderStatement">
             <p>DESIGNED + ENGINEERED BY</p>
@@ -461,9 +610,11 @@ export default function Home() {
               <span>JASIMUDDIN</span>
             </h2>
             <p className="builderCopy">
-              I built ResolveFlow to prove I can take an AI system beyond the
-              demo: model boundaries, data access, distributed reliability,
-              evaluation, security, product design, CI, and public delivery.
+              I built ResolveFlow as an FDE-style delivery exercise: take a
+              messy operational workflow and turn it into typed contracts,
+              controlled data access, bounded Cohere orchestration, approval
+              semantics, durable recovery, evaluation, and an inspectable public
+              artifact.
             </p>
             <div className="builderActions">
               <a
@@ -480,7 +631,7 @@ export default function Home() {
           <div className="scopePanel">
             <div className="scopeHeader">
               <span>END-TO-END OWNERSHIP</span>
-              <b>07 SYSTEMS</b>
+              <b>08 SYSTEMS</b>
             </div>
             <ol>
               {buildScope.map((item, index) => (
@@ -496,7 +647,7 @@ export default function Home() {
       </section>
 
       <section className="deepDiveSection">
-        <div className="sectionCode">[06/06] // GO DEEPER</div>
+        <div className="sectionCode">[08/08] // GO DEEPER</div>
         <h2>FOLLOW THE EVIDENCE.</h2>
         <div className="deepDiveLinks">
           <a href="replay/">

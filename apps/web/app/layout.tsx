@@ -3,31 +3,31 @@ import Link from "next/link";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "ResolveFlow — The AI agent release gate",
+  title: "ResolveFlow — Static AI safety engineering case study",
   description:
-    "Tasfiq Jasimuddin engineered ResolveFlow to stress-test enterprise AI agents under failure and turn auditable evidence into a release verdict.",
+    "A credential-free GitHub Pages case study of ResolveFlow: a locally implemented AI-agent release gate with recorded evidence, Replay, and explicit limits.",
   openGraph: {
-    title: "ResolveFlow — The AI agent release gate",
+    title: "ResolveFlow — AI agent release-gate case study",
     description:
-      "I built the release gate AI agents are missing. Resolve, replay, verify, and decide what ships.",
+      "A static, evidence-led case study of ResolveFlow's locally implemented agent-safety system.",
     url: "https://tasfiqj.github.io/ResolveFlow/",
     siteName: "ResolveFlow",
     images: [
       {
-        url: "https://tasfiqj.github.io/ResolveFlow/og.png",
+        url: "https://tasfiqj.github.io/ResolveFlow/og-static-case-study.png",
         width: 1732,
         height: 909,
-        alt: "ResolveFlow release-gate overview",
+        alt: "ResolveFlow static AI safety case study",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ResolveFlow — The AI agent release gate",
+    title: "ResolveFlow — AI agent release-gate case study",
     description:
-      "I built the release gate AI agents are missing. Resolve, replay, verify, and decide what ships.",
-    images: ["https://tasfiqj.github.io/ResolveFlow/og.png"],
+      "A static, evidence-led case study of ResolveFlow's locally implemented agent-safety system.",
+    images: ["https://tasfiqj.github.io/ResolveFlow/og-static-case-study.png"],
   },
 };
 
@@ -48,7 +48,7 @@ export default function RootLayout({
             <span className="brandMark">RF</span>
             <span>
               <b>RESOLVEFLOW</b>
-              <small>AI RELEASE SYSTEM</small>
+              <small>STATIC TECHNICAL CASE STUDY</small>
             </span>
           </Link>
           <nav aria-label="Primary navigation">
