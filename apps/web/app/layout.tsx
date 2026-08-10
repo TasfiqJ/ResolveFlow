@@ -52,9 +52,11 @@ export default function RootLayout({
             </span>
           </Link>
           <nav aria-label="Primary navigation">
+            <Link href="/queue/">Queue</Link>
             <Link href="/replay/">Replay</Link>
             <Link href="/architecture/">Architecture</Link>
             <Link href="/results/">Evidence</Link>
+            <Link href="/approvals/">Approvals</Link>
           </nav>
           <a
             className="navAction"
