@@ -116,25 +116,25 @@ const storyBeats = [
     number: "01",
     label: "THE OPERATING PROBLEM",
     title: "A fluent answer can still be unsafe.",
-    copy: "An agent may retrieve data the operator no longer has permission to see, treat hostile text as an instruction, invent a decisive fact, or prepare an action that no one approved.",
+    copy: "An agent can access data a user is no longer allowed to see, treat hostile text as an instruction, invent a key fact, or prepare an action no one approved.",
   },
   {
     number: "02",
     label: "THE FDE-STYLE INTERVENTION",
     title: "Turn an incident into a governed workflow.",
-    copy: "ResolveFlow maps a messy payments report into typed intake, identity and access rules, evidence contracts, narrow tools, an approval boundary, and observable recovery instead of relying on a better prompt.",
+    copy: "ResolveFlow turns a messy payments report into a governed workflow: typed intake, access rules, evidence contracts, narrow tools, approval before action, and observable recovery. It does not rely on a better prompt alone.",
   },
   {
     number: "03",
     label: "THE RESOLVE PATH",
     title: "Earn each recommendation from evidence.",
-    copy: "The system filters eligibility before retrieval, ranks authorized evidence, verifies material claims, preserves unknowns, and keeps any Jira proposal inert until an operator approves its exact digest.",
+    copy: "The system checks access before search, ranks only authorized evidence, verifies key claims, shows what is still unknown, and keeps any Jira draft inactive until an operator approves it.",
   },
   {
     number: "04",
     label: "THE REPLAY PATH",
     title: "Test the system when conditions change.",
-    copy: "Replay freezes the world, applies one declared mutation such as a role downgrade, reruns the shared path, compares builds, and blocks promotion when a hard invariant fails or evidence is missing.",
+    copy: "Replay freezes one starting point, changes one condition such as a role downgrade, reruns the same path, compares builds, and blocks promotion when a hard rule fails or evidence is missing.",
   },
 ] as const;
 
@@ -186,7 +186,7 @@ export default function Home() {
             <div className="technicalRule">
               <span>001</span>
               <i />
-              <b>STATIC CASE STUDY // FULL LOCAL IMPLEMENTATION</b>
+              <b>STATIC CASE STUDY // LOCAL RUNTIME BUILT</b>
             </div>
             <p className="heroByline">BUILT END-TO-END BY TASFIQ JASIMUDDIN</p>
             <h1>
@@ -195,14 +195,16 @@ export default function Home() {
               AI AGENTS ARE MISSING.
             </h1>
             <p className="performanceLede">
-              ResolveFlow stress-tests a workplace AI agent under revoked
-              access, hostile evidence, missing context, and connector failure—
-              then returns a release verdict backed by an auditable trace.
+              ResolveFlow checks whether a workplace AI agent is safe to release
+              when access changes, evidence is hostile, context is missing, or a
+              connector fails. It returns a clear verdict and an auditable
+              trace.
             </p>
             <p className="fdeLede">
-              Built as an FDE-style systems exercise: translate a messy payments
-              incident into typed contracts, authorized evidence access, bounded
-              model/tool behavior, operator approval, and observable recovery.
+              Built as an FDE-style systems exercise: turn a messy payments
+              issue into a clear, controlled workflow with typed contracts,
+              authorized evidence, bounded tools, operator approval, and
+              observable recovery.
             </p>
             <p className="heroDisclosure">
               You are viewing a credential-free GitHub Pages artifact: recorded
@@ -314,9 +316,8 @@ export default function Home() {
             <h2>FROM INCIDENT TO RELEASE DECISION.</h2>
           </div>
           <p>
-            The goal is not to make an AI agent sound convincing. The goal is to
-            make its operational path inspectable enough that a team can decide
-            whether it deserves a constrained pilot.
+            The goal is not a clever answer. It is a system a team can inspect,
+            test, and decide whether it is ready for a small, controlled pilot.
           </p>
         </div>
         <div className="storyGrid">

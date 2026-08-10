@@ -62,113 +62,113 @@
 
 ## Milestone status
 
-| Milestone | Status | Evidence |
-|---|---|---|
-| Stage 00 executable planning | COMPLETE | Plan v1.1, 78 acceptance mappings, 12 ADRs, and source verifier |
-| 1. foundation vertical slice | COMPLETE | `scripts/verify.sh` passed with shared path, API/worker/database/web scaffold, fixtures, snapshot, tests, static export, browser smoke, and reversible migration cycle |
-| 2. evidence and retrieval | COMPLETE | Versioned corpus, immutable policy snapshots, pre-search authorization, PostgreSQL FTS/pgvector, hybrid fusion, fixture/Cohere adapters, traced ranks, role/cache security, and exact-count fixture metrics |
-| 3. governed agent and safety | COMPLETE | Bounded typed tools/provider calls, fixture and Cohere adapters, verified graph closure, strict two-pass rendering, hostile-evidence boundary, effect scoring, linter, traces, migration, and fault/security tests |
-| 4. actions, reliability and audit | COMPLETE | Verified-evidence proposals, exact approval states, durable leases/reclaim, bounded fault recovery, synthetic Jira reconciliation, append-only audit, public redaction/export/diff foundation, and approval UI |
-| 5. Replay and release gate | COMPLETE | Versioned draft truths/manifests/builds, frozen deterministic materialization, shared-path pairing, run diff, hard-first exact-count scoring, uncertainty, three-way gate, checksummed bundles, API/CLI, migration, and CI smoke/negative workflows |
-| 6. public product and validation | COMPLETE | Complete static route set, public views, checksummed snapshots, secret scan, outage fallback, bounded local-live controls, Slack/Jira staging boundaries, blinded review tooling, and unvalidated language structure |
-| 7. final audit and release | COMPLETE | Truthful technical-preview profile, dependency/history/bundle audits, exact claims, pinned container build/startup, release documents, and full verifier |
+| Milestone                         | Status   | Evidence                                                                                                                                                                                                                                            |
+| --------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stage 00 executable planning      | COMPLETE | Plan v1.1, 78 acceptance mappings, 12 ADRs, and source verifier                                                                                                                                                                                     |
+| 1. foundation vertical slice      | COMPLETE | `scripts/verify.sh` passed with shared path, API/worker/database/web scaffold, fixtures, snapshot, tests, static export, browser smoke, and reversible migration cycle                                                                              |
+| 2. evidence and retrieval         | COMPLETE | Versioned corpus, immutable policy snapshots, pre-search authorization, PostgreSQL FTS/pgvector, hybrid fusion, fixture/Cohere adapters, traced ranks, role/cache security, and exact-count fixture metrics                                         |
+| 3. governed agent and safety      | COMPLETE | Bounded typed tools/provider calls, fixture and Cohere adapters, verified graph closure, strict two-pass rendering, hostile-evidence boundary, effect scoring, linter, traces, migration, and fault/security tests                                  |
+| 4. actions, reliability and audit | COMPLETE | Verified-evidence proposals, exact approval states, durable leases/reclaim, bounded fault recovery, synthetic Jira reconciliation, append-only audit, public redaction/export/diff foundation, and approval UI                                      |
+| 5. Replay and release gate        | COMPLETE | Versioned draft truths/manifests/builds, frozen deterministic materialization, shared-path pairing, run diff, hard-first exact-count scoring, uncertainty, three-way gate, checksummed bundles, API/CLI, migration, and CI smoke/negative workflows |
+| 6. public product and validation  | COMPLETE | Complete static route set, public views, checksummed snapshots, secret scan, outage fallback, bounded local-live controls, Slack/Jira staging boundaries, blinded review tooling, and unvalidated language structure                                |
+| 7. final audit and release        | COMPLETE | Truthful technical-preview profile, dependency/history/bundle audits, exact claims, pinned container build/startup, release documents, and full verifier                                                                                            |
 
 ## Stage 06 checks
 
-| Command | Result |
-|---|---|
-| `uv run ruff check python tests` | PASS |
-| `uv run ruff format --check python tests` | PASS |
-| `uv run mypy python/resolveflow` | PASS, 79 source files |
-| `uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay` | PASS, 132 credential-free Stage 01-06 tests |
-| `uv run pytest -q tests/postgres` | PASS, 4 real PostgreSQL retrieval/action concurrency and audit tests |
-| `uv run resolveflow-corpus-validate` | PASS, 5 artifacts, 6 versions, 6 chunks, 6 embeddings |
-| `uv run resolveflow-retrieval-fixture-eval` | PASS, development/calibration observations with exact N; not held-out/provider evidence |
-| `pnpm --dir apps/web test` | PASS, 2 component/action-flow tests |
-| `pnpm --dir apps/web build` | PASS, 9 public/static views plus one pre-generated run route and unknown-artifact page |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, GitHub Pages asset prefix and base path present |
-| `uv run python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
-| `uv run python scripts/verify_public_snapshots.py` | PASS, hero canonical hash and Replay canonical/file checksums verified |
-| `node tests/browser/snapshot-smoke.mjs` | PASS, complete snapshot-first route/provenance/review/degradation smoke |
-| `uv run resolveflow-review template ... && uv run resolveflow-review analyze ...` | PASS, honest empty export reports 0 responses with exact counts |
-| `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head` | PASS against local PostgreSQL |
-| `uv run resolveflow-policy-lint` | PASS, versioned system prompt and four fixed tool descriptions |
-| `uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, no provider call; materialization `sha256:72146755...ca7a` |
-| `uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, same shared path for unsafe-v0 and guarded-v1 |
-| `uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, retained unsafe forbidden candidate blocks with `NO_SHIP` |
-| `uv run resolveflow-evaluation evaluate ... --output /tmp/resolveflow-stage05-result.json` | Expected release block, canonical and file checksums verified; unsafe `NO_SHIP`, guarded `NO_SHIP` |
-| `scripts/verify.sh` | PASS, cumulative Stage 00-06 verification including PostgreSQL migration/concurrency checks |
+| Command                                                                                                | Result                                                                                             |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `uv run ruff check python tests`                                                                       | PASS                                                                                               |
+| `uv run ruff format --check python tests`                                                              | PASS                                                                                               |
+| `uv run mypy python/resolveflow`                                                                       | PASS, 79 source files                                                                              |
+| `uv run pytest -q tests/unit tests/integration tests/contract tests/security tests/replay`             | PASS, 132 credential-free Stage 01-06 tests                                                        |
+| `uv run pytest -q tests/postgres`                                                                      | PASS, 4 real PostgreSQL retrieval/action concurrency and audit tests                               |
+| `uv run resolveflow-corpus-validate`                                                                   | PASS, 5 artifacts, 6 versions, 6 chunks, 6 embeddings                                              |
+| `uv run resolveflow-retrieval-fixture-eval`                                                            | PASS, development/calibration observations with exact N; not held-out/provider evidence            |
+| `pnpm --dir apps/web test`                                                                             | PASS, 2 component/action-flow tests                                                                |
+| `pnpm --dir apps/web build`                                                                            | PASS, 9 public/static views plus one pre-generated run route and unknown-artifact page             |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`                                         | PASS, GitHub Pages asset prefix and base path present                                              |
+| `uv run python scripts/scan_public_build.py --path apps/web/out --strict`                              | PASS, no secret-like value or server-only credential name                                          |
+| `uv run python scripts/verify_public_snapshots.py`                                                     | PASS, hero canonical hash and Replay canonical/file checksums verified                             |
+| `node tests/browser/snapshot-smoke.mjs`                                                                | PASS, complete snapshot-first route/provenance/review/degradation smoke                            |
+| `uv run resolveflow-review template ... && uv run resolveflow-review analyze ...`                      | PASS, honest empty export reports 0 responses with exact counts                                    |
+| `uv run alembic upgrade head && uv run alembic downgrade -1 && uv run alembic upgrade head`            | PASS against local PostgreSQL                                                                      |
+| `uv run resolveflow-policy-lint`                                                                       | PASS, versioned system prompt and four fixed tool descriptions                                     |
+| `uv run resolveflow-replay dry-run --manifest data/manifests/replay-role-downgrade-001.yaml`           | PASS, no provider call; materialization `sha256:72146755...ca7a`                                   |
+| `uv run resolveflow-replay smoke --manifest data/manifests/replay-role-downgrade-001.yaml`             | PASS, same shared path for unsafe-v0 and guarded-v1                                                |
+| `uv run resolveflow-evaluation negative-gate --manifest data/manifests/replay-role-downgrade-001.yaml` | PASS, retained unsafe forbidden candidate blocks with `NO_SHIP`                                    |
+| `uv run resolveflow-evaluation evaluate ... --output /tmp/resolveflow-stage05-result.json`             | Expected release block, canonical and file checksums verified; unsafe `NO_SHIP`, guarded `NO_SHIP` |
+| `scripts/verify.sh`                                                                                    | PASS, cumulative Stage 00-06 verification including PostgreSQL migration/concurrency checks        |
 
 Local checks do not imply GitHub Actions, provider, connector, deployment, or human evidence.
 
 ## Stage 07 checks
 
-| Command | Result |
-|---|---|
-| `uv run --with pip-audit pip-audit` | PASS, no known vulnerabilities; unpublished local package explicitly skipped |
-| `pnpm audit --prod --audit-level high` | PASS, no known production vulnerabilities |
-| `pnpm audit --dev --audit-level critical` | PASS at critical threshold; one documented high-severity development-only advisory remains |
-| pinned Gitleaks 8.30.1 history scan | PASS, 18 reachable commits and no leaks |
-| `scripts/verify.sh` | PASS, 134 Python tests, 2 web tests, 4 PostgreSQL tests, Replay gates, static export, strict preflight, snapshot/bundle checks, migrations, and pinned container startup |
-| pinned Compose startup | PASS, database/API/worker/web running; API live/ready/version and homepage/About checks succeeded |
-| isolated clean-clone restore | PASS at pushed commit `e30f567`; frozen install, Pages build, route smoke, and published hashes reproduced |
+| Command                                   | Result                                                                                                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `uv run --with pip-audit pip-audit`       | PASS, no known vulnerabilities; unpublished local package explicitly skipped                                                                                             |
+| `pnpm audit --prod --audit-level high`    | PASS, no known production vulnerabilities                                                                                                                                |
+| `pnpm audit --dev --audit-level critical` | PASS at critical threshold; one documented high-severity development-only advisory remains                                                                               |
+| pinned Gitleaks 8.30.1 history scan       | PASS, 18 reachable commits and no leaks                                                                                                                                  |
+| `scripts/verify.sh`                       | PASS, 134 Python tests, 2 web tests, 4 PostgreSQL tests, Replay gates, static export, strict preflight, snapshot/bundle checks, migrations, and pinned container startup |
+| pinned Compose startup                    | PASS, database/API/worker/web running; API live/ready/version and homepage/About checks succeeded                                                                        |
+| isolated clean-clone restore              | PASS at pushed commit `e30f567`; frozen install, Pages build, route smoke, and published hashes reproduced                                                               |
 
 One Starlette TestClient transition warning is recorded in `docs/KNOWN_LIMITATIONS.md`; no test was skipped or muted.
 
 ## Post-release public UX refinement
 
-| Command / review | Result |
-|---|---|
-| `pnpm --dir apps/web format:check` | PASS |
-| `pnpm --dir apps/web test` | PASS, 2 story-first snapshot component tests |
-| `pnpm --dir apps/web typecheck` | PASS |
-| `pnpm --dir apps/web lint` | PASS, zero warnings |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, all public routes statically exported with GitHub Pages paths |
-| `node tests/browser/snapshot-smoke.mjs` | PASS, guided homepage, honest evidence limits, and every public route present |
-| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
-| `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
-| In-app browser review at desktop width | PASS, product purpose, primary demo action, recorded boundaries, and laptop first viewport visually verified |
-| GitHub `validate` workflow run `30175863829` | PASS, both `verify` and `replay-gates` jobs |
-| GitHub Pages workflow run `30175863810` | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
+| Command / review                                                             | Result                                                                                                            |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `pnpm --dir apps/web format:check`                                           | PASS                                                                                                              |
+| `pnpm --dir apps/web test`                                                   | PASS, 2 story-first snapshot component tests                                                                      |
+| `pnpm --dir apps/web typecheck`                                              | PASS                                                                                                              |
+| `pnpm --dir apps/web lint`                                                   | PASS, zero warnings                                                                                               |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`               | PASS, all public routes statically exported with GitHub Pages paths                                               |
+| `node tests/browser/snapshot-smoke.mjs`                                      | PASS, guided homepage, honest evidence limits, and every public route present                                     |
+| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name                                                         |
+| `.venv/bin/python scripts/preflight.py --strict`                             | PASS, technical-preview claim requirements retained                                                               |
+| In-app browser review at desktop width                                       | PASS, product purpose, primary demo action, recorded boundaries, and laptop first viewport visually verified      |
+| GitHub `validate` workflow run `30175863829`                                 | PASS, both `verify` and `replay-gates` jobs                                                                       |
+| GitHub Pages workflow run `30175863810`                                      | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
 
 The redesign changes information architecture and presentation only. It does not add live-provider, connector, reviewer, held-out, or deployment evidence.
 
 ## Performance-led portfolio redesign
 
-| Command / review | Result |
-|---|---|
-| `pnpm --dir apps/web format:check` | PASS |
-| `pnpm --dir apps/web test` | PASS, 2 portfolio-story and evidence-boundary component tests |
-| `pnpm --dir apps/web typecheck` | PASS |
-| `pnpm --dir apps/web lint` | PASS, zero warnings |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, all public routes statically exported |
-| `node tests/browser/snapshot-smoke.mjs` | PASS, builder attribution, release-gate definition, recorded provenance, proof limits, and every public route present |
-| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name |
-| `.venv/bin/python scripts/preflight.py --strict` | PASS, technical-preview claim requirements retained |
-| In-app browser review at desktop width | PASS, full first-viewport hierarchy, animated Replay engine, primary action, and recorded control room visually verified |
-| GitHub `validate` workflow run `30176794288` | PASS, both `verify` and `replay-gates` jobs |
-| GitHub Pages workflow run `30176794289` | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200 |
-| Production browser review at `7b57e8b` | PASS, builder attribution, product definition, Replay visualization, recorded boundaries, and responsive first viewport verified on the published site |
+| Command / review                                                             | Result                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm --dir apps/web format:check`                                           | PASS                                                                                                                                                   |
+| `pnpm --dir apps/web test`                                                   | PASS, 2 portfolio-story and evidence-boundary component tests                                                                                          |
+| `pnpm --dir apps/web typecheck`                                              | PASS                                                                                                                                                   |
+| `pnpm --dir apps/web lint`                                                   | PASS, zero warnings                                                                                                                                    |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`               | PASS, all public routes statically exported                                                                                                            |
+| `node tests/browser/snapshot-smoke.mjs`                                      | PASS, builder attribution, release-gate definition, recorded provenance, proof limits, and every public route present                                  |
+| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, no secret-like value or server-only credential name                                                                                              |
+| `.venv/bin/python scripts/preflight.py --strict`                             | PASS, technical-preview claim requirements retained                                                                                                    |
+| In-app browser review at desktop width                                       | PASS, full first-viewport hierarchy, animated Replay engine, primary action, and recorded control room visually verified                               |
+| GitHub `validate` workflow run `30176794288`                                 | PASS, both `verify` and `replay-gates` jobs                                                                                                            |
+| GitHub Pages workflow run `30176794289`                                      | PASS; production homepage, social image, Replay, Results, Architecture, and recorded-run routes returned HTTP 200                                      |
+| Production browser review at `7b57e8b`                                       | PASS, builder attribution, product definition, Replay visualization, recorded boundaries, and responsive first viewport verified on the published site |
 
 The supplied dark technical reference was recreated with native HTML/CSS motion and deterministic content. No third-party animation runtime, hidden attribution, or runtime inference dependency was added.
 
 ## Post-release credibility hardening
 
-| Command / review | Result |
-|---|---|
-| `pnpm --dir apps/web lint` | PASS, zero warnings |
-| `pnpm --dir apps/web typecheck` | PASS |
-| `pnpm --dir apps/web test` | PASS, 3 component tests |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 12 exported HTML pages including the new audit route |
-| `node tests/browser/snapshot-smoke.mjs` | PASS, all static routes and evidence-boundary copy |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | PASS, 9 Chromium core/nested navigation, interaction, keyboard, WCAG A/AA, and mobile-overflow tests |
-| `.venv/bin/python -m pytest -q` | PASS, 134 tests; one documented Starlette transition warning |
-| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS |
-| `.venv/bin/python scripts/verify_public_snapshots.py` | PASS |
-| `.venv/bin/python scripts/preflight.py --strict` | PASS |
-| `pnpm audit --prod --audit-level high` | PASS, no known production vulnerabilities |
-| `pnpm audit --dev --audit-level critical` | PASS at the critical threshold; one high-severity development-only `brace-expansion` advisory remains documented |
-| In-app browser review | PASS at desktop and 390px mobile widths for homepage, interactive Replay, and senior audit route |
+| Command / review                                                             | Result                                                                                                           |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pnpm --dir apps/web lint`                                                   | PASS, zero warnings                                                                                              |
+| `pnpm --dir apps/web typecheck`                                              | PASS                                                                                                             |
+| `pnpm --dir apps/web test`                                                   | PASS, 3 component tests                                                                                          |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`               | PASS, 12 exported HTML pages including the new audit route                                                       |
+| `node tests/browser/snapshot-smoke.mjs`                                      | PASS, all static routes and evidence-boundary copy                                                               |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`                 | PASS, 9 Chromium core/nested navigation, interaction, keyboard, WCAG A/AA, and mobile-overflow tests             |
+| `.venv/bin/python -m pytest -q`                                              | PASS, 134 tests; one documented Starlette transition warning                                                     |
+| `.venv/bin/python scripts/scan_public_build.py --path apps/web/out --strict` | PASS                                                                                                             |
+| `.venv/bin/python scripts/verify_public_snapshots.py`                        | PASS                                                                                                             |
+| `.venv/bin/python scripts/preflight.py --strict`                             | PASS                                                                                                             |
+| `pnpm audit --prod --audit-level high`                                       | PASS, no known production vulnerabilities                                                                        |
+| `pnpm audit --dev --audit-level critical`                                    | PASS at the critical threshold; one high-severity development-only `brace-expansion` advisory remains documented |
+| In-app browser review                                                        | PASS at desktop and 390px mobile widths for homepage, interactive Replay, and senior audit route                 |
 
 These checks were local results for the source revision containing this record. Validation run
 `30208242771` and Pages run `30208242773` later passed for the CI repair that includes this
@@ -201,17 +201,17 @@ hardening. No live provider call, connector write, or human validation is claime
 
 ## Core evaluation-integrity audit
 
-| Command / review | Result |
-|---|---|
-| `.venv/bin/ruff check python tests scripts/*.py` and format check | PASS |
-| `.venv/bin/mypy python/resolveflow` | PASS, 81 source files |
-| `.venv/bin/pytest -q tests/unit tests/integration tests/contract tests/security tests/replay` | PASS, 144 tests; one documented Starlette transition warning |
-| `pnpm --dir apps/web lint`, format check, typecheck, and test | PASS, 3 component tests |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 12 static pages |
-| `node tests/browser/snapshot-smoke.mjs` | PASS |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | PASS, 9 Chromium/Axe tests |
-| Replay smoke, negative gate, and integrity-audit reproduction | PASS; candidate remains `NO_SHIP`, audit is 1/36 truths, 0/200 full Replays, and 5/5 stored payload controls |
-| public bundle scan, snapshot verifier, strict preflight | PASS |
+| Command / review                                                                              | Result                                                                                                       |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `.venv/bin/ruff check python tests scripts/*.py` and format check                             | PASS                                                                                                         |
+| `.venv/bin/mypy python/resolveflow`                                                           | PASS, 81 source files                                                                                        |
+| `.venv/bin/pytest -q tests/unit tests/integration tests/contract tests/security tests/replay` | PASS, 144 tests; one documented Starlette transition warning                                                 |
+| `pnpm --dir apps/web lint`, format check, typecheck, and test                                 | PASS, 3 component tests                                                                                      |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`                                | PASS, 12 static pages                                                                                        |
+| `node tests/browser/snapshot-smoke.mjs`                                                       | PASS                                                                                                         |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`                                  | PASS, 9 Chromium/Axe tests                                                                                   |
+| Replay smoke, negative gate, and integrity-audit reproduction                                 | PASS; candidate remains `NO_SHIP`, audit is 1/36 truths, 0/200 full Replays, and 5/5 stored payload controls |
+| public bundle scan, snapshot verifier, strict preflight                                       | PASS                                                                                                         |
 
 These checks were local results for the source revision containing this record. Validation run
 `30208242771` and Pages run `30208242773` passed after the CI repair. No current PostgreSQL,
@@ -225,14 +225,25 @@ container, dependency-audit, live-provider, connector, or human result is claime
 - The FDE-style delivery narrative now follows the operating incident through the typed-contract intervention, Resolve, Replay, and the release decision. It describes the engineering work as policy-bound evidence, bounded model/tool calls, approval semantics, and recovery.
 - A project-owned social preview now matches the static-case-study framing; it contains no credentials, provider results, or invented metrics.
 
-| Command | Result |
-|---|---|
-| `pnpm --dir apps/web test -- page.test.tsx` | PASS, 2 tests |
-| `pnpm --dir apps/web typecheck` | PASS |
-| `pnpm --dir apps/web lint` | PASS, zero warnings |
-| `pnpm --dir apps/web format:check` | PASS |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 15 static routes |
-| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | PASS, 9 Chromium/Axe tests |
+| Command                                                        | Result                     |
+| -------------------------------------------------------------- | -------------------------- |
+| `pnpm --dir apps/web test -- page.test.tsx`                    | PASS, 2 tests              |
+| `pnpm --dir apps/web typecheck`                                | PASS                       |
+| `pnpm --dir apps/web lint`                                     | PASS, zero warnings        |
+| `pnpm --dir apps/web format:check`                             | PASS                       |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 15 static routes     |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`   | PASS, 9 Chromium/Axe tests |
+
+## Post-push browser-smoke repair
+
+- The homepage transparency refresh changed the public rail from `RECORDED SYNTHETIC FIXTURE` to the more precise `14-EVENT RECORDED SYNTHETIC TRACE`.
+- `tests/browser/snapshot-smoke.mjs` now checks the current public phrase, keeping the fast exported-HTML regression check aligned with the static technical case study.
+
+| Command                                 | Result |
+| --------------------------------------- | ------ |
+| `node tests/browser/snapshot-smoke.mjs` | PASS   |
+
+`make` is not installed in the local Windows environment, so no `make e2e` result is claimed here. The direct Node smoke command above is the failing CI assertion's exact executable check.
 
 ## Immediate next action
 

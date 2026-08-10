@@ -5,7 +5,7 @@ const html = await readFile("apps/web/out/index.html", "utf8");
 assert.match(html, /I BUILT THE/);
 assert.match(html, /RELEASE GATE/);
 assert.match(html, /BUILT END-TO-END BY TASFIQ JASIMUDDIN/);
-assert.match(html, /RECORDED SYNTHETIC FIXTURE/);
+assert.match(html, /14-EVENT RECORDED SYNTHETIC TRACE/);
 assert.match(html, /Technical preview/);
 assert.match(html, /0 reviewers \/ 0 cases/i);
 assert.match(html, /Payments Platform/);
