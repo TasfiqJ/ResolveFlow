@@ -1,48 +1,47 @@
-/* ResolveFlow — "Organic" design system implementation.
-   Warm cream ground, terracotta + sage accents, Caprasimo display over
-   Figtree body, over-rounded surfaces and pills. Every color/font/space/
+/* ResolveFlow — clean technical case-study design system.
+   White ground, blue + green status accents, and Open Sans throughout. Every color/font/space/
    radius/shadow value below comes from the token block; nothing is
    hard-coded elsewhere in this file. See docs/DECISIONS.md D-059. */
 
-@import url("https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap");
 
 :root {
-  --color-bg: #f5ead8;
-  --color-surface: #ebddc5;
-  --color-text: #201e1d;
-  --color-accent: #c67139;
-  --color-accent-2: #7a8a5e;
-  --color-divider: color-mix(in srgb, #201e1d 16%, transparent);
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #1d2939;
+  --color-accent: #2563eb;
+  --color-accent-2: #15803d;
+  --color-divider: #d9e1eb;
 
-  --color-neutral-100: #f9f4ed;
-  --color-neutral-200: #eee7db;
-  --color-neutral-300: #dcd3c4;
-  --color-neutral-400: #c0b6a5;
-  --color-neutral-500: #a19786;
-  --color-neutral-600: #82796a;
-  --color-neutral-700: #645c50;
-  --color-neutral-800: #474238;
-  --color-neutral-900: #2e2b25;
+  --color-neutral-100: #f8fafc;
+  --color-neutral-200: #edf2f7;
+  --color-neutral-300: #d9e1eb;
+  --color-neutral-400: #98a2b3;
+  --color-neutral-500: #667085;
+  --color-neutral-600: #475467;
+  --color-neutral-700: #344054;
+  --color-neutral-800: #1d2939;
+  --color-neutral-900: #101828;
 
-  --color-accent-100: #fff2eb;
-  --color-accent-200: #ffe1d0;
-  --color-accent-300: #ffc6a5;
-  --color-accent-400: #f6a06b;
-  --color-accent-500: #d67f48;
-  --color-accent-600: #b2622d;
-  --color-accent-700: #8c491a;
-  --color-accent-800: #643312;
-  --color-accent-900: #402310;
+  --color-accent-100: #eff6ff;
+  --color-accent-200: #dbeafe;
+  --color-accent-300: #bfdbfe;
+  --color-accent-400: #93c5fd;
+  --color-accent-500: #60a5fa;
+  --color-accent-600: #3b82f6;
+  --color-accent-700: #2563eb;
+  --color-accent-800: #1d4ed8;
+  --color-accent-900: #1e3a8a;
 
-  --color-accent-2-100: #f0fae1;
-  --color-accent-2-200: #e1eecc;
-  --color-accent-2-300: #ccdbb2;
-  --color-accent-2-400: #aebf92;
-  --color-accent-2-500: #8fa073;
-  --color-accent-2-600: #728157;
-  --color-accent-2-700: #56633f;
-  --color-accent-2-800: #3d472b;
-  --color-accent-2-900: #272e1b;
+  --color-accent-2-100: #f0fdf4;
+  --color-accent-2-200: #dcfce7;
+  --color-accent-2-300: #bbf7d0;
+  --color-accent-2-400: #86efac;
+  --color-accent-2-500: #4ade80;
+  --color-accent-2-600: #22c55e;
+  --color-accent-2-700: #15803d;
+  --color-accent-2-800: #166534;
+  --color-accent-2-900: #14532d;
 
   /* Two status ramps beyond the system's two brand accents — a warm red for
      hard failures ("NO SHIP", high severity) and a warm amber for
@@ -60,9 +59,9 @@
   --color-warn-700: #7a5613;
   --color-warn-900: #402b08;
 
-  --font-heading: "Caprasimo", system-ui, sans-serif;
-  --font-heading-weight: 400;
-  --font-body: "Figtree", system-ui, sans-serif;
+  --font-heading: "Open Sans", system-ui, sans-serif;
+  --font-heading-weight: 700;
+  --font-body: "Open Sans", system-ui, sans-serif;
   --font-mono:
     "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace;
 
@@ -283,7 +282,7 @@ h6 {
 
 .performanceHero {
   position: relative;
-  padding: clamp(56px, 8vw, 96px) clamp(20px, 4vw, 48px) var(--space-8);
+  padding: clamp(40px, 5vw, 72px) clamp(20px, 4vw, 48px) var(--space-8);
 }
 
 .stars,
@@ -422,6 +421,115 @@ h6 {
   color: var(--color-neutral-700);
   font-size: 11px;
   font-weight: 600;
+}
+
+.releaseGateVisual {
+  width: min(46vw, 620px);
+  margin: 0 auto;
+  justify-self: center;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.gateVisualHeader,
+.gateDecision {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.gateVisualHeader {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-divider);
+  color: var(--color-neutral-600);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.gateVisualHeader b {
+  color: var(--color-accent-700);
+}
+
+.gateSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+
+.gateSteps article {
+  min-height: 198px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-top: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+}
+
+.gateSteps article:nth-child(2) {
+  border-top-color: var(--color-accent-2-600);
+}
+
+.gateSteps article:nth-child(3) {
+  border-top-color: var(--color-warn-500);
+}
+
+.gateSteps span,
+.gateDecision span {
+  display: block;
+  color: var(--color-accent-700);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.gateSteps h3 {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.gateSteps p {
+  margin: 0;
+  color: var(--color-neutral-600);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.gateSteps article > b {
+  display: inline-block;
+  margin-top: var(--space-3);
+  color: var(--color-accent-2-800);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.gateDecision {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+}
+
+.gateDecision div:last-child {
+  text-align: right;
+}
+
+.gateDecision strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-text);
+  font-size: 12px;
+}
+
+.gateDecision i {
+  width: 32px;
+  height: 1px;
+  background: var(--color-accent);
 }
 
 /* Hero visual — a warm ring of status cards around a core badge, built
@@ -626,6 +734,10 @@ h6 {
   .systemVisual {
     width: min(70vw, 480px);
   }
+
+  .releaseGateVisual {
+    width: min(82vw, 620px);
+  }
 }
 
 @media (max-width: 760px) {
@@ -639,6 +751,31 @@ h6 {
 
   .systemVisual {
     width: min(88vw, 380px);
+  }
+
+  .releaseGateVisual {
+    width: 100%;
+  }
+
+  .gateSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .gateSteps article {
+    min-height: 0;
+  }
+
+  .gateDecision {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gateDecision div:last-child {
+    text-align: left;
+  }
+
+  .gateDecision i {
+    width: 100%;
   }
 
   .orbitNode {
@@ -2916,6 +3053,21 @@ th {
 }
 
 /* ══════════════════════ Contrast + accessibility ══════════════════════ */
+
+.openGatePanel > div > .eyebrow,
+.openGatePanel > div > p:last-child,
+.openGatePanel li p {
+  color: var(--color-neutral-700);
+}
+
+.openGatePanel li > span {
+  color: var(--color-accent-900);
+}
+
+.proofDisclosure,
+.footerBrand div small {
+  color: #d0d5dd;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {

@@ -245,6 +245,20 @@ container, dependency-audit, live-provider, connector, or human result is claime
 
 `make` is not installed in the local Windows environment, so no `make e2e` result is claimed here. The direct Node smoke command above is the failing CI assertion's exact executable check.
 
+## Clean visual refresh
+
+- The public site now uses Open Sans and a white background across the shared design system.
+- The circular Replay Engine hero artwork is replaced with a code-native release-gate walkthrough: check access, verify evidence, require approval, then show the recorded replay decision.
+
+| Command                                                        | Result                                  |
+| -------------------------------------------------------------- | --------------------------------------- |
+| `pnpm --dir apps/web test -- page.test.tsx`                    | PASS, 2 tests                           |
+| `pnpm --dir apps/web typecheck`                                | PASS                                    |
+| `pnpm --dir apps/web lint`                                     | PASS, zero warnings                     |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 15 static routes                  |
+| `node tests/browser/snapshot-smoke.mjs`                        | PASS                                    |
+| Local browser review                                           | PASS, desktop and 390px mobile viewport |
+
 ## Immediate next action
 
 Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.

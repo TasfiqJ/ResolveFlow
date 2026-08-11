@@ -195,10 +195,9 @@ export default function Home() {
               AI AGENTS ARE MISSING.
             </h1>
             <p className="performanceLede">
-              ResolveFlow checks whether a workplace AI agent is safe to release
-              when access changes, evidence is hostile, context is missing, or a
-              connector fails. It returns a clear verdict and an auditable
-              trace.
+              ResolveFlow is a release gate for workplace AI agents. It tests
+              access changes, hostile evidence, missing context, and connector
+              failure—then returns a clear, auditable release decision.
             </p>
             <p className="fdeLede">
               Built as an FDE-style systems exercise: turn a messy payments
@@ -237,44 +236,46 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="systemVisual" aria-label="Animated replay gate model">
-            <div className="visualLabel visualLabelTop">
-              <span>REPLAY ENGINE</span>
-              <b>ACTIVE</b>
+          <section
+            className="releaseGateVisual"
+            aria-label="How the release gate works"
+          >
+            <div className="gateVisualHeader">
+              <span>HOW THE RELEASE GATE WORKS</span>
+              <b>RECORDED REPLAY</b>
             </div>
-            <div className="orbit orbitOuter" />
-            <div className="orbit orbitMiddle" />
-            <div className="orbit orbitInner" />
-            <div className="crosshair crosshairHorizontal" />
-            <div className="crosshair crosshairVertical" />
-            <div className="agentCore">
-              <small>BUILD</small>
-              <strong>V1</strong>
-              <span>GUARDED</span>
-              <i />
+            <div className="gateSteps">
+              <article>
+                <span>01</span>
+                <h3>Check access</h3>
+                <p>Use only evidence this operator is allowed to see.</p>
+                <b>ACL PASS</b>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>Verify evidence</h3>
+                <p>Support key claims and clearly mark what is unknown.</p>
+                <b>3 / 3 VERIFIED</b>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>Require approval</h3>
+                <p>Keep external actions inactive until a person approves.</p>
+                <b>WRITE INERT</b>
+              </article>
             </div>
-            <div className="orbitNode nodeAcl">
-              <small>ACL</small>
-              <b>PASS</b>
+            <div className="gateDecision">
+              <div>
+                <span>REPLAY MUTATION</span>
+                <strong>ROLE DOWNGRADE</strong>
+              </div>
+              <i aria-hidden="true" />
+              <div>
+                <span>RELEASE DECISION</span>
+                <strong>NO SHIP UNTIL VERIFIED</strong>
+              </div>
             </div>
-            <div className="orbitNode nodeEvidence">
-              <small>EVIDENCE</small>
-              <b>3/3</b>
-            </div>
-            <div className="orbitNode nodeAction">
-              <small>WRITE</small>
-              <b>INERT</b>
-            </div>
-            <div className="orbitNode nodeReplay">
-              <small>REPLAY</small>
-              <b>04</b>
-            </div>
-            <div className="scanBeam" />
-            <div className="visualLabel visualLabelBottom">
-              <span>HARD GATES FIRST</span>
-              <b>SHIP / LIMIT / STOP</b>
-            </div>
-          </div>
+          </section>
         </div>
 
         <div className="systemRail">
