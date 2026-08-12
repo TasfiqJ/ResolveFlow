@@ -17,7 +17,7 @@ current checksummed development result is intentionally fail closed:
 - guarded-v1: `NO_SHIP`;
 - guarded-v1 hard evidence: 5 of 10 hard invariants observed;
 - semantic truth evidence: 1 unique template across 36 draft IDs;
-- security-matrix evidence: 0 of 200 cells executed as full Replays;
+- security-matrix evidence: 200 of 200 cells executed as recorded-fixture Replays, with 200 passes and 0 open cell issues;
 - stored attack controls: 5 of 5 payloads exercise their expected deterministic controls.
 
 The guarded build fixes the demonstrated role-downgrade authorization failure. It is still blocked
@@ -43,8 +43,8 @@ production-readiness verdict.
   candidates; restricted content exclusion is contract-tested.
 - Public-live admission no longer returns a queued ticket without an executor; it fails closed
   with the recorded fallback.
-- Public Results and Audit pages now present the fail-closed verdict and the exact 1/36, 0/200,
-  and 5/5 evidence boundaries.
+- Public Results and Audit pages now present the fail-closed verdict and the exact 1/36,
+  200/200-executed, 200-passed/0-open, and 5/5 evidence boundaries.
 
 ## Verification performed for this source state
 

@@ -7,6 +7,11 @@ from pathlib import Path
 from resolveflow.replay.io import manifest_path
 from resolveflow.replay.materialize import materialize_scenario
 from resolveflow.replay.runner import run_paired_replay
+from resolveflow.replay.security_matrix import EXECUTION_PATH
+from resolveflow.replay.security_matrix_runner import (
+    execute_security_matrix,
+    write_security_matrix_execution,
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -15,11 +20,23 @@ def _parser() -> argparse.ArgumentParser:
     for name in ("dry-run", "run", "smoke"):
         command = commands.add_parser(name)
         command.add_argument("--manifest", type=Path)
+    matrix = commands.add_parser("run-security-matrix")
+    matrix.add_argument("--output", type=Path, default=EXECUTION_PATH)
     return parser
 
 
 def main() -> None:
     args = _parser().parse_args()
+    if args.command == "run-security-matrix":
+        execution = execute_security_matrix()
+        output = write_security_matrix_execution(execution, args.output)
+        print(
+            "Security matrix execution: "
+            f"{execution.pass_count}/{execution.executed_count} passed"
+        )
+        print(f"Open issues: {execution.failure_count}")
+        print(f"Per-cell result: {output}")
+        return
     path = args.manifest or manifest_path("replay-role-downgrade-001")
     if args.command == "dry-run":
         materialized = materialize_scenario(path)

@@ -71,9 +71,9 @@ const proofStats = [
     href: `runs/${liveSnapshot.run_id}/`,
   },
   {
-    value: `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count}`,
-    label: "security matrix cells executed as full Replays",
-    note: "DECLARATION IS NOT EXECUTION",
+    value: `${integrity.security_matrix_pass_count}/${integrity.security_matrix_declared_count}`,
+    label: "security matrix cells passed",
+    note: `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count} EXECUTED · ${integrity.security_matrix_failure_count} OPEN ISSUES`,
     href: "snapshots/evaluation-integrity-audit.json",
   },
   {

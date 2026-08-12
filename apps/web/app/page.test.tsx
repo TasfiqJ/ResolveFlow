@@ -27,7 +27,8 @@ describe("snapshot-first home", () => {
     expect(screen.getAllByText("NO SHIP").length).toBeGreaterThan(0);
     expect(screen.queryByText("SHIP WITH LIMITS")).not.toBeInTheDocument();
     expect(screen.getByText("5/5")).toBeInTheDocument();
-    expect(screen.getByText("0/200")).toBeInTheDocument();
+    expect(screen.getByText("200/200")).toBeInTheDocument();
+    expect(screen.getByText(/0 open issues/i)).toBeInTheDocument();
     expect(screen.getByText(/not a prompt/i)).toBeInTheDocument();
     expect(screen.getByText(/0 reviewers \/ 0 cases/i)).toBeInTheDocument();
     expect(

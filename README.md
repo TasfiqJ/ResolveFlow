@@ -17,7 +17,9 @@ IDs collapse to one semantic template. This is not a held-out, live-provider, hu
 final release result. No external write is represented by the fixture.
 
 The integrity artifact also separates 5/5 stored attack payloads exercising their deterministic
-controls from the still-unexecuted 0/200 full Replay matrix. Live mode is contract-wired as one
+controls from a 200/200 executed recorded-fixture Replay matrix (200 passed, 0 open issues). The
+matrix still reuses one hostile artifact across its declared family/variant labels and is not a
+live-model attack suite. Live mode is contract-wired as one
 Chat/Embed/Rerank composition with provider-derived provenance and ACL filtering before document
 embedding, but no live call or provider result is claimed.
 

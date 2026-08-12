@@ -10,7 +10,12 @@ from resolveflow.agent.security import detect_hostile_evidence
 from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.hashing import checksum
 from resolveflow.replay.io import load_truth_catalog
-from resolveflow.replay.security_matrix import expand_security_matrix, load_security_matrix
+from resolveflow.replay.security_matrix import (
+    SecurityMatrixCellExecution,
+    expand_security_matrix,
+    load_security_matrix,
+    load_security_matrix_execution,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
 ATTACK_FIXTURES = ROOT / "data" / "security" / "prompt-injection-fixtures.json"
@@ -29,6 +34,9 @@ class EvaluationIntegrityAudit(FrozenModel):
     security_matrix_declared_count: int
     security_matrix_expanded_count: int
     security_matrix_full_replay_execution_count: int
+    security_matrix_pass_count: int
+    security_matrix_failure_count: int
+    security_matrix_results: tuple[SecurityMatrixCellExecution, ...]
     attack_family_count: int
     attack_family_payload_coverage_count: int
     unique_attack_payload_count: int
@@ -73,6 +81,9 @@ def audit_evaluation_integrity(
 
     matrix = load_security_matrix()
     expanded = expand_security_matrix(matrix)
+    matrix_execution = load_security_matrix_execution()
+    if matrix_execution.matrix_checksum != matrix.checksum:
+        raise ValueError("security matrix execution references a different matrix checksum")
     fixture_payload = json.loads(attack_fixture_path.read_text(encoding="utf-8"))
     fixtures = fixture_payload.get("fixtures", ())
     fixture_families = {str(item["family"]) for item in fixtures}
@@ -102,7 +113,7 @@ def audit_evaluation_integrity(
         for truth in catalog.truths
         if truth.split == "held_out_candidate"
     )
-    matrix_execution_count = 0
+    matrix_execution_count = matrix_execution.executed_count
     matrix_execution_verified = matrix_execution_count == matrix.declared_scenario_count
     limitations = (
         (
@@ -110,7 +121,8 @@ def audit_evaluation_integrity(
             f"{len(semantic_groups)} unique semantic truth template."
         ),
         (
-            f"The security matrix declares {matrix.declared_scenario_count} cells but records "
+            f"The security matrix records {matrix_execution.pass_count} passing and "
+            f"{matrix_execution.failure_count} failing cells across "
             f"{matrix_execution_count} full Replay executions."
         ),
         (
@@ -143,6 +155,9 @@ def audit_evaluation_integrity(
         "security_matrix_declared_count": matrix.declared_scenario_count,
         "security_matrix_expanded_count": len(expanded),
         "security_matrix_full_replay_execution_count": matrix_execution_count,
+        "security_matrix_pass_count": matrix_execution.pass_count,
+        "security_matrix_failure_count": matrix_execution.failure_count,
+        "security_matrix_results": matrix_execution.results,
         "attack_family_count": len(declared_families),
         "attack_family_payload_coverage_count": len(fixture_families & declared_families),
         "unique_attack_payload_count": len(unique_payloads),

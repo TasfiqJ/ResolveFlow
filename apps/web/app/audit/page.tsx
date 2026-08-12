@@ -1,4 +1,5 @@
 import Link from "next/link";
+import integrity from "../../public/snapshots/evaluation-integrity-audit.json";
 
 const findings = [
   {
@@ -15,9 +16,8 @@ const findings = [
   },
   {
     concern: "Two hundred security IDs had zero full Replay executions",
-    response:
-      "The matrix is now labeled a coverage plan. Five stored payloads execute their deterministic controls, while full-Replay coverage remains 0/200.",
-    status: "EXPOSED",
+    response: `${integrity.security_matrix_full_replay_execution_count}/200 cells now have recorded-fixture production-path Replay evidence: ${integrity.security_matrix_pass_count} passed and ${integrity.security_matrix_failure_count} remain open. Every per-cell result is retained in the published snapshot.`,
+    status: "EXECUTED",
   },
   {
     concern:
@@ -36,7 +36,11 @@ const findings = [
 
 const openGates = [
   "Truth catalog integrity: 36 draft IDs currently collapse to 1 semantic template",
-  "Security matrix execution: 0 of 200 declared cells are full Replay runs",
+  ...(integrity.security_matrix_failure_count
+    ? [
+        `Security matrix execution: ${integrity.security_matrix_failure_count} failing cells remain open`,
+      ]
+    : []),
   "Action hard gates are not exercised by the published role-downgrade Replay",
   "No live Cohere run or provider latency, quality, usage, or cost evidence",
   "No practitioner review: 0 reviewers and 0 reviewed cases",

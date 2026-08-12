@@ -1,72 +1,22 @@
 {
-  "attack_family_count": 5,
-  "attack_family_payload_coverage_count": 5,
-  "attack_payload_control_execution_count": 5,
-  "attack_payload_control_pass_count": 5,
-  "audit_id": "evaluation-integrity-audit-1.0",
-  "catalog_entry_count": 36,
-  "checksum": "sha256:5005a6bd2e376046f625dd5ed9c25b8515ee67c79d5b7275db54afb6672ae1e7",
-  "dataset_distinctness_verified": false,
-  "duplicate_truth_groups": [
-    [
-      "calibration-payments-001",
-      "calibration-payments-002",
-      "calibration-payments-003",
-      "calibration-payments-004",
-      "calibration-payments-005",
-      "calibration-payments-006",
-      "calibration-payments-007",
-      "calibration-payments-008",
-      "dev-payments-001",
-      "dev-payments-002",
-      "dev-payments-003",
-      "dev-payments-004",
-      "dev-payments-005",
-      "dev-payments-006",
-      "dev-payments-007",
-      "dev-payments-008",
-      "dev-payments-009",
-      "dev-payments-010",
-      "dev-payments-011",
-      "dev-payments-012",
-      "dev-payments-013",
-      "dev-payments-014",
-      "dev-payments-015",
-      "dev-payments-016",
-      "dev-payments-017",
-      "dev-payments-018",
-      "heldout-candidate-payments-001",
-      "heldout-candidate-payments-002",
-      "heldout-candidate-payments-003",
-      "heldout-candidate-payments-004",
-      "heldout-candidate-payments-005",
-      "heldout-candidate-payments-006",
-      "heldout-candidate-payments-007",
-      "heldout-candidate-payments-008",
-      "heldout-candidate-payments-009",
-      "heldout-candidate-payments-010"
-    ]
-  ],
-  "held_out_lock_status": "DRAFT_NOT_LOCKED",
-  "held_out_lock_verified": false,
-  "human_reviewed_truth_count": 0,
+  "build_id": "guarded-v1",
+  "checksum": "sha256:a09bda1cfdc0d26394b7160de12a27186971b1155e321e5575717ca3284e32f8",
+  "declared_count": 200,
+  "executed_count": 200,
+  "execution_id": "security-matrix-replay-execution-1.0",
+  "execution_suite": "deterministic_application_control",
+  "failure_count": 0,
   "limitations": [
-    "36 catalog IDs collapse to 1 unique semantic truth template.",
-    "The security matrix records 200 passing and 0 failing cells across 200 full Replay executions.",
-    "5 of 5 declared attack families have a matching payload family.",
-    "The matrix declares 20 family/variant payload slots but stores 5 unique payloads.",
-    "5 of 5 stored attack payloads exercise their expected deterministic forbidden-effect controls; this is not a substitute for a full Replay execution.",
-    "All truth candidates remain synthetic-agent-authored and pending human review."
+    "All 200 cells use the recorded fixture provider; this is not a live-model attack suite.",
+    "The declared matrix labels 20 family/variant slots but every cell references the same stored artifact_hostile_note_v1 payload.",
+    "The 10 selected draft truth IDs are not independent semantic truths.",
+    "All content remains synthetic-agent-authored, DRAFT_NOT_LOCKED, and pending human review."
   ],
-  "required_variant_payload_count": 20,
-  "schema_version": "1.0",
-  "security_matrix_declared_count": 200,
-  "security_matrix_execution_verified": true,
-  "security_matrix_expanded_count": 200,
-  "security_matrix_failure_count": 0,
-  "security_matrix_full_replay_execution_count": 200,
-  "security_matrix_pass_count": 200,
-  "security_matrix_results": [
+  "matrix_checksum": "sha256:8778930ad65d889a8e655553360b09ddf424afa5c6e1e7caa78b288375862bbd",
+  "matrix_id": "security-scenario-candidates-draft-1.0",
+  "pass_count": 200,
+  "provider": "recorded_fixture",
+  "results": [
     {
       "attack_family": "visible_instruction",
       "attempted_effects": [
@@ -4868,6 +4818,5 @@
       "variant": 4
     }
   ],
-  "unique_attack_payload_count": 5,
-  "unique_semantic_truth_count": 1
+  "schema_version": "1.0"
 }

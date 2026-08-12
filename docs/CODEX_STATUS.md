@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** None; authorized live-provider hero trace published and browser-verified
+**Active work:** Security matrix execution completed locally; publication verification pending
 
 ## Current repository facts
 
@@ -38,11 +38,11 @@
 - The registry has fixed handlers for role override, artifact addition/removal, stale promotion, image replacement, connector state, language variant, and field removal. Unsupported fixtures and arbitrary hooks fail before execution.
 - Both `unsafe-v0` and `guarded-v1` call the same `ResolveOrchestrator.run` production entrypoint. The unsafe fixture is confined to Replay, disables pre-retrieval ACL only, retains approval, and cannot perform an external write.
 - The draft catalog contains 36 synthetic-agent-authored IDs (18 development, 8 calibration, 10 held-out candidates), but the evaluation-integrity audit shows they collapse to 1 semantic truth template. Every entry remains `DRAFT_PENDING_HUMAN_REVIEW`; held-out candidates remain `DRAFT_NOT_LOCKED`.
-- A separate draft deterministic security matrix declares 200 unique application-control scenarios across 10 base-truth clusters, five existing attack families, and four variants. It records zero live-provider calls and is not described as 200 independent live attacks.
+- A separate draft deterministic security matrix declares and now executes 200 recorded-fixture application-control Replays across 10 base-truth IDs, five attack-family labels, and four variants. The checksummed snapshot retains one result per cell: 200 passed and 0 failed in the 2026-08-12 execution. It records zero live-provider calls and is not described as 200 independent live attacks.
 - Hard-invariant observations are evaluated before quality/operations. Every proportion stores exact numerator/denominator and a 95% Wilson interval; paired route comparison uses a deterministic base-truth-cluster bootstrap with an explicit dependence caveat.
 - The release gate implements `SHIP`, `SHIP_WITH_LIMITS`, and `NO_SHIP`, retains every failing Replay link, reports insufficient samples, and writes canonical/file checksummed JSON bundles plus a reproducible Markdown summary.
 - Gate 1.1 produces `NO_SHIP` for both recorded builds. Unsafe-v0 admits one forbidden candidate. Guarded-v1 removes that exposure but is blocked because action/deployment hard invariants are unexercised or unverified, held-out data is unlocked, and dataset distinctness fails. This is not a final, held-out, live-provider, human-reviewed, or publishable release verdict.
-- The 200-cell security matrix is now explicitly audited as a declaration: 0 cells have full Replay execution evidence, with 5 unique payloads for 20 declared family/variant slots. All 5 stored payloads exercise their expected deterministic forbidden-effect controls; those scanner results are not relabeled as full Replays.
+- The 200-cell security matrix now has checksummed production-path Replay evidence for every declared cell. Each result retains manifest/materialization/run/final-trace hashes, observed effects, and pass/fail reasons. The run passed 200/200 with 0 open cell failures. This does not cure the matrix design limitation: every cell still references the same stored hostile artifact, the 10 truth IDs are not semantically independent, and no cell is a live-provider attack.
 - Public run snapshots retain event hashes, and the release scorer recomputes every event hash rather than trusting stored chain pointers.
 - FastAPI now exposes only the predefined `POST /v1/replays`, `GET /v1/replays/{id}`, and `GET /v1/releases/{build}` fixture interfaces; arbitrary manifests/builds remain rejected.
 - Alembic revision `0005_replay_release_gate` owns draft truth/scenario/expectation, paired Replay, metric, comparison, gate, and result-bundle records, including database guards against falsely locked truth rows or final-publication flags.
@@ -73,6 +73,18 @@
 | Strict public secret scan | PASS; no secret-like value or server-only credential name in the export |
 | GitHub validation and Pages workflows | PASS; runs `31602018723` and `31602018754` |
 | Published-page browser inspection | PASS; live label, exact citation, full hash chain, model output, NO SHIP boundary |
+
+## 2026-08-12 security-matrix execution checks
+
+| Check | Result |
+| --- | --- |
+| Declared-cell execution | PASS; 200/200 cells ran through guarded-v1 and the shared `ResolveOrchestrator` path |
+| Per-cell evidence audit | PASS; 200 unique scenario/run IDs, all manifest/materialization/run/final-event hashes present, all audit chains verified |
+| Per-cell outcomes | 200 PASS, 0 FAIL; no failing cells existed to suppress or review |
+| Targeted Python tests and mypy | PASS; 4 tests plus strict typing for the changed matrix/audit modules |
+| Full Python suite without PostgreSQL | PASS; 174 tests. Four PostgreSQL tests could not connect because no local service listened on port 5432 |
+| Web component, typecheck, lint, export, smoke, and Chromium/Axe | PASS; 2 component tests, 16 static pages, snapshot smoke, and 11 browser tests including JSON/DOM count parity |
+| Public snapshot integrity | PASS; canonical/file hashes, 200-row count arithmetic, and byte-identical browser copies verified |
 
 ## Milestone status
 
@@ -224,7 +236,7 @@ hardening. No live provider call, connector write, or human validation is claime
 | `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build`                                | PASS, 12 static pages                                                                                        |
 | `node tests/browser/snapshot-smoke.mjs`                                                       | PASS                                                                                                         |
 | `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`                                  | PASS, 9 Chromium/Axe tests                                                                                   |
-| Replay smoke, negative gate, and integrity-audit reproduction                                 | PASS; candidate remains `NO_SHIP`, audit is 1/36 truths, 0/200 full Replays, and 5/5 stored payload controls |
+| Replay smoke, negative gate, security-matrix execution, and integrity-audit reproduction      | PASS; candidate remains `NO_SHIP`, audit is 1/36 truths, 200/200 executed recorded Replays, 200 passed, 0 open cell issues, and 5/5 stored payload controls |
 | public bundle scan, snapshot verifier, strict preflight                                       | PASS                                                                                                         |
 
 These checks were local results for the source revision containing this record. Validation run

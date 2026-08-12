@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import integrity from "../public/snapshots/evaluation-integrity-audit.json";
 import liveSnapshot from "../public/snapshots/hero-cohere-live.json";
 
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "");
@@ -76,6 +77,29 @@ test("global navigation works from a nested deployment route", async ({
 
   await page.getByRole("link", { name: "ResolveFlow home" }).click();
   await expect(page).toHaveURL(new RegExp(`${basePath || ""}/$`));
+});
+
+test("published security-matrix counts match every JSON cell", async ({
+  page,
+}) => {
+  await page.goto(deployedPath("/results/"));
+
+  const results = integrity.security_matrix_results;
+  const passed = results.filter((cell) => cell.passed).length;
+  const failed = results.filter((cell) => !cell.passed).length;
+  expect(results).toHaveLength(
+    integrity.security_matrix_full_replay_execution_count,
+  );
+  expect(passed).toBe(integrity.security_matrix_pass_count);
+  expect(failed).toBe(integrity.security_matrix_failure_count);
+  await expect(
+    page.getByText(`${passed} / ${integrity.security_matrix_declared_count}`),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count} executed · ${failed} open issues`,
+    ),
+  ).toBeVisible();
 });
 
 test("published live-provider trace exposes exact verified citations and hash links", async ({

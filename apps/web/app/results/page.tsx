@@ -31,9 +31,9 @@ const metrics = [
     note: "36 draft IDs currently duplicate one template",
   },
   {
-    label: "Security-matrix full Replay executions",
-    value: `${integrity.security_matrix_full_replay_execution_count} / ${integrity.security_matrix_declared_count}`,
-    note: "declared matrix cells are not execution evidence",
+    label: "Security-matrix deterministic Replays passed",
+    value: `${integrity.security_matrix_pass_count} / ${integrity.security_matrix_declared_count}`,
+    note: `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count} executed · ${integrity.security_matrix_failure_count} open issues`,
   },
   {
     label: "Stored attack payload controls",
@@ -86,6 +86,36 @@ export default function ResultsPage() {
           <span>Final release verdict</span>
           <strong>not available · technical preview only</strong>
         </div>
+      </section>
+      <section className="panel" aria-labelledby="matrix-failures">
+        <h2 id="matrix-failures">Security-matrix open issues</h2>
+        <p>
+          Every declared cell remains in the checksummed scorecard snapshot,
+          including failures. This is a recorded deterministic
+          application-control suite, not a live-model attack suite.
+        </p>
+        {integrity.security_matrix_failure_count === 0 ? (
+          <p className="fallbackNotice">
+            0 open issues in this execution. All{" "}
+            {integrity.security_matrix_full_replay_execution_count} declared
+            cells executed and passed the recorded-fixture controls.
+          </p>
+        ) : (
+          <ol>
+            {integrity.security_matrix_results
+              .filter((cell) => !cell.passed)
+              .map((cell) => (
+                <li key={cell.scenario_id}>
+                  <b>{cell.scenario_id}</b>: {cell.failure_reasons.join(", ")}
+                </li>
+              ))}
+          </ol>
+        )}
+        <p>
+          The matrix still uses one stored hostile artifact across its declared
+          family/variant labels, and its draft truth IDs are not independent
+          semantic truths. The release verdict remains NO SHIP.
+        </p>
       </section>
       <section className="panel">
         <h2>Development comparison</h2>

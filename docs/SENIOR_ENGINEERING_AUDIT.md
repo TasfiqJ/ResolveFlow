@@ -40,13 +40,14 @@ and review; generating cosmetic variants would repeat the original mistake.
 
 ### 3. The 200-scenario claim was a Cartesian declaration
 
-The security matrix expands to 200 unique IDs, but it has 0 checksummed full Replay executions and
-only 5 unique payloads for 20 family/variant slots. The old count test proved arithmetic, not
-security coverage.
+The security matrix expands to 200 unique IDs. A later remediation executed every cell through the
+guarded-v1 recorded-fixture production path and retained manifest, materialization, run, final-trace,
+and per-cell result hashes. The 2026-08-12 snapshot records 200 passes and 0 open cell failures.
 
-The public evidence now says `0/200`. All 5 stored attack payloads do execute their expected
-deterministic forbidden-effect controls, but that result is kept separate from full Replay or
-live-model evidence.
+The public evidence now says `200/200 executed`, `200 passed`, and `0 open issues`. That fixes the
+execution-evidence gap but not attack diversity: all matrix cells reference one stored hostile
+artifact across 20 family/variant labels, and none is a live-model attack. The separate five-payload
+detector suite remains reported separately.
 
 ### 4. The live-provider path was internally inconsistent
 

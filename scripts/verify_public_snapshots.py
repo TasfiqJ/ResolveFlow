@@ -79,6 +79,20 @@ def main() -> None:
     )
     if checksum(audit.model_dump(mode="python", exclude={"checksum"})) != audit.checksum:
         raise SystemExit("evaluation integrity audit canonical checksum mismatch")
+    if audit.security_matrix_full_replay_execution_count != len(
+        audit.security_matrix_results
+    ):
+        raise SystemExit("security matrix site count does not match per-cell JSON results")
+    if audit.security_matrix_pass_count != sum(
+        item.passed for item in audit.security_matrix_results
+    ):
+        raise SystemExit("security matrix pass count does not match per-cell JSON results")
+    if audit.security_matrix_failure_count != sum(
+        not item.passed for item in audit.security_matrix_results
+    ):
+        raise SystemExit("security matrix failure count does not match per-cell JSON results")
+    if any(not item.passed and not item.failure_reasons for item in audit.security_matrix_results):
+        raise SystemExit("security matrix contains an unexplained failing cell")
     expected_file_hash = audit_path.with_suffix(".json.sha256").read_text().split()[0]
     if hashlib.sha256(audit_path.read_bytes()).hexdigest() != expected_file_hash:
         raise SystemExit("evaluation integrity audit file checksum mismatch")
