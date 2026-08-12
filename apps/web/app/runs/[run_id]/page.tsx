@@ -2,6 +2,7 @@ import liveSnapshot from "../../../public/snapshots/hero-cohere-live.json";
 import recordedSnapshot from "../../../public/snapshots/hero-foundation.json";
 
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "");
+const legacyLiveRunIds = ["run_hero_cohere_live_20260812T131520Z"] as const;
 
 const runs = {
   [recordedSnapshot.run_id]: {
@@ -19,7 +20,9 @@ const runs = {
 } as const;
 
 export function generateStaticParams() {
-  return Object.keys(runs).map((run_id) => ({ run_id }));
+  return [...Object.keys(runs), ...legacyLiveRunIds].map((run_id) => ({
+    run_id,
+  }));
 }
 
 export default async function RunPage({
@@ -29,7 +32,10 @@ export default async function RunPage({
 }) {
   const { run_id } = await params;
   const selected =
-    runs[run_id as keyof typeof runs] ?? runs[recordedSnapshot.run_id];
+    runs[run_id as keyof typeof runs] ??
+    (legacyLiveRunIds.includes(run_id as (typeof legacyLiveRunIds)[number])
+      ? runs[liveSnapshot.run_id]
+      : runs[recordedSnapshot.run_id]);
   const { snapshot } = selected;
   const isLive = snapshot.provenance === "live_provider";
   const totalProviderTokens = snapshot.provider_traces.reduce(
@@ -208,7 +214,9 @@ export default async function RunPage({
           projection. The incident, customer, rollout, and connector data are
           synthetic; human review and a final release verdict remain pending.
         </p>
-        <a href={`${basePath}/snapshots/${selected.file}`}>Download sanitized JSON</a>
+        <a href={`${basePath}/snapshots/${selected.file}`}>
+          Download sanitized JSON
+        </a>
       </section>
     </main>
   );
