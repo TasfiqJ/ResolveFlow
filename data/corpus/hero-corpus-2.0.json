@@ -1,0 +1,561 @@
+{
+  "schema_version": "2.0",
+  "snapshot_id": "corpus_hero_v2_20260715",
+  "tenant_id": "tenant_heliopay_synthetic",
+  "as_of": "2026-07-15T14:22:00Z",
+  "parser": {
+    "name": "resolveflow_fixture",
+    "version": "1.0.0"
+  },
+  "chunker": {
+    "name": "source_record",
+    "version": "1.0.0"
+  },
+  "embedding_policy": "cohere-embed-v4.0-cached-1.0",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "human_review_status": "pending",
+    "content_label": "DRAFT_PENDING_HUMAN_REVIEW"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "artifact_runbook_payments",
+      "source_key": "payments-rollback-runbook",
+      "title": "Payments rollback runbook",
+      "owner": "Payments Platform",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer"
+      ],
+      "versions": [
+        {
+          "version": "2",
+          "source_path": "data/artifacts/payments-rollback-runbook-v2-stale.md",
+          "classification": "internal",
+          "effective_from": "2026-01-01T00:00:00Z",
+          "effective_to": "2026-06-01T00:00:00Z",
+          "position": {
+            "kind": "section",
+            "locator": "procedure"
+          }
+        },
+        {
+          "version": "3",
+          "source_path": "data/artifacts/payments-rollback-runbook-v3.md",
+          "classification": "internal",
+          "effective_from": "2026-06-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "preconditions"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_prior_incident_1042",
+      "source_key": "prior-incident-1042",
+      "title": "Prior incident 1042",
+      "owner": "Incident Operations",
+      "modality": "json",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/prior-incident-1042.json",
+          "classification": "internal",
+          "effective_from": "2026-02-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "row",
+            "locator": "incident-1042"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_rollout_records",
+      "source_key": "rollout-records",
+      "title": "Synthetic rollout records",
+      "owner": "Release Engineering",
+      "modality": "csv",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/rollout-records.csv",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:05:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "row",
+            "locator": "rollout-payments-2026-07-15"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_restricted_legal",
+      "source_key": "restricted-legal-memo",
+      "title": "Restricted payments legal memo",
+      "owner": "Legal",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/restricted-legal-memo.md",
+          "classification": "restricted",
+          "effective_from": "2026-07-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "legal-review"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_issuer_routing_spec",
+      "source_key": "issuer-routing-v3-spec",
+      "title": "Issuer routing v3 design specification",
+      "owner": "Payments Platform",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/issuer-routing-v3-spec.md",
+          "classification": "internal",
+          "effective_from": "2026-06-20T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "fallback-boundary"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_oncall_rotation",
+      "source_key": "oncall-rotation",
+      "title": "On-call rotation and escalation ladder",
+      "owner": "Incident Operations",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/oncall-rotation.md",
+          "classification": "internal",
+          "effective_from": "2026-07-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "escalation-ladder"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_pci_scope",
+      "source_key": "pci-scope-memo",
+      "title": "Cardholder data environment scope boundary",
+      "owner": "Security Engineering",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/pci-scope-memo.md",
+          "classification": "restricted",
+          "effective_from": "2026-03-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "scope-boundary"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_db_failover",
+      "source_key": "database-failover-runbook",
+      "title": "PostgreSQL failover runbook",
+      "owner": "Data Platform",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "support_engineer"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/database-failover-runbook.md",
+          "classification": "internal",
+          "effective_from": "2026-04-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "manual-failover"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_rate_limit_policy",
+      "source_key": "api-rate-limit-policy",
+      "title": "Public API rate limit policy",
+      "owner": "Developer Platform",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/api-rate-limit-policy.md",
+          "classification": "public",
+          "effective_from": "2026-02-15T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "limits"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_acquirer_contract",
+      "source_key": "acquirer-contract-terms",
+      "title": "Acquirer contract service level terms",
+      "owner": "Vendor Management",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/acquirer-contract-terms.md",
+          "classification": "restricted",
+          "effective_from": "2026-01-15T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "service-levels"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_prior_incident_0987",
+      "source_key": "prior-incident-0987",
+      "title": "Prior incident 0987 chargeback duplication",
+      "owner": "Settlement Engineering",
+      "modality": "json",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/prior-incident-0987.json",
+          "classification": "internal",
+          "effective_from": "2026-05-12T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "row",
+            "locator": "incident-0987"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_settlement_reconciliation",
+      "source_key": "settlement-reconciliation-guide",
+      "title": "Nightly settlement reconciliation guide",
+      "owner": "Settlement Engineering",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "support_engineer"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/settlement-reconciliation-guide.md",
+          "classification": "internal",
+          "effective_from": "2026-03-20T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "match-outcomes"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_kms_rotation",
+      "source_key": "kms-key-rotation",
+      "title": "Key management rotation procedure",
+      "owner": "Security Engineering",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/kms-key-rotation.md",
+          "classification": "restricted",
+          "effective_from": "2026-02-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "rotation"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_customer_comms",
+      "source_key": "customer-comms-templates",
+      "title": "Customer communication templates",
+      "owner": "Support Operations",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/customer-comms-templates.md",
+          "classification": "public",
+          "effective_from": "2026-01-10T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "status-page"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_fraud_thresholds",
+      "source_key": "fraud-scoring-thresholds",
+      "title": "Fraud scoring thresholds",
+      "owner": "Risk Engineering",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/fraud-scoring-thresholds.md",
+          "classification": "restricted",
+          "effective_from": "2026-06-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "thresholds"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_mobile_sdk_changelog",
+      "source_key": "mobile-sdk-changelog",
+      "title": "Mobile SDK changelog",
+      "owner": "Client Platform",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/mobile-sdk-changelog.md",
+          "classification": "internal",
+          "effective_from": "2026-07-09T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "releases"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_capacity_forecast",
+      "source_key": "capacity-forecast-q3",
+      "title": "Q3 capacity forecast",
+      "owner": "Release Engineering",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/capacity-forecast-q3.md",
+          "classification": "internal",
+          "effective_from": "2026-06-25T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "headroom"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_northwind_refunds",
+      "source_key": "northwind-refunds-runbook",
+      "title": "Refund processing runbook",
+      "owner": "Northwind Commerce Operations",
+      "modality": "text",
+      "tenant_id": "tenant_northwind_synthetic",
+      "region": "us-east",
+      "roles": [
+        "northwind_operator"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/northwind-refunds-runbook.md",
+          "classification": "internal",
+          "effective_from": "2026-04-05T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "standalone-credit"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_northwind_pricing",
+      "source_key": "northwind-pricing-memo",
+      "title": "Merchant pricing memo",
+      "owner": "Northwind Finance",
+      "modality": "text",
+      "tenant_id": "tenant_northwind_synthetic",
+      "region": "us-east",
+      "roles": [
+        "northwind_operator"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/northwind-pricing-memo.md",
+          "classification": "restricted",
+          "effective_from": "2026-05-01T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "tiers"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "artifact_merchant_onboarding",
+      "source_key": "merchant-onboarding-checklist",
+      "title": "Merchant onboarding checklist",
+      "owner": "Merchant Solutions",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "support_engineer",
+        "release_manager"
+      ],
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/artifacts/merchant-onboarding-checklist.md",
+          "classification": "internal",
+          "effective_from": "2026-05-05T00:00:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "gates"
+          }
+        }
+      ]
+    }
+  ]
+}

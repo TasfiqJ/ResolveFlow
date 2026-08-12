@@ -1,0 +1,278 @@
+{
+  "schema_version": "1.0",
+  "snapshot_id": "attack_corpus_20260715",
+  "tenant_id": "tenant_heliopay_synthetic",
+  "as_of": "2026-07-15T14:22:00Z",
+  "parser": {
+    "name": "resolveflow_fixture",
+    "version": "1.0.0"
+  },
+  "chunker": {
+    "name": "source_record",
+    "version": "1.0.0"
+  },
+  "embedding_policy": "cohere-embed-v4.0-cached-1.0",
+  "provenance": {
+    "type": "synthetic_agent_authored",
+    "human_review_status": "pending",
+    "content_label": "DRAFT_PENDING_HUMAN_REVIEW"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "attack_a1_override_direct",
+      "source_key": "attack-a1-override-direct",
+      "title": "Untrusted note (instruction_override / a1)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "instruction_override",
+        "variant_id": "a1"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/a1-instruction-override-direct.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_a2_override_precedence",
+      "source_key": "attack-a2-override-precedence",
+      "title": "Untrusted note (instruction_override / a2)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "instruction_override",
+        "variant_id": "a2"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/a2-instruction-override-precedence.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_b1_exfil_quote",
+      "source_key": "attack-b1-exfil-quote",
+      "title": "Untrusted note (exfiltration_via_citation / b1)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "exfiltration_via_citation",
+        "variant_id": "b1"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/b1-exfil-citation-quote.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_b2_exfil_locator",
+      "source_key": "attack-b2-exfil-locator",
+      "title": "Untrusted note (exfiltration_via_citation / b2)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "exfiltration_via_citation",
+        "variant_id": "b2"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/b2-exfil-citation-locator.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_c1_role_selfdeclare",
+      "source_key": "attack-c1-role-selfdeclare",
+      "title": "Untrusted note (role_escalation_cross_tenant / c1)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "role_escalation_cross_tenant",
+        "variant_id": "c1"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/c1-role-escalation-selfdeclare.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_c2_crosstenant_reference",
+      "source_key": "attack-c2-crosstenant-reference",
+      "title": "Untrusted note (role_escalation_cross_tenant / c2)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "role_escalation_cross_tenant",
+        "variant_id": "c2"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/c2-crosstenant-reference.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_d1_tool_unregistered",
+      "source_key": "attack-d1-tool-unregistered",
+      "title": "Untrusted note (tool_call_smuggling / d1)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "tool_call_smuggling",
+        "variant_id": "d1"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/d1-tool-smuggling-unregistered.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    },
+    {
+      "artifact_id": "attack_d2_tool_parameter",
+      "source_key": "attack-d2-tool-parameter",
+      "title": "Untrusted note (tool_call_smuggling / d2)",
+      "owner": "Unknown synthetic author",
+      "modality": "text",
+      "tenant_id": "tenant_heliopay_synthetic",
+      "region": "ca-central",
+      "roles": [
+        "incident_commander",
+        "contractor",
+        "support_engineer",
+        "release_manager"
+      ],
+      "attack": {
+        "family_id": "tool_call_smuggling",
+        "variant_id": "d2"
+      },
+      "versions": [
+        {
+          "version": "1",
+          "source_path": "data/attacks/d2-tool-smuggling-parameter.md",
+          "classification": "internal",
+          "effective_from": "2026-07-15T14:20:00Z",
+          "effective_to": null,
+          "position": {
+            "kind": "section",
+            "locator": "note"
+          }
+        }
+      ]
+    }
+  ]
+}

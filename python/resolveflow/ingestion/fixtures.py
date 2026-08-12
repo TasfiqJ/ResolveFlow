@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
@@ -22,6 +23,7 @@ from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = ROOT / "data/corpus/hero-corpus-1.0.json"
+MANIFEST_V2 = ROOT / "data/corpus/hero-corpus-2.0.json"
 
 
 def _at(value: str) -> datetime:
@@ -36,7 +38,68 @@ def _source_content(path: Path) -> str:
     return " ".join(line for line in lines if line and not line.startswith("---"))
 
 
-def load_hero_corpus(manifest_path: Path = MANIFEST) -> Corpus:
+def corpus_content_hash(manifest_path: Path = MANIFEST) -> str:
+    """Hash the manifest plus every referenced source file byte-for-byte.
+
+    This is the number to quote as "the corpus we measured against". It changes if
+    any document text changes, not merely if the manifest is edited.
+    """
+    raw: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
+    parts: list[dict[str, str]] = []
+    for source in raw["artifacts"]:
+        for version in source["versions"]:
+            path = ROOT / version["source_path"]
+            parts.append(
+                {
+                    "source_path": version["source_path"],
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            )
+    return checksum(
+        {
+            "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+            "sources": sorted(parts, key=lambda item: item["source_path"]),
+        }
+    )
+
+
+def corpus_profile(manifest_path: Path = MANIFEST) -> dict[str, Any]:
+    """Declared shape of a corpus manifest: sizes, sensitivity mix, and hash."""
+    raw: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
+    versions = [version for source in raw["artifacts"] for version in source["versions"]]
+    counts: dict[str, int] = {}
+    for version in versions:
+        counts[version["classification"]] = counts.get(version["classification"], 0) + 1
+    tenants: dict[str, int] = {}
+    roles: set[str] = set()
+    for source in raw["artifacts"]:
+        tenant = source.get("tenant_id", raw["tenant_id"])
+        tenants[tenant] = tenants.get(tenant, 0) + 1
+        roles.update(source["roles"])
+    restricted_artifacts = sum(
+        1
+        for source in raw["artifacts"]
+        if any(version["classification"] == "restricted" for version in source["versions"])
+    )
+    return {
+        "manifest": manifest_path.name,
+        "schema_version": raw["schema_version"],
+        "snapshot_id": raw["snapshot_id"],
+        "artifact_count": len(raw["artifacts"]),
+        "artifact_version_count": len(versions),
+        "restricted_artifact_count": restricted_artifacts,
+        "classification_counts": dict(sorted(counts.items())),
+        "tenant_counts": dict(sorted(tenants.items())),
+        "roles": sorted(roles),
+        "corpus_hash": corpus_content_hash(manifest_path),
+    }
+
+
+def load_hero_corpus(
+    manifest_path: Path = MANIFEST,
+    *,
+    embedder: Any | None = None,
+) -> Corpus:
     raw: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
     as_of = _at(raw["as_of"])
     artifacts: list[Artifact] = []
@@ -44,12 +107,14 @@ def load_hero_corpus(manifest_path: Path = MANIFEST) -> Corpus:
     chunks: list[Chunk] = []
     acls: list[ChunkACL] = []
     embeddings: list[EmbeddingRecord] = []
-    embedder = FixtureEmbeddingAdapter()
+    embedder = embedder if embedder is not None else FixtureEmbeddingAdapter()
 
     for source in raw["artifacts"]:
+        artifact_tenant = source.get("tenant_id", raw["tenant_id"])
+        artifact_region = source.get("region", "ca-central")
         artifact_body = {
             "artifact_id": source["artifact_id"],
-            "tenant_id": raw["tenant_id"],
+            "tenant_id": artifact_tenant,
             "source_system": "synthetic_fixture",
             "source_key": source["source_key"],
             "title": source["title"],
@@ -61,7 +126,7 @@ def load_hero_corpus(manifest_path: Path = MANIFEST) -> Corpus:
         for version_source in source["versions"]:
             source_path = ROOT / version_source["source_path"]
             source_bytes = source_path.read_bytes()
-            source_hash = "sha256:" + __import__("hashlib").sha256(source_bytes).hexdigest()
+            source_hash = "sha256:" + hashlib.sha256(source_bytes).hexdigest()
             version_id = f"{source['artifact_id']}_v{version_source['version']}"
             version_body = {
                 "artifact_version_id": version_id,
@@ -104,9 +169,9 @@ def load_hero_corpus(manifest_path: Path = MANIFEST) -> Corpus:
             for role in source["roles"]:
                 acl_body = {
                     "chunk_id": chunk_id,
-                    "tenant_id": raw["tenant_id"],
+                    "tenant_id": artifact_tenant,
                     "role": role,
-                    "region": "ca-central",
+                    "region": artifact_region,
                     "policy_version": "synthetic-acl-1.0",
                 }
                 acls.append(

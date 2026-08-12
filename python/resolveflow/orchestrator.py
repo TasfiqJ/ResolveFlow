@@ -156,18 +156,29 @@ class ResolveOrchestrator:
             recorder=recorder,
         )
         with recorder.stage(STAGE_ACTION):
-            proposal_allowed = bool(governed.evidence_graph.permitted_proposals)
-            proposal = (
-                ActionService().create_proposal(
-                    run_id=run_id,
-                    tenant_id=case.tenant_id,
-                    graph=governed.evidence_graph,
-                    response=governed.response,
-                    now=fixture_now(),
-                )
-                if proposal_allowed
-                else None
-            )
+            proposal = None
+            proposal_blocked_reason: str | None = None
+            if governed.evidence_graph.permitted_proposals:
+                try:
+                    proposal = ActionService().create_proposal(
+                        run_id=run_id,
+                        tenant_id=case.tenant_id,
+                        graph=governed.evidence_graph,
+                        response=governed.response,
+                        now=fixture_now(),
+                    )
+                except ValueError as exc:
+                    # The action service refuses proposals whose evidence is not
+                    # authorized, fresh, and supporting. A graph can permit a
+                    # proposal that the service then refuses -- notably in the
+                    # unsafe prompt-only baseline, where claims are marked
+                    # supported without their citations ever being authorized.
+                    # That refusal is the control working. Record it and continue
+                    # with no proposal; do not let it end the run, because a
+                    # crashed run reports no security outcome at all.
+                    proposal_blocked_reason = str(exc)
+            else:
+                proposal_blocked_reason = "evidence_graph_permits_no_proposal"
         self.latest_proposal = proposal
         timing = recorder.snapshot(
             provider_call_ms=float(sum(item.duration_ms for item in governed.provider_traces)),
@@ -184,6 +195,7 @@ class ResolveOrchestrator:
             governed,
             proposal,
             timing if configuration.timing_mode == "measured" else None,
+            proposal_blocked_reason,
         )
         run_inputs = {
             "clock": checksum(configuration.generated_at),
@@ -252,6 +264,7 @@ class ResolveOrchestrator:
         governed: GovernedRunResult,
         proposal: ActionProposal | None,
         timing: RunTiming | None = None,
+        proposal_blocked_reason: str | None = None,
     ) -> tuple[AuditEvent, ...]:
         at = case.case_time
         measured = timing.by_stage() if timing is not None else {}
@@ -318,17 +331,12 @@ class ResolveOrchestrator:
             ),
             (
                 "actions",
-                "proposal.created"
-                if governed.evidence_graph.permitted_proposals
-                else "proposal.blocked",
-                "ok" if governed.evidence_graph.permitted_proposals else "rejected",
+                "proposal.created" if proposal is not None else "proposal.blocked",
+                "ok" if proposal is not None else "rejected",
                 {
-                    "state": (
-                        "pending_approval"
-                        if governed.evidence_graph.permitted_proposals
-                        else "not_proposed"
-                    ),
+                    "state": ("pending_approval" if proposal is not None else "not_proposed"),
                     "payload_digest": proposal.payload_digest if proposal else None,
+                    "blocked_reason": proposal_blocked_reason,
                 },
             ),
         )

@@ -17,6 +17,18 @@ class Classification(IntEnum):
     RESTRICTED = 2
 
 
+# Roles the synthetic ACL fixture recognises. Adding a role widens the set of
+# identities that can be *expressed*; it grants nothing on its own, because
+# eligibility still requires a matching per-chunk ACL row.
+Role = Literal[
+    "incident_commander",
+    "contractor",
+    "support_engineer",
+    "release_manager",
+    "northwind_operator",
+]
+
+
 class SourcePosition(FrozenModel):
     kind: Literal["section", "page", "row", "image"]
     locator: str
@@ -77,7 +89,7 @@ class ChunkACL(FrozenModel):
     acl_id: str
     chunk_id: str
     tenant_id: str
-    role: Literal["incident_commander", "contractor"]
+    role: Role
     region: str
     policy_version: str
     checksum: str
@@ -121,7 +133,7 @@ class IdentitySnapshot(FrozenModel):
     snapshot_id: str
     tenant_id: str
     actor_id: str
-    active_role: Literal["incident_commander", "contractor"]
+    active_role: Role
     region: str
     maximum_classification: Classification
     policy_version: str

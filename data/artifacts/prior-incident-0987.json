@@ -1,0 +1,15 @@
+{
+  "incident_id": "INC-0987",
+  "title": "Duplicate chargeback records after reconciliation retry",
+  "tenant": "HelioPay (fictional)",
+  "opened_at": "2026-05-12T03:40:00Z",
+  "resolved_at": "2026-05-12T09:15:00Z",
+  "severity": "medium",
+  "service": "settlement-worker",
+  "error_code": "STL-208",
+  "summary": "A reconciliation job retried after a partial write and created duplicate chargeback rows for 1,412 synthetic transactions. Merchant balances were overstated for six hours.",
+  "root_cause": "The reconciliation worker used a non-idempotent insert keyed on a timestamp rather than the acquirer chargeback reference.",
+  "resolution": "Deduplicated by acquirer reference and added a unique constraint. The worker now upserts on the reference key.",
+  "route": "Settlement Engineering",
+  "not_related_to": "issuer routing or authorization decline handling"
+}
