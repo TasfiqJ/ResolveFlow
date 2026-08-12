@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** Security matrix execution completed locally; publication verification pending
+**Active work:** None; security matrix execution published and browser-verified
 
 ## Current repository facts
 
@@ -85,6 +85,8 @@
 | Full Python suite without PostgreSQL | PASS; 174 tests. Four PostgreSQL tests could not connect because no local service listened on port 5432 |
 | Web component, typecheck, lint, export, smoke, and Chromium/Axe | PASS; 2 component tests, 16 static pages, snapshot smoke, and 11 browser tests including JSON/DOM count parity |
 | Public snapshot integrity | PASS; canonical/file hashes, 200-row count arithmetic, and byte-identical browser copies verified |
+| GitHub validation and Pages workflows | PASS; runs `31605964710` and `31605964677` |
+| Published-page browser inspection | PASS; Results renders 200/200 passed, 200/200 executed, 0 open issues, unchanged NO SHIP language, and the published JSON contains exactly 200 unique rows with no failing cells |
 
 ## Milestone status
 
