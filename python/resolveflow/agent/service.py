@@ -44,6 +44,15 @@ from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.evidence import Corpus, IdentitySnapshot, RetrievalTrace
 from resolveflow.domain.hashing import canonical_json, checksum
 from resolveflow.domain.models import CanonicalCase, ContextResult, FinalResponse
+from resolveflow.telemetry.stages import (
+    STAGE_EVIDENCE_PASS,
+    STAGE_HOSTILE_SCAN,
+    STAGE_RENDERING,
+    STAGE_TOOLS,
+    STAGE_VERIFICATION,
+    NullStageRecorder,
+    StageRecorder,
+)
 from resolveflow.verifier.engine import EvidenceVerifier
 from resolveflow.verifier.models import (
     EvidenceGraph,
@@ -92,13 +101,16 @@ class GovernedAgent:
         retrieval: RetrievalTrace,
         corpus: Corpus,
         verifier_enforcement: Literal["enforced", "observe_only"] = "enforced",
+        recorder: StageRecorder | None = None,
     ) -> GovernedRunResult:
         started = self.clock()
+        timer = recorder if recorder is not None else NullStageRecorder()
         documents = self._documents(retrieval, corpus)
         registry = ToolRegistry(case, context)
         require_policy_lint_clean(SYSTEM_PROMPT, registry.definitions)
         require_policy_lint_clean(FINDINGS_REPAIR_PROMPT, ())
-        security_events = detect_hostile_evidence(documents)
+        with timer.stage(STAGE_HOSTILE_SCAN):
+            security_events = detect_hostile_evidence(documents)
         provider_traces: list[ProviderTrace] = []
         tool_traces: list[ToolTrace] = []
         task_payload: dict[str, Any] = {
@@ -152,6 +164,8 @@ class GovernedAgent:
         findings: FirstPassFindings | None = None
         terminal_reason = "complete"
 
+        evidence_pass_started = self.clock()
+        evidence_pass_offset = timer.elapsed_ms()
         while findings is None:
             if self._expired(started):
                 terminal_reason = "wall_clock_budget_exhausted"
@@ -213,8 +227,15 @@ class GovernedAgent:
                     }
                 )
                 for call in response.tool_calls:
+                    tool_started = self.clock()
+                    tool_offset = timer.elapsed_ms()
                     result, tool_trace = registry.execute(
                         call, timeout_seconds=self.budgets.tool_timeout_seconds
+                    )
+                    timer.record(
+                        STAGE_TOOLS,
+                        (self.clock() - tool_started) * 1000.0,
+                        tool_offset,
                     )
                     if self.provider.provider_name == "recorded_fixture":
                         tool_trace = tool_trace.model_copy(update={"duration_ms": 0})
@@ -291,6 +312,11 @@ class GovernedAgent:
                     terminal_reason = "evidence_findings_invalid"
                     break
 
+        timer.record(
+            STAGE_EVIDENCE_PASS,
+            (self.clock() - evidence_pass_started) * 1000.0,
+            evidence_pass_offset,
+        )
         if findings is None:
             findings = FirstPassFindings(
                 claims=(),
@@ -304,15 +330,19 @@ class GovernedAgent:
                     ),
                 ),
             )
-        graph = self.verifier.verify(
-            run_id=run_id,
-            findings=findings,
-            documents=documents,
-            identity=identity,
-            corpus=corpus,
-        )
-        if verifier_enforcement == "observe_only":
-            graph = self._observe_only_graph(graph, findings)
+        with timer.stage(STAGE_VERIFICATION):
+            graph = self.verifier.verify(
+                run_id=run_id,
+                findings=findings,
+                documents=documents,
+                identity=identity,
+                corpus=corpus,
+            )
+            if verifier_enforcement == "observe_only":
+                graph = self._observe_only_graph(graph, findings)
+
+        rendering_started = self.clock()
+        rendering_offset = timer.elapsed_ms()
         final_response = self.renderer.fallback(graph, provider=self._provider_label())
         if (
             terminal_reason == "complete"
@@ -369,6 +399,11 @@ class GovernedAgent:
                 terminal_reason = "token_budget_exhausted"
             elif trace.safe_error_code:
                 terminal_reason = trace.safe_error_code
+        timer.record(
+            STAGE_RENDERING,
+            (self.clock() - rendering_started) * 1000.0,
+            rendering_offset,
+        )
 
         return GovernedRunResult(
             response=final_response,

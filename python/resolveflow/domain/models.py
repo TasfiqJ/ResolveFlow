@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import Field
 
 from resolveflow.domain.base import FrozenModel
 from resolveflow.domain.evidence import IdentitySnapshot, RetrievalTrace
+from resolveflow.telemetry.stages import RunTiming
 
 
 def utc_now() -> datetime:
@@ -154,7 +155,13 @@ class RunSnapshot(FrozenModel):
     action: ActionBoundary
     trace: tuple[AuditEvent, ...]
     run_inputs: dict[str, Any] = Field(default_factory=dict)
+    # Measured wall-clock timing. Excluded from content_hash on purpose: timing is
+    # nondeterministic by nature, and a reproducible run hash must not depend on how
+    # fast the machine was. Timing is evidence about performance, not about content.
+    timing: RunTiming | None = None
     content_hash: str
+
+    UNHASHED_FIELDS: ClassVar[frozenset[str]] = frozenset({"timing"})
 
 
 class VersionResponse(FrozenModel):

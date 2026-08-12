@@ -21,6 +21,45 @@ from resolveflow.policy.replay import UnsafeReplayAuthorizationPolicy
 from resolveflow.retrieval.engine import HybridRetriever
 from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter, FixtureRerankAdapter
 from resolveflow.retrieval.ports import EmbeddingPort, RerankPort
+from resolveflow.telemetry.stages import (
+    STAGE_ACL,
+    STAGE_ACTION,
+    STAGE_CONTEXT,
+    STAGE_EVIDENCE_PASS,
+    STAGE_FUSION,
+    STAGE_HOSTILE_SCAN,
+    STAGE_INTAKE,
+    STAGE_LEXICAL,
+    STAGE_RENDERING,
+    STAGE_RERANK,
+    STAGE_TOOLS,
+    STAGE_VECTOR,
+    STAGE_VERIFICATION,
+    RunTiming,
+    StageRecorder,
+)
+
+# Maps each audit event to the stage whose measured duration it reports. An event
+# with no mapped stage keeps duration_ms=0, which means "not separately measured",
+# not "took no time".
+EVENT_STAGE: dict[str, str] = {
+    "identity.snapshot.captured": STAGE_INTAKE,
+    "case.normalized": STAGE_INTAKE,
+    "context.enriched": STAGE_CONTEXT,
+    "retrieval.authorization.applied": STAGE_ACL,
+    "retrieval.lexical.completed": STAGE_LEXICAL,
+    "retrieval.vector.completed": STAGE_VECTOR,
+    "retrieval.fusion.completed": STAGE_FUSION,
+    "retrieval.rerank.completed": STAGE_RERANK,
+    "model.evidence_pass.completed": STAGE_EVIDENCE_PASS,
+    "tools.bounded.completed": STAGE_TOOLS,
+    "untrusted_evidence.checked": STAGE_HOSTILE_SCAN,
+    "evidence_graph.verified": STAGE_VERIFICATION,
+    "evidence_graph.observed": STAGE_VERIFICATION,
+    "structured_response.rendered": STAGE_RENDERING,
+    "proposal.created": STAGE_ACTION,
+    "proposal.blocked": STAGE_ACTION,
+}
 
 
 class ResolveRunConfiguration(FrozenModel):
@@ -36,6 +75,12 @@ class ResolveRunConfiguration(FrozenModel):
     connector_state: str = "synthetic_not_dispatched"
     connector_fixture_version: str = "synthetic-jira-1.0"
     feature_flags: dict[str, bool] = Field(default_factory=dict)
+    # "deterministic" keeps audit-event durations at zero so recorded-fixture replays
+    # stay byte-identical and the hash chain remains reproducible. "measured" writes
+    # real monotonic-clock stage durations into the audit events. Measured stage
+    # timings are always emitted on RunSnapshot.timing regardless of this setting;
+    # the flag only controls whether they enter the hashed audit chain.
+    timing_mode: Literal["deterministic", "measured"] = "deterministic"
 
 
 class ResolveOrchestrator:
@@ -83,20 +128,23 @@ class ResolveOrchestrator:
                 feature_flags={"replay": False},
             )
         run_id = configuration.run_id
-        context = self.context_repository.enrich(case)
-        identity = configuration.identity
-        policy = (
-            AuthorizationPolicy()
-            if configuration.authorization_mode == "enforced"
-            else UnsafeReplayAuthorizationPolicy()
-        )
-        retriever = HybridRetriever(
-            configuration.corpus,
-            policy,
-            self.embedding_adapter,
-            self.rerank_adapter,
-        )
-        retrieval = retriever.retrieve(case.raw_text, identity)
+        recorder = StageRecorder()
+        with recorder.stage(STAGE_INTAKE):
+            identity = configuration.identity
+            policy = (
+                AuthorizationPolicy()
+                if configuration.authorization_mode == "enforced"
+                else UnsafeReplayAuthorizationPolicy()
+            )
+            retriever = HybridRetriever(
+                configuration.corpus,
+                policy,
+                self.embedding_adapter,
+                self.rerank_adapter,
+            )
+        with recorder.stage(STAGE_CONTEXT):
+            context = self.context_repository.enrich(case)
+        retrieval = retriever.retrieve(case.raw_text, identity, recorder=recorder)
         governed = self.agent.resolve(
             run_id=run_id,
             case=case,
@@ -105,20 +153,26 @@ class ResolveOrchestrator:
             retrieval=retrieval,
             corpus=configuration.corpus,
             verifier_enforcement=configuration.verifier_enforcement,
+            recorder=recorder,
         )
-        proposal_allowed = bool(governed.evidence_graph.permitted_proposals)
-        proposal = (
-            ActionService().create_proposal(
-                run_id=run_id,
-                tenant_id=case.tenant_id,
-                graph=governed.evidence_graph,
-                response=governed.response,
-                now=fixture_now(),
+        with recorder.stage(STAGE_ACTION):
+            proposal_allowed = bool(governed.evidence_graph.permitted_proposals)
+            proposal = (
+                ActionService().create_proposal(
+                    run_id=run_id,
+                    tenant_id=case.tenant_id,
+                    graph=governed.evidence_graph,
+                    response=governed.response,
+                    now=fixture_now(),
+                )
+                if proposal_allowed
+                else None
             )
-            if proposal_allowed
-            else None
-        )
         self.latest_proposal = proposal
+        timing = recorder.snapshot(
+            provider_call_ms=float(sum(item.duration_ms for item in governed.provider_traces)),
+            provider_call_count=len(governed.provider_traces),
+        )
         events = self._events(
             run_id,
             configuration.build_id,
@@ -129,6 +183,7 @@ class ResolveOrchestrator:
             retrieval.eligible_chunk_count,
             governed,
             proposal,
+            timing if configuration.timing_mode == "measured" else None,
         )
         run_inputs = {
             "clock": checksum(configuration.generated_at),
@@ -174,11 +229,13 @@ class ResolveOrchestrator:
             "trace": events,
             "run_inputs": run_inputs,
         }
-        snapshot = RunSnapshot(**body, content_hash="sha256:" + "0" * 64)
+        snapshot = RunSnapshot(**body, timing=timing, content_hash="sha256:" + "0" * 64)
         return snapshot.model_copy(
             update={
                 "content_hash": checksum(
-                    snapshot.model_dump(mode="python", exclude={"content_hash"})
+                    snapshot.model_dump(
+                        mode="python", exclude={"content_hash"} | RunSnapshot.UNHASHED_FIELDS
+                    )
                 )
             }
         )
@@ -194,8 +251,10 @@ class ResolveOrchestrator:
         eligible_count: int,
         governed: GovernedRunResult,
         proposal: ActionProposal | None,
+        timing: RunTiming | None = None,
     ) -> tuple[AuditEvent, ...]:
         at = case.case_time
+        measured = timing.by_stage() if timing is not None else {}
         raw = (
             (
                 "identity",
@@ -276,6 +335,7 @@ class ResolveOrchestrator:
         events: list[AuditEvent] = []
         previous_hash: str | None = None
         for index, (component, name, outcome, detail) in enumerate(raw, 1):
+            stage = EVENT_STAGE.get(name)
             body = {
                 "sequence": index,
                 "occurred_at": at,
@@ -284,7 +344,7 @@ class ResolveOrchestrator:
                 "event_name": name,
                 "outcome": outcome,
                 "correlation_id": run_id,
-                "duration_ms": 0,
+                "duration_ms": (max(0, round(measured[stage])) if stage in measured else 0),
                 "versions": {"schema": "1.0", "build": build_id},
                 "trace_id": f"trace_{run_id}",
                 "span_id": f"span_{index:03d}",
