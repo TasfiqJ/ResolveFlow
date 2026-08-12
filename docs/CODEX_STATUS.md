@@ -259,6 +259,20 @@ container, dependency-audit, live-provider, connector, or human result is claime
 | `node tests/browser/snapshot-smoke.mjs`                        | PASS                                    |
 | Local browser review                                           | PASS, desktop and 390px mobile viewport |
 
+## FDE story refresh
+
+- The homepage now explains ResolveFlow through an FDE-style, field-first narrative: start with the operator's incident, translate the workflow into contracts and integration boundaries, expose failure, and earn a controlled pilot through evidence.
+- A new "Why I built ResolveFlow" panel adds the builder's motivation without claiming a live production service, FDE employment, or unverified customer results.
+
+| Command                                                        | Result                     |
+| -------------------------------------------------------------- | -------------------------- |
+| `pnpm --dir apps/web test -- page.test.tsx`                    | PASS, 2 tests              |
+| `pnpm --dir apps/web typecheck`                                | PASS                       |
+| `pnpm --dir apps/web lint`                                     | PASS, zero warnings        |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build` | PASS, 15 static routes     |
+| `node tests/browser/snapshot-smoke.mjs`                        | PASS                       |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`   | PASS, 9 Chromium/Axe tests |
+
 ## Immediate next action
 
 Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.

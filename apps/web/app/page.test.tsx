@@ -43,7 +43,7 @@ describe("snapshot-first home", () => {
     expect(screen.getByText("24")).toBeInTheDocument();
     expect(screen.getByText(/fde-style systems exercise/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/from incident to release decision/i),
+      screen.getByText(/from an operator's problem to a release decision/i),
     ).toBeInTheDocument();
   });
 });

@@ -121,8 +121,8 @@ const storyBeats = [
   {
     number: "02",
     label: "THE FDE-STYLE INTERVENTION",
-    title: "Turn an incident into a governed workflow.",
-    copy: "ResolveFlow turns a messy payments report into a governed workflow: typed intake, access rules, evidence contracts, narrow tools, approval before action, and observable recovery. It does not rely on a better prompt alone.",
+    title: "Work backward from the operator.",
+    copy: "In an FDE-style delivery model, the starting point is the real workflow—not the model. ResolveFlow turns a messy payments report into typed intake, access rules, evidence contracts, narrow tools, approval before action, and observable recovery.",
   },
   {
     number: "03",
@@ -314,12 +314,31 @@ export default function Home() {
         <div className="sectionHeader">
           <div>
             <div className="sectionCode">[02/08] // THE STORY</div>
-            <h2>FROM INCIDENT TO RELEASE DECISION.</h2>
+            <h2>FROM AN OPERATOR&apos;S PROBLEM TO A RELEASE DECISION.</h2>
           </div>
           <p>
             The goal is not a clever answer. It is a system a team can inspect,
             test, and decide whether it is ready for a small, controlled pilot.
           </p>
+        </div>
+        <div className="whyBuilt">
+          <div>
+            <span>WHY I BUILT RESOLVEFLOW</span>
+            <h3>AI should earn trust before it earns autonomy.</h3>
+          </div>
+          <div>
+            <p>
+              Most AI demos stop at a polished answer. I wanted to build the
+              harder part: the system a team needs before it lets an agent touch
+              a real workflow.
+            </p>
+            <p>
+              This is an FDE-style delivery project. Start with the
+              operator&apos;s incident, translate it into contracts and
+              integration boundaries, make failure visible, and leave the team
+              with an auditable path to a controlled pilot.
+            </p>
+          </div>
         </div>
         <div className="storyGrid">
           {storyBeats.map((beat) => (
