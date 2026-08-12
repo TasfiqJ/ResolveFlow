@@ -1,6 +1,8 @@
 import liveSnapshot from "../../../public/snapshots/hero-cohere-live.json";
 import recordedSnapshot from "../../../public/snapshots/hero-foundation.json";
 
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "");
+
 const runs = {
   [recordedSnapshot.run_id]: {
     snapshot: recordedSnapshot,
@@ -60,7 +62,7 @@ export default async function RunPage({
             {run.snapshot.run_id === snapshot.run_id ? (
               <p>Currently open</p>
             ) : (
-              <a href={`../${run.snapshot.run_id}/`}>
+              <a href={`${basePath}/runs/${run.snapshot.run_id}/`}>
                 Open {run.shortLabel.toLowerCase()}
               </a>
             )}
@@ -206,7 +208,7 @@ export default async function RunPage({
           projection. The incident, customer, rollout, and connector data are
           synthetic; human review and a final release verdict remain pending.
         </p>
-        <a href={`../../snapshots/${selected.file}`}>Download sanitized JSON</a>
+        <a href={`${basePath}/snapshots/${selected.file}`}>Download sanitized JSON</a>
       </section>
     </main>
   );
