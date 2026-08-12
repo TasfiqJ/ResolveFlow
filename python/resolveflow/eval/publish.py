@@ -493,12 +493,18 @@ def main(provider: str = "fixture") -> int:
     }
     site_path = RESULTS_DIR / f"ab-site-{provider}.json"
     site_path.write_text(json.dumps(site, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    public = ROOT / "apps" / "web" / "public" / "snapshots" / f"ab-site-{provider}.json"
-    public.parent.mkdir(parents=True, exist_ok=True)
-    public.write_text(json.dumps(site, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (public.parent / f"ab-site-{provider}.json.sha256").write_text(
-        f"{sha256_file(public)}  ab-site-{provider}.json\n", encoding="utf-8"
-    )
+    snapshots = ROOT / "apps" / "web" / "public" / "snapshots"
+    snapshots.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(site, indent=2, sort_keys=True) + "\n"
+    for name in (f"ab-site-{provider}.json", "ab-site-current.json"):
+        # ab-site-current.json is what the site imports, so publishing a live run
+        # updates the page without an edit. The provider and its caveat travel
+        # inside the file, so the page can never mislabel which run it is showing.
+        target = snapshots / name
+        target.write_text(payload, encoding="utf-8")
+        (snapshots / f"{name}.sha256").write_text(
+            f"{sha256_file(target)}  {name}\n", encoding="utf-8"
+        )
 
     manifest = checksum_manifest(artifact_paths(provider))
     (RESULTS_DIR / f"SHA256SUMS-{provider}.md").write_text(

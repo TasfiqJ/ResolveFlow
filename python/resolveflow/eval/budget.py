@@ -33,6 +33,8 @@ DEFAULT_MAX_CALLS = 400
 RATE_WINDOW_SECONDS = 60.0
 # Leave headroom so a clock skew between us and the provider does not trip a 429.
 RATE_SAFETY_SECONDS = 1.5
+# A window needs at most a couple of drains; more means the clock is not moving.
+MAX_THROTTLE_WAITS = 8
 
 
 class BudgetExceeded(RuntimeError):
@@ -158,7 +160,9 @@ class BudgetedCohereClient:
             return 0.0
         window = self._windows[endpoint]
         slept = 0.0
-        while True:
+        # Bounded: if the injected sleep does not advance the injected clock (as in
+        # a test harness), an unbounded loop would spin forever instead of failing.
+        for _ in range(MAX_THROTTLE_WAITS):
             now = self._clock()
             while window and now - window[0] >= RATE_WINDOW_SECONDS:
                 window.popleft()
@@ -168,6 +172,10 @@ class BudgetedCohereClient:
             wait = RATE_WINDOW_SECONDS - (now - window[0]) + RATE_SAFETY_SECONDS
             self._sleep(wait)
             slept += wait
+        raise RuntimeError(
+            f"rate-limit window for {endpoint} did not drain after "
+            f"{MAX_THROTTLE_WAITS} waits; the clock is not advancing"
+        )
 
     def _reserve(self) -> None:
         if self.total_calls >= self._max_calls:

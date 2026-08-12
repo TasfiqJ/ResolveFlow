@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ab from "../../../public/snapshots/ab-site-fixture.json";
+import ab from "../../../public/snapshots/ab-site-current.json";
 
 const BUILDS = ab.builds as string[];
 
@@ -280,16 +280,17 @@ export default function AbResultsPage() {
         <h2>Raw artifacts</h2>
         <ul>
           <li>
-            <a href="./ab-site-fixture.json">ab-site-fixture.json</a> (this
+            <a href="./ab-site-current.json">ab-site-current.json</a> (this
             page&rsquo;s source) and its{" "}
-            <a href="./ab-site-fixture.json.sha256">SHA-256</a>
+            <a href="./ab-site-current.json.sha256">SHA-256</a>
           </li>
           <li>
-            In the repository: <code>eval/results/ab-summary-fixture.json</code>,
-            32 per-run snapshots under <code>eval/results/runs/</code>,{" "}
+            In the repository:{" "}
+            <code>eval/results/ab-summary-{ab.provider}.json</code>, the per-run
+            snapshots under <code>eval/results/runs/</code>,{" "}
             <code>eval/results/README.md</code>,{" "}
-            <code>eval/results/results-table-fixture.md</code>, and{" "}
-            <code>eval/results/SHA256SUMS-fixture.md</code>
+            <code>eval/results/results-table-{ab.provider}.md</code>, and{" "}
+            <code>eval/results/SHA256SUMS-{ab.provider}.md</code>
           </li>
         </ul>
         <p>

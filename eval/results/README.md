@@ -13,7 +13,7 @@
 - Total runs: 32
 - Generated at: `2026-08-12T23:33:24.775433+00:00`
 - Results hash: `sha256:8c2d4a8956754a3f1dba1c6f8a0c7ac5204d49c80abd705d4fd74952b9c49b1c`
-- Commit: `59b0577cb65240ef3b64e84b940e891d6b611c9d`
+- Commit: `f44f59b439d9b0ae7f1f7d87c6f8d6aae95c7884`
 - Python: `3.11.15`
 - Embedding model: `fixture-token-hash-1.0`
 - Chat model: `fixture responder (no model)`

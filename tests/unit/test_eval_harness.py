@@ -96,16 +96,44 @@ def test_rate_limit_retries_are_counted_against_the_budget() -> None:
 
 
 def test_throttle_sleeps_rather_than_exceeding_the_per_minute_limit() -> None:
+    # A sleep that actually advances the clock, as time.sleep does. The window
+    # must then drain and the call must proceed.
+    state = {"t": 0.0}
     slept: list[float] = []
+
+    def clock() -> float:
+        state["t"] += 0.001
+        return state["t"]
+
+    def sleep(seconds: float) -> None:
+        slept.append(seconds)
+        state["t"] += seconds
+
     client = BudgetedCohereClient(
         _FakeClient(),
         rate_limits={"embed": 2},  # type: ignore[arg-type]
-        sleep=slept.append,
-        clock=_clock(),
+        sleep=sleep,
+        clock=clock,
     )
     for _ in range(3):
         client.embed(model="embed-v4.0", texts=[])
     assert slept, "third embed call inside the window must have waited"
+    assert client.total_calls == 3
+    assert client.ledger().throttle_sleep_ms > 0
+
+
+def test_throttle_refuses_to_spin_when_the_clock_does_not_advance() -> None:
+    # A no-op sleep would otherwise loop forever, hanging a run instead of
+    # failing it. Bounded waits turn that into a loud error.
+    client = BudgetedCohereClient(
+        _FakeClient(),
+        rate_limits={"embed": 1},  # type: ignore[arg-type]
+        sleep=lambda _: None,
+        clock=_clock(),
+    )
+    client.embed(model="embed-v4.0", texts=[])
+    with pytest.raises(RuntimeError, match="clock is not advancing"):
+        client.embed(model="embed-v4.0", texts=[])
 
 
 def test_call_records_carry_no_request_or_response_body() -> None:
