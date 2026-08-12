@@ -1,4 +1,4 @@
-.PHONY: bootstrap dev seed-demo lint typecheck test-unit test-integration test-contract test-security test-replay test replay-smoke snapshot-hero evaluate-candidate report review-template review-analysis e2e preflight verify
+.PHONY: bootstrap dev seed-demo lint typecheck test-unit test-integration test-contract test-security test-replay test replay-smoke snapshot-hero snapshot-hero-live evaluate-candidate report review-template review-analysis e2e preflight verify
 
 export UV_CACHE_DIR ?= /tmp/resolveflow-uv-cache
 export UV_LINK_MODE ?= copy
@@ -49,6 +49,9 @@ replay-smoke:
 
 snapshot-hero:
 	uv run resolveflow-snapshot
+
+snapshot-hero-live:
+	uv run resolveflow-live-snapshot
 
 evaluate-candidate:
 	@test -n "$(CANDIDATE_BUILD)" -a -n "$(BASELINE_BUILD)" -a -n "$(DATASET_VERSION)" -a -n "$(MANIFEST_LOCK_HASH)" || { echo "CANDIDATE_BUILD, BASELINE_BUILD, DATASET_VERSION, and MANIFEST_LOCK_HASH are required" >&2; exit 2; }

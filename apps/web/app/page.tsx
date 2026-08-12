@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import integrity from "../public/snapshots/evaluation-integrity-audit.json";
+import liveSnapshot from "../public/snapshots/hero-cohere-live.json";
 import snapshot from "../public/snapshots/hero-foundation.json";
 
 const starField = [
@@ -64,10 +65,10 @@ const proofStats = [
     href: "snapshots/evaluation-integrity-audit.json",
   },
   {
-    value: "14",
-    label: "hash-linked audit events",
-    note: "RECORDED HERO RUN",
-    href: "runs/run_hero_foundation_001/",
+    value: "2×14",
+    label: "hash-linked traces: recorded fixture and live provider",
+    note: "SYNTHETIC CASE · TECHNICAL PREVIEW · NO SHIP",
+    href: `runs/${liveSnapshot.run_id}/`,
   },
   {
     value: `${integrity.security_matrix_full_replay_execution_count}/${integrity.security_matrix_declared_count}`,

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import liveSnapshot from "../public/snapshots/hero-cohere-live.json";
 
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "");
 const deployedPath = (route: string) => `${basePath}${route}`;
@@ -75,6 +76,25 @@ test("global navigation works from a nested deployment route", async ({
 
   await page.getByRole("link", { name: "ResolveFlow home" }).click();
   await expect(page).toHaveURL(new RegExp(`${basePath || ""}/$`));
+});
+
+test("published live-provider trace exposes exact verified citations and hash links", async ({
+  page,
+}) => {
+  await page.goto(
+    deployedPath(`/runs/${liveSnapshot.run_id}/`),
+  );
+
+  await expect(
+    page.getByText("LIVE-PROVIDER RUN · SYNTHETIC DATA · NO SHIP"),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verified citations" })).toBeVisible();
+  await expect(page.getByText("citation_supports_claim", { exact: false })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Full hash-linked audit trace" }),
+  ).toBeVisible();
+  await expect(page.getByText(/event sha256:/).first()).toBeVisible();
+  await expect(page.getByText(/no real Slack or Jira write/i)).toBeVisible();
 });
 
 for (const route of ["/", "/replay/", "/results/", "/audit/"]) {

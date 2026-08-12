@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from resolveflow.agent.fixture import FixtureChatAdapter
 from resolveflow.agent.security import SYSTEM_PROMPT, require_policy_lint_clean
 from resolveflow.agent.service import GovernedAgent
 from resolveflow.agent.tools import ToolRegistry
+from resolveflow.composition import build_orchestrator
 from resolveflow.config import Settings
 from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.ingestion.fixtures import load_hero_corpus, validate_corpus
 from resolveflow.intake.web import canonical_hero_case
-from resolveflow.orchestrator import ResolveOrchestrator
+from resolveflow.orchestrator import ResolveOrchestrator, ResolveRunConfiguration
+from resolveflow.policy.authorization import make_identity_snapshot
 from resolveflow.retrieval.metrics import evaluate_fixture_split, fixture_metric_paths
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +49,53 @@ def seed() -> None:
 
 def snapshot() -> None:
     print(f"Published recorded hero snapshot: {_write_snapshot()}")
+
+
+def _write_live_snapshot() -> Path:
+    settings = Settings()
+    if not settings.cohere_allow_live or not settings.cohere_api_key:
+        raise SystemExit("live Cohere snapshot requires explicit live mode and an API key")
+    case = canonical_hero_case()
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0)
+    run_stamp = generated_at.strftime("%Y%m%dT%H%M%SZ")
+    orchestrator = build_orchestrator(settings)
+    configuration = ResolveRunConfiguration(
+        run_id=f"run_hero_cohere_live_{run_stamp}",
+        build_id=f"cohere-live-{generated_at:%Y%m%d}",
+        generated_at=generated_at,
+        scenario_id="hero-payments-001",
+        identity=make_identity_snapshot(
+            tenant_id=case.tenant_id,
+            actor_id="user_incident_commander_synthetic",
+            role="incident_commander",
+            region=case.region,
+            case_time=case.case_time,
+        ),
+        corpus=orchestrator.corpus,
+        model_policy=orchestrator.agent.budgets.policy_id,
+        connector_state="synthetic_not_dispatched",
+        connector_fixture_version="synthetic-jira-1.0",
+        feature_flags={"replay": False, "live_provider": True},
+    )
+    result = orchestrator.run(case, configuration)
+    snapshot = result.model_dump(mode="json")
+    if snapshot["provenance"] != "live_provider" or snapshot["response"]["provider"] != "cohere":
+        raise SystemExit("live composition did not produce live-provider provenance")
+    content_hash = str(snapshot["content_hash"]).split(":", 1)[1][:16]
+    rendered = json.dumps(snapshot, indent=2, sort_keys=True) + "\n"
+    PUBLISHED.mkdir(parents=True, exist_ok=True)
+    content_path = PUBLISHED / f"hero-cohere-live-{content_hash}.json"
+    latest_path = PUBLISHED / "hero-cohere-live.json"
+    content_path.write_text(rendered, encoding="utf-8")
+    latest_path.write_text(rendered, encoding="utf-8")
+    web_path = ROOT / "apps" / "web" / "public" / "snapshots" / "hero-cohere-live.json"
+    web_path.parent.mkdir(parents=True, exist_ok=True)
+    web_path.write_text(rendered, encoding="utf-8")
+    return latest_path
+
+
+def live_snapshot() -> None:
+    print(f"Published live-provider hero snapshot: {_write_live_snapshot()}")
 
 
 def preflight() -> None:

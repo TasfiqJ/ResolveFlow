@@ -1,12 +1,12 @@
 # ResolveFlow Replay status
 
-**Last updated:** 2026-07-26
+**Last updated:** 2026-08-12
 
-**Current branch:** `main`
+**Current branch:** `fix/backend-audit`
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** None; CI cache-cleanup repair validated and deployed
+**Active work:** Authorized static publication of one local live-provider hero trace
 
 ## Current repository facts
 
@@ -15,12 +15,12 @@
 - The public shell is snapshot-first and immediately labels the hero experience as a recorded synthetic case, technical preview, and no-external-write environment.
 - FastAPI exposes health/version, canonical case/run, exact action approve/reject, chronological events, redacted/full trace, and deterministic JSON/Markdown export routes.
 - Alembic revision `0001_foundation` owns tenants, cases, agent runs, append-oriented audit rows, and job foundations. Its upgrade/downgrade/upgrade cycle passed against the Compose PostgreSQL service.
-- The normal build and tests require no Cohere key. One deterministic draft fixture evaluation and one static GitHub Pages deployment occurred; no live provider call, Slack/Jira write, human review, cost claim, held-out evaluation, or final release verdict occurred.
+- The normal build and tests require no Cohere key. One separately labeled local live-provider hero run is now retained beside the recorded fixture; no Slack/Jira write, human review, cost claim, held-out evaluation, live-quality claim, or final release verdict occurred.
 - The shared Resolve path now runs a deterministic fixture-backed bounded Command protocol with four typed allowlisted tools, strict local validation, authorization, per-tool timeout, and fixed round/provider-call/token/wall-clock budgets.
 - Stage 02 adds a checksummed synthetic corpus with six immutable artifact versions/chunks, explicit parser/chunker provenance, effective intervals, data-quality validation, frozen corpus/identity/ACL snapshots, and deterministic re-ingestion.
 - The shared Resolve path now performs authorization before lexical/vector ranking, reciprocal-rank fusion, deduplication, per-artifact diversity limits, deterministic reranking, and candidate-level rank/score/provenance tracing.
 - Alembic revision `0002_evidence_retrieval` owns artifact/version/chunk/ACL/embedding/corpus/identity/retrieval schemas, PostgreSQL generated full-text vectors, and pgvector storage. A real PostgreSQL test proved FTS and vector queries share the materialized eligible relation.
-- Cohere Chat, Embed v4, and Rerank v4 Fast/Pro adapters are composed as one live-only runtime choice behind explicit ports and were not called. Configured models and agent budgets now reach the shared orchestrator, live document embeddings are computed only over ACL-authorized snapshot candidates, and provider-derived provenance distinguishes live from recorded runs. Default verification uses deterministic fixture adapters.
+- Cohere Chat, Embed v4, and Rerank v4 Fast adapters are composed as one live-only runtime choice behind explicit ports. The authorized 2026-08-12 hero run used that composition over ACL-authorized synthetic candidates and records provider-derived provenance, models, ranks, usage, hashes, and latency. Default verification and CI remain fixture-backed and credential-free.
 - Development and calibration retrieval fixtures are explicitly `synthetic_agent_authored` and pending human review. Their deterministic metrics report exact fixture counts only; no held-out tuning or provider/retrieval improvement claim occurred.
 - The official Cohere Python V2 Chat adapter is locked behind explicit live-off configuration; the ordinary build uses a deterministic two-round fixture adapter and makes no network call.
 - Retrieved candidates enter a strongly typed untrusted-evidence envelope. Evidence text cannot modify the system prompt, tool registry, ACL snapshot, approval boundary, or effect scoring.
@@ -46,14 +46,14 @@
 - Public run snapshots retain event hashes, and the release scorer recomputes every event hash rather than trusting stored chain pointers.
 - FastAPI now exposes only the predefined `POST /v1/replays`, `GET /v1/replays/{id}`, and `GET /v1/releases/{build}` fixture interfaces; arbitrary manifests/builds remain rejected.
 - Alembic revision `0005_replay_release_gate` owns draft truth/scenario/expectation, paired Replay, metric, comparison, gate, and result-bundle records, including database guards against falsely locked truth rows or final-publication flags.
-- The static product now exports `/`, `/demo`, `/replay`, `/results`, `/architecture`, `/methodology`, `/about`, `/audit`, `/review`, and one pre-generated `/runs/run_hero_foundation_001` audit page, plus a useful unknown-artifact page.
+- The static product now exports `/`, `/demo`, `/replay`, `/results`, `/architecture`, `/methodology`, `/about`, `/audit`, `/review`, the recorded `/runs/run_hero_foundation_001` page, and one clearly labeled live-provider run page, plus a useful unknown-artifact page.
 - Replay now uses a real accessible scenario explorer. Recorded snapshots and automated-test-only cases have distinct labels and evidence links; no test-only case is presented as a recorded or live run.
 - The exported artifact has real Chromium coverage for core navigation, Replay state changes, keyboard skip navigation, WCAG A/AA rules, and mobile horizontal overflow. The browser suite found and drove fixes for 36 repeated low-contrast labels and one mobile overflow defect.
 - GitHub Actions references are pinned to full commit SHAs, and the Pages deployment job now depends on the repository gates, browser suite, and strict preflight rather than building independently.
 - Homepage engineering counters link directly to their workflow, trace, matrix, or migration evidence, and `/audit` publishes the senior-review verdict plus the remaining validation blockers.
 - Homepage and demo now open as a technical control system: the first viewport names Tasfiq Jasimuddin as the end-to-end engineer, defines ResolveFlow as an AI-agent release gate, visualizes the Replay engine, and leads into a three-panel recorded control room, system architecture, engineering proof, ownership scope, and evidence routes. Replay exposes the frozen paired comparison; Results reports only exact development-fixture counts and explicit absent evidence.
 - Canonical hero and Replay result JSON are stored with reconstructable canonical/file checksums and copied byte-for-byte into the browser asset tree. Generated-browser bundles are scanned for secret-like values and server-only credential names.
-- Public live inference remains disabled. Limiter controls cover one predefined case, five named mutations, IP/session/global quotas, one active run per session, queue bounds, deadlines, and a kill switch. Because no bounded executor consumes accepted tickets, the API now fails live admission closed with `public_live_executor_unavailable` and the recorded fallback.
+- Public interactive live inference remains disabled. Limiter controls cover one predefined case, five named mutations, IP/session/global quotas, one active run per session, queue bounds, deadlines, and a kill switch. The newly published live artifact is a static sanitized snapshot from an explicitly authorized local run, not an exposed public executor.
 - Slack request HMAC/timestamp verification, challenge/event parsing, deduplication, immediate queued acknowledgement, canonical normalization, and safe audit events are implemented with synthetic signed contracts; no real Slack credential or request was used.
 - Jira staging configuration validates one HTTPS development site/project and fixed issue/team/priority mappings, while the real adapter remains disabled and public mode cannot contain write authority.
 - The private/static review workflow blinds and deterministically randomizes A/B outputs. Empty export and exact-count analysis commands report 0 reviewers/0 cases; no reviewer response, role evidence, percentage, or disagreement is invented.

@@ -105,6 +105,35 @@ class GovernedAgent:
         }
         if self.provider.provider_name == "cohere":
             task_payload["required_output_schema"] = FirstPassFindings.model_json_schema()
+            task_payload["citation_contract"] = {
+                "document_id_rule": (
+                    "Every citation.document_id must exactly equal one of the authorized "
+                    "document IDs listed below. Never use an artifact ID, title, tool-result "
+                    "ID, rollout ID, or filename as document_id."
+                ),
+                "exact_quote_rule": (
+                    "Every citation.exact_quote must be copied verbatim from that document's "
+                    "content. If no listed document supports a claim, omit the claim and add "
+                    "an unknown instead."
+                ),
+                "deterministic_support_rule": (
+                    "Make claim.text a verbatim source sentence or source fragment from its "
+                    "linked exact_quote. Make claim.value a short verbatim contiguous substring "
+                    "that occurs in every exact_quote linked to that claim. Prefer one citation "
+                    "per claim. Every material claim, including every route claim, must link at "
+                    "least one citation; otherwise omit the claim and add an unknown. Do not cite "
+                    "documents marked hostile."
+                ),
+                "authorized_documents": [
+                    {
+                        "document_id": document.document_id,
+                        "title": document.title,
+                        "locator": document.locator,
+                        "hostile": document.hostile,
+                    }
+                    for document in documents
+                ],
+            }
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {

@@ -22,6 +22,7 @@ def _governed_agent(
             max_tool_rounds=settings.agent_max_tool_rounds,
             max_provider_calls=settings.agent_max_provider_calls,
             max_total_tokens=settings.agent_max_total_tokens,
+            max_output_tokens_per_call=(2048 if provider.provider_name == "cohere" else 1024),
             wall_clock_seconds=settings.agent_wall_clock_seconds,
             tool_timeout_seconds=settings.agent_tool_timeout_seconds,
         ),
