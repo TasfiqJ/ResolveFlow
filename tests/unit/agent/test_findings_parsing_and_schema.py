@@ -61,3 +61,41 @@ def test_strict_schema_preserves_refs() -> None:
     schema = FirstPassFindings.model_json_schema()
     projected = CohereChatAdapter._strict_schema(schema)
     assert set(schema.get("$defs", {})) == set(projected.get("$defs", {}))
+
+
+def test_findings_parser_drops_invalid_sibling_claim_without_rewriting_valid_claim() -> None:
+    payload = {
+        "schema_version": "1.0",
+        "citations": [
+            {
+                "citation_id": "cite_valid",
+                "document_id": "chunk_valid",
+                "exact_quote": "issuer-routing-v3 completed",
+            }
+        ],
+        "claims": [
+            {
+                "claim_id": "claim_valid",
+                "kind": "fact",
+                "text": "issuer-routing-v3 completed",
+                "subject": "rollout",
+                "value": "completed",
+                "citation_ids": ["cite_valid"],
+            },
+            {
+                "claim_id": "claim_invalid_route",
+                "kind": "route",
+                "text": "Route to Payments Platform",
+                "subject": "route",
+                "value": "Payments Platform",
+                "citation_ids": [],
+            },
+        ],
+        "unknowns": [],
+        "requested_proposal": "none",
+    }
+
+    findings = GovernedAgent._parse_findings(json.dumps(payload))
+
+    assert [item.claim_id for item in findings.claims] == ["claim_valid"]
+    assert findings.claims[0].text == "issuer-routing-v3 completed"

@@ -22,7 +22,13 @@ from resolveflow.agent.contracts import (
     ToolTrace,
     UntrustedEvidenceDocument,
 )
-from resolveflow.agent.findings import ClaimKind, FirstPassFindings, UnknownDraft
+from resolveflow.agent.findings import (
+    CitationDraft,
+    ClaimDraft,
+    ClaimKind,
+    FirstPassFindings,
+    UnknownDraft,
+)
 from resolveflow.agent.ports import ChatProviderPort
 from resolveflow.agent.renderer import DeterministicRenderer, StructureSelection
 from resolveflow.agent.security import (
@@ -385,7 +391,53 @@ class GovernedAgent:
             if not separator or opening.strip().lower() not in {"```", "```json"}:
                 raise ValueError("unsupported findings fence")
             candidate = fenced[:-3].strip()
-        return FirstPassFindings.model_validate_json(candidate)
+        payload = json.loads(candidate)
+        try:
+            return FirstPassFindings.model_validate(payload)
+        except ValidationError:
+            return GovernedAgent._salvage_findings(payload)
+
+    @staticmethod
+    def _salvage_findings(payload: Any) -> FirstPassFindings:
+        """Drop malformed sibling items without inventing or rewriting provider findings."""
+        if not isinstance(payload, dict):
+            raise ValueError("findings payload is not an object")
+
+        citations: list[CitationDraft] = []
+        for item in payload.get("citations", []):
+            try:
+                citations.append(CitationDraft.model_validate(item))
+            except ValidationError:
+                continue
+        citation_ids = {item.citation_id for item in citations}
+
+        claims: list[ClaimDraft] = []
+        for item in payload.get("claims", []):
+            try:
+                claim = ClaimDraft.model_validate(item)
+            except ValidationError:
+                continue
+            if set(claim.citation_ids).issubset(citation_ids):
+                claims.append(claim)
+
+        unknowns: list[UnknownDraft] = []
+        for item in payload.get("unknowns", []):
+            try:
+                unknowns.append(UnknownDraft.model_validate(item))
+            except ValidationError:
+                continue
+        if not claims and not unknowns:
+            raise ValueError("findings payload has no valid claims or unknowns")
+
+        requested = payload.get("requested_proposal", "none")
+        if requested not in {"none", "create_jira_issue"}:
+            requested = "none"
+        return FirstPassFindings(
+            claims=tuple(claims),
+            citations=tuple(citations),
+            unknowns=tuple(unknowns),
+            requested_proposal=requested,
+        )
 
     @staticmethod
     def _observe_only_graph(graph: EvidenceGraph, findings: FirstPassFindings) -> EvidenceGraph:
