@@ -81,15 +81,17 @@ test("global navigation works from a nested deployment route", async ({
 test("published live-provider trace exposes exact verified citations and hash links", async ({
   page,
 }) => {
-  await page.goto(
-    deployedPath(`/runs/${liveSnapshot.run_id}/`),
-  );
+  await page.goto(deployedPath(`/runs/${liveSnapshot.run_id}/`));
 
   await expect(
     page.getByText("LIVE-PROVIDER RUN · SYNTHETIC DATA · NO SHIP"),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Verified citations" })).toBeVisible();
-  await expect(page.getByText("citation_supports_claim", { exact: false })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Verified citations" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("citation_supports_claim", { exact: false }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Full hash-linked audit trace" }),
   ).toBeVisible();
