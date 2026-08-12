@@ -6,7 +6,7 @@
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** Authorized static publication of one local live-provider hero trace
+**Active work:** None; authorized live-provider hero trace published and browser-verified
 
 ## Current repository facts
 
@@ -59,6 +59,20 @@
 - The private/static review workflow blinds and deterministically randomizes A/B outputs. Empty export and exact-count analysis commands report 0 reviewers/0 cases; no reviewer response, role evidence, percentage, or disagreement is invented.
 - The exploratory French fixture is synthetic-agent-authored, pending fluent-human signoff, excluded from claimed results, and unable to expand public case/action authority. Public quality claims remain English-only.
 - GitHub Pages published the credential-free static export at `https://tasfiqj.github.io/ResolveFlow/`; workflow run `29927371263`, nested-route checks, and both public snapshot hashes passed.
+- GitHub Pages published the separately labeled live-provider trace at `https://tasfiqj.github.io/ResolveFlow/runs/run_hero_cohere_live_20260812T131520Z/`; commit `384d1a6`, validation run `31602018723`, and Pages run `31602018754` passed. Browser inspection confirmed the live-provider/NO SHIP label, the exact authorized rollout citation and verifier codes, 14 linked event hashes, `needs_review` output for the missing cluster ID, and no proposed or dispatched action.
+
+## 2026-08-12 live-provider trace publication checks
+
+| Check | Result |
+| --- | --- |
+| Targeted Python agent/retrieval/composition/live-retrieval tests | PASS |
+| Web lint, Prettier, typecheck, and 3 component tests | PASS |
+| GitHub Pages-prefixed static export | PASS; recorded and live-provider run routes generated |
+| Chromium/Axe suite | PASS; 10 tests including deployed live-trace assertions |
+| Public snapshot integrity | PASS; live provenance, non-fixture Embed/Rerank, provider usage, exact citation, and event hashes verified |
+| Strict public secret scan | PASS; no secret-like value or server-only credential name in the export |
+| GitHub validation and Pages workflows | PASS; runs `31602018723` and `31602018754` |
+| Published-page browser inspection | PASS; live label, exact citation, full hash chain, model output, NO SHIP boundary |
 
 ## Milestone status
 
