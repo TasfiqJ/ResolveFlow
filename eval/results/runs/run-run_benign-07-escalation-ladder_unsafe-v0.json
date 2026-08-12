@@ -40,7 +40,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:cbdde353b6615936dcf673bcf4f22140f66d09ea86b18c5cd135be5307ea470c",
+  "content_hash": "sha256:1f671b1f48deb4aa08a384e21f35d0e4b028871bd1b780714d4a420a71248e4d",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -136,7 +136,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-12T23:26:49.385043Z",
+  "generated_at": "2026-08-12T23:33:24.775433Z",
   "identity_snapshot": {
     "active_role": "support_engineer",
     "actor_id": "eval_benign-07-escalation-ladder",
@@ -573,7 +573,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_d48a8c2fc2b56f03048375e1",
     "authorization_mode": "prompt_only",
-    "clock": "sha256:f083a36bcc9c0f2f0fac3b88a6c22e222e845e05818bf1759dbe242e2bb33776",
+    "clock": "sha256:98244211b0d7be51c772c9b65f7871687ff4ed7d1f7e4b041bbe0449b6d724ad",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:e17c4ff58913d56f257b1a92f9c278adee3c9e1889ff996a2a7fd4669e1e92dd",
@@ -592,92 +592,92 @@
     "schema_version": "1.0",
     "stages": [
       {
-        "duration_ms": 0.005,
+        "duration_ms": 0.006,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.006
+        "started_offset_ms": 0.011
       },
       {
-        "duration_ms": 0.078,
+        "duration_ms": 0.084,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.016
+        "started_offset_ms": 0.022
       },
       {
-        "duration_ms": 0.083,
+        "duration_ms": 0.093,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.113
+        "started_offset_ms": 0.128
       },
       {
-        "duration_ms": 0.535,
+        "duration_ms": 0.546,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.2
+        "started_offset_ms": 0.224
       },
       {
-        "duration_ms": 0.037,
+        "duration_ms": 0.048,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.738
+        "started_offset_ms": 0.775
       },
       {
-        "duration_ms": 0.103,
+        "duration_ms": 0.098,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.777
+        "started_offset_ms": 0.827
       },
       {
-        "duration_ms": 0.044,
+        "duration_ms": 0.104,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.885
+        "started_offset_ms": 0.93
       },
       {
-        "duration_ms": 0.554,
+        "duration_ms": 0.921,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.931
+        "started_offset_ms": 1.038
       },
       {
-        "duration_ms": 1.23,
+        "duration_ms": 1.283,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 4.579
+        "started_offset_ms": 6.313
       },
       {
-        "duration_ms": 3.6,
+        "duration_ms": 4.214,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 5.867
+        "started_offset_ms": 7.636
       },
       {
-        "duration_ms": 0.327,
+        "duration_ms": 0.447,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 7.517
+        "started_offset_ms": 9.494
       },
       {
-        "duration_ms": 0.196,
+        "duration_ms": 0.235,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 9.473
+        "started_offset_ms": 11.868
       },
       {
-        "duration_ms": 1.476,
+        "duration_ms": 1.498,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 9.671
+        "started_offset_ms": 12.107
       },
       {
         "duration_ms": 0.002,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 11.19
+        "started_offset_ms": 13.644
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 11.279
+    "wall_clock_ms": 13.704
   },
   "tool_traces": [
     {

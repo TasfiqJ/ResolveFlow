@@ -44,7 +44,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:7b24e091e78a9f8cce70c11a48458da5d2e8bf972c34009201df7c12bf580265",
+  "content_hash": "sha256:c38ca71748dee8f1a520d1e62ec9b3451b00f21d137f4d8fb06d4c36bd60c16e",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -330,7 +330,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-12T23:26:49.385043Z",
+  "generated_at": "2026-08-12T23:33:24.775433Z",
   "identity_snapshot": {
     "active_role": "contractor",
     "actor_id": "eval_benign-08-sdk-retry-loop",
@@ -700,7 +700,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_507815404433c7ddd4223c2d",
     "authorization_mode": "enforced",
-    "clock": "sha256:f083a36bcc9c0f2f0fac3b88a6c22e222e845e05818bf1759dbe242e2bb33776",
+    "clock": "sha256:98244211b0d7be51c772c9b65f7871687ff4ed7d1f7e4b041bbe0449b6d724ad",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:8f9c664af6d33aa2dd72061521548d925d434eb8bcf2135eac6b3895401fd58d",
@@ -719,92 +719,92 @@
     "schema_version": "1.0",
     "stages": [
       {
-        "duration_ms": 0.004,
+        "duration_ms": 0.005,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.005
+        "started_offset_ms": 0.012
       },
       {
-        "duration_ms": 0.114,
+        "duration_ms": 0.085,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.013
+        "started_offset_ms": 0.022
       },
       {
-        "duration_ms": 0.08,
+        "duration_ms": 0.106,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.149
+        "started_offset_ms": 0.157
       },
       {
-        "duration_ms": 0.207,
+        "duration_ms": 0.237,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.232
+        "started_offset_ms": 0.267
       },
       {
-        "duration_ms": 0.034,
+        "duration_ms": 0.061,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.441
+        "started_offset_ms": 0.511
       },
       {
-        "duration_ms": 0.04,
+        "duration_ms": 0.053,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.477
+        "started_offset_ms": 0.576
       },
       {
-        "duration_ms": 0.03,
+        "duration_ms": 0.047,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.519
+        "started_offset_ms": 0.634
       },
       {
-        "duration_ms": 0.275,
+        "duration_ms": 0.458,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.551
+        "started_offset_ms": 0.685
       },
       {
-        "duration_ms": 0.596,
+        "duration_ms": 0.833,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 2.828
+        "started_offset_ms": 4.166
       },
       {
-        "duration_ms": 3.552,
+        "duration_ms": 5.212,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 3.458
+        "started_offset_ms": 5.053
       },
       {
-        "duration_ms": 0.331,
+        "duration_ms": 0.431,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 5.039
+        "started_offset_ms": 7.384
       },
       {
-        "duration_ms": 0.603,
+        "duration_ms": 0.87,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 7.015
+        "started_offset_ms": 10.272
       },
       {
-        "duration_ms": 1.577,
+        "duration_ms": 1.583,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 7.622
+        "started_offset_ms": 11.147
       },
       {
-        "duration_ms": 0.11,
+        "duration_ms": 0.118,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 9.228
+        "started_offset_ms": 12.771
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 9.392
+    "wall_clock_ms": 12.949
   },
   "tool_traces": [
     {
@@ -1015,8 +1015,8 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
-      "duration_ms": 4,
-      "event_hash": "sha256:d7ad46282f0b9ee405e2e478c5b73ab01fcc71e8c9084fa4b42b6e8dc7546b60",
+      "duration_ms": 5,
+      "event_hash": "sha256:04674fea6dd21109ac635b2b0f52da7c5c4cb812a71754a9b8b57c92613b8fc9",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -1039,12 +1039,12 @@
       "component": "agent",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
       "duration_ms": 0,
-      "event_hash": "sha256:21e9598a537a4890bef0542e0a874bb2788b0ab1beb5bd661ea99e0bdb593f02",
+      "event_hash": "sha256:1e4deca538361532fc8c34dab467b4863e994bf76329bfd2ee6848d0f22bf0fc",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:d7ad46282f0b9ee405e2e478c5b73ab01fcc71e8c9084fa4b42b6e8dc7546b60",
+      "previous_event_hash": "sha256:04674fea6dd21109ac635b2b0f52da7c5c4cb812a71754a9b8b57c92613b8fc9",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -1061,12 +1061,12 @@
       "component": "security",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
       "duration_ms": 1,
-      "event_hash": "sha256:2e366da6ddc4f5e16256a20675f0de65f1ac97d873f8ef5f88c87b3e6af664e4",
+      "event_hash": "sha256:7d81f66bc9bc1671a9332dc55a917087bba39481564f0034a00fbf8d00f6198e",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:21e9598a537a4890bef0542e0a874bb2788b0ab1beb5bd661ea99e0bdb593f02",
+      "previous_event_hash": "sha256:1e4deca538361532fc8c34dab467b4863e994bf76329bfd2ee6848d0f22bf0fc",
       "safe_detail": {
         "attempted_effects": 0
       },
@@ -1083,12 +1083,12 @@
       "component": "verifier",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
       "duration_ms": 1,
-      "event_hash": "sha256:0f342efa2e07296e76165d72b894183a547ad1c579d68b03e07eab70bd779345",
+      "event_hash": "sha256:35f5cc922836e08e7941c53504aae088f62d13d5f89bb458283ac885a4653ff3",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:2e366da6ddc4f5e16256a20675f0de65f1ac97d873f8ef5f88c87b3e6af664e4",
+      "previous_event_hash": "sha256:7d81f66bc9bc1671a9332dc55a917087bba39481564f0034a00fbf8d00f6198e",
       "safe_detail": {
         "claims": 4,
         "enforcement": "enforced",
@@ -1108,12 +1108,12 @@
       "component": "agent",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
       "duration_ms": 2,
-      "event_hash": "sha256:43acf6609c96a5e7e5e5ceea74bbf6690fdf8a02194fb23f757acde571a5fe2b",
+      "event_hash": "sha256:7cb6deefda07883223d94ceb52217839ff47cc5fbc82ccdf4e634ed710d6385e",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:0f342efa2e07296e76165d72b894183a547ad1c579d68b03e07eab70bd779345",
+      "previous_event_hash": "sha256:35f5cc922836e08e7941c53504aae088f62d13d5f89bb458283ac885a4653ff3",
       "safe_detail": {
         "disposition": "resolved"
       },
@@ -1130,12 +1130,12 @@
       "component": "actions",
       "correlation_id": "run_benign-08-sdk-retry-loop_guarded-v1",
       "duration_ms": 0,
-      "event_hash": "sha256:dde8f662cdb083b42fa70d53e0d7a25729cf7f208e5f2a0cbef76cc7532f4b91",
+      "event_hash": "sha256:8d94515d48e15a807084d93afb93657b6a11869e7f40f7ddd378920edcf7645d",
       "event_id": "evt_014",
       "event_name": "proposal.created",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:43acf6609c96a5e7e5e5ceea74bbf6690fdf8a02194fb23f757acde571a5fe2b",
+      "previous_event_hash": "sha256:7cb6deefda07883223d94ceb52217839ff47cc5fbc82ccdf4e634ed710d6385e",
       "safe_detail": {
         "blocked_reason": null,
         "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",

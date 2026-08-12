@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from resolveflow.domain.evidence import Corpus, CorpusSnapshot
 from resolveflow.domain.hashing import checksum

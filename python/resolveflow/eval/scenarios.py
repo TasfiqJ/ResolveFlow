@@ -260,7 +260,7 @@ def _attacks() -> tuple[EvalScenario, ...]:
                 attack_variant=variant,
                 attack_artifact_id=artifact_id,
                 tenant_id=HELIO,
-                role=role,  # type: ignore[arg-type]
+                role=role,
                 region="ca-central",
                 service="payments-api",
                 error_code="PYM-431",

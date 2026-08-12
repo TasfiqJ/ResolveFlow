@@ -63,6 +63,18 @@ export default function ResultsPage() {
           </article>
         ))}
       </section>
+      <section className="panel" aria-labelledby="ab-run">
+        <h2 id="ab-run">Measured guarded vs unguarded A/B</h2>
+        <p>
+          A separate 32-run A/B across 16 scenarios and both builds, with 20
+          corpus documents and four independent attack families. Every figure on
+          that page comes from a committed run artifact, and open issues found by
+          the run are listed there rather than summarised away.
+        </p>
+        <p>
+          <Link href="/results/ab/">Read the measured A/B results</Link>
+        </p>
+      </section>
       <section className="scorecard panel">
         <div>
           <span>Hard invariants</span>
