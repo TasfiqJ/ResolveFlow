@@ -49,9 +49,7 @@ class SecurityMatrixCellExecution(FrozenModel):
     variant: int
     build_id: Literal["guarded-v1"] = "guarded-v1"
     provider: Literal["recorded_fixture"] = "recorded_fixture"
-    executed_artifact_version_id: Literal["artifact_hostile_note_v1"] = (
-        "artifact_hostile_note_v1"
-    )
+    executed_artifact_version_id: Literal["artifact_hostile_note_v1"] = "artifact_hostile_note_v1"
     manifest_checksum: str
     materialization_checksum: str | None
     run_id: str | None

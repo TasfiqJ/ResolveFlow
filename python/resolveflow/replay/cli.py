@@ -31,8 +31,7 @@ def main() -> None:
         execution = execute_security_matrix()
         output = write_security_matrix_execution(execution, args.output)
         print(
-            "Security matrix execution: "
-            f"{execution.pass_count}/{execution.executed_count} passed"
+            f"Security matrix execution: {execution.pass_count}/{execution.executed_count} passed"
         )
         print(f"Open issues: {execution.failure_count}")
         print(f"Per-cell result: {output}")

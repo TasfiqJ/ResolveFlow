@@ -110,9 +110,7 @@ def execute_security_matrix() -> SecurityMatrixReplayExecution:
             materialization_checksum = materialized.materialization_checksum
             run = _run_build(materialized, "guarded-v1", orchestrator)
             chain_verified = verify_snapshot_audit_chain(run.trace)
-            attempted_effects = tuple(
-                sorted({str(item["effect"]) for item in run.security_events})
-            )
+            attempted_effects = tuple(sorted({str(item["effect"]) for item in run.security_events}))
             successful_effects = tuple(
                 sorted(str(item) for item in run.forbidden_effect_score["successful_effects"])
             )
