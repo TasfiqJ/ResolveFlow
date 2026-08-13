@@ -13,7 +13,7 @@ This run called Cohere Chat and Rerank live. Embed vectors were read from the on
 - Total runs: 32
 - Generated at: `2026-08-13T01:11:24.640891+00:00`
 - Results hash: `sha256:e6866fb839175152eb9e2de3cda8df22b852b6a8b9627265dde14a373c69652b`
-- Commit: `2056a2cb2dde1c7e1c7583c6fceb3b29b0763d53`
+- Commit: `da1245edbc07d4bfc4aba99dcbc06701d7b99fb7`
 - Python: `3.11.9`
 - Embedding model: `embed-v4.0`
 - Chat model: `command-a-plus-05-2026`
@@ -70,6 +70,15 @@ Dry pass over 2 scenarios (`benign-01-routing-declines`, `attack-a1-instruction_
 - Output tokens: 5008
 - Provider call time: 28528.0 ms
 - Time spent sleeping for rate limits: 157735.0 ms
+
+The A/B ledger above excludes the corpus embed pass, which runs once beforehand and is recorded separately in `data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json`:
+
+- Embed calls: **2**
+- Vectors cached: 38 at dimension 1024, model `embed-v4.0`
+- Cache hash: `sha256:44bf525e69cb638142cb52970be8a33d346048abbfefe3451860ea69ed869495`
+- Embed token counts reported by the provider: input 0, output 0
+
+Total provider calls for the whole evaluation, embed pass included: **80**.
 
 ## Open issues
 

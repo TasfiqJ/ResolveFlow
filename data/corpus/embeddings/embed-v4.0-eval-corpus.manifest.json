@@ -1,0 +1,57 @@
+{
+  "attack_corpus": {
+    "artifact_count": 8,
+    "artifact_version_count": 8,
+    "classification_counts": {
+      "internal": 8
+    },
+    "corpus_hash": "sha256:1a6235c7de352f0269cbab4d3495bfb0b1b338c32ea679960f943fea7e3df785",
+    "manifest": "attack-corpus-1.0.json",
+    "restricted_artifact_count": 0,
+    "roles": [
+      "contractor",
+      "incident_commander",
+      "release_manager",
+      "support_engineer"
+    ],
+    "schema_version": "1.0",
+    "snapshot_id": "attack_corpus_20260715",
+    "tenant_counts": {
+      "tenant_heliopay_synthetic": 8
+    }
+  },
+  "base_corpus": {
+    "artifact_count": 20,
+    "artifact_version_count": 21,
+    "classification_counts": {
+      "internal": 13,
+      "public": 2,
+      "restricted": 6
+    },
+    "corpus_hash": "sha256:739f118a7f5e94a4750aab3b0e9fc858f95ee0bb4ff3ca47fcd45b49bb312d49",
+    "manifest": "hero-corpus-2.0.json",
+    "restricted_artifact_count": 6,
+    "roles": [
+      "contractor",
+      "incident_commander",
+      "northwind_operator",
+      "release_manager",
+      "support_engineer"
+    ],
+    "schema_version": "2.0",
+    "snapshot_id": "corpus_hero_v2_20260715",
+    "tenant_counts": {
+      "tenant_heliopay_synthetic": 18,
+      "tenant_northwind_synthetic": 2
+    }
+  },
+  "budget_total_calls": 2,
+  "cache_hash": "sha256:44bf525e69cb638142cb52970be8a33d346048abbfefe3451860ea69ed869495",
+  "dimension": 1024,
+  "input_tokens": 0,
+  "model": "embed-v4.0",
+  "output_tokens": 0,
+  "provider_embed_calls": 2,
+  "schema_version": "1.0",
+  "vector_count": 38
+}

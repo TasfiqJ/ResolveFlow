@@ -295,6 +295,12 @@ def artifact_paths(provider: str) -> list[Path]:
         paths.append(site)
     for extra in (
         ROOT / "data" / "corpus" / "hero-corpus-2.0.json",
+        # The embed pass is the only provider cost not recorded in the A/B ledger.
+        # Without these two files committed and checksummed, the embed call count
+        # and the vectors both builds shared have no artifact behind them, and
+        # under this project's own rule they could not be cited.
+        ROOT / "data" / "corpus" / "embeddings" / "embed-v4.0-eval-corpus.manifest.json",
+        ROOT / "data" / "corpus" / "embeddings" / "embed-v4.0-eval-corpus.json",
         ROOT / "data" / "security" / "attack-corpus-1.0.json",
         ROOT / "data" / "security" / "attack-families-1.0.yaml",
     ):
@@ -441,6 +447,28 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
             "during this run, so there are no token counts and no budget consumption "
             "to report."
         )
+
+    embed_manifest = (
+        ROOT / "data" / "corpus" / "embeddings" / "embed-v4.0-eval-corpus.manifest.json"
+    )
+    if embed_manifest.exists():
+        embed = json.loads(embed_manifest.read_text(encoding="utf-8"))
+        parts += [
+            "",
+            "The A/B ledger above excludes the corpus embed pass, which runs once "
+            "beforehand and is recorded separately in "
+            "`data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json`:",
+            "",
+            f"- Embed calls: **{embed['provider_embed_calls']}**",
+            f"- Vectors cached: {embed['vector_count']} at dimension "
+            f"{embed['dimension']}, model `{embed['model']}`",
+            f"- Cache hash: `{embed['cache_hash']}`",
+            f"- Embed token counts reported by the provider: "
+            f"input {embed['input_tokens']}, output {embed['output_tokens']}",
+            "",
+            f"Total provider calls for the whole evaluation, embed pass included: "
+            f"**{(budget['total_calls'] if budget else 0) + embed['provider_embed_calls']}**.",
+        ]
     parts += [
         "",
         "## Open issues",

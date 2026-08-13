@@ -13,3 +13,8 @@ apps/web/out/
 test-results/
 .coverage
 tmp/
+
+# Live-run scaffolding created by eval/RUN-LIVE-AB.bat
+.venv-live/
+*.bundle
+_to_delete/
