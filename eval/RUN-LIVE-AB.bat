@@ -24,6 +24,45 @@ echo   repo: %CD%
 echo ==========================================================
 echo.
 
+REM --- stale index.lock ------------------------------------------------------
+REM Claude's file bridge cannot delete files, so a git command run through it
+REM leaves .git\index.lock behind. That lock blocks every later git write. Only
+REM offer to clear it when no git process is actually running.
+if exist ".git\index.lock" (
+    set "GITRUNNING="
+    for /f "tokens=1" %%p in ('tasklist /fi "imagename eq git.exe" /nh 2^>nul ^| findstr /i "git.exe"') do set "GITRUNNING=1"
+    echo.
+    if defined GITRUNNING (
+        echo   .git\index.lock exists AND a git.exe process is running.
+        echo   Something is genuinely using this repository right now.
+        echo   Close it and re-run. Not touching the lock.
+        echo.
+        pause
+        exit /b 1
+    )
+    echo   Found a leftover .git\index.lock with no git process running.
+    echo   This is almost certainly stale ^(Claude's bridge cannot delete files^).
+    echo   Removing it only discards an empty lock; no repository data is lost.
+    echo.
+    set "RMLOCK="
+    set /p "RMLOCK=Remove the stale lock and continue? [y/N] "
+    if /i not "!RMLOCK!"=="y" (
+        echo Cancelled. Nothing was changed.
+        echo.
+        pause
+        exit /b 1
+    )
+    del /f /q ".git\index.lock" >nul 2>&1
+    if exist ".git\index.lock" (
+        echo   Could not remove the lock. Delete this file in Explorer, then re-run:
+        echo     %CD%\.git\index.lock
+        echo.
+        pause
+        exit /b 1
+    )
+    echo   Removed.
+)
+
 REM --- git must be usable ----------------------------------------------------
 set "CURRENT="
 for /f "usebackq tokens=*" %%b in (`git rev-parse --abbrev-ref HEAD 2^>nul`) do set "CURRENT=%%b"
