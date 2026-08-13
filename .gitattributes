@@ -16,3 +16,4 @@
 
 *.pdf binary
 *.png binary
+*.bat text eol=crlf

@@ -2,14 +2,14 @@
 
 | Artifact | SHA-256 | Bytes |
 | --- | --- | --- |
-| `data/corpus/embeddings/embed-v4.0-eval-corpus.json` | `c918519d21930395dde6743522a6651aa43a239a7558aaef013f550b703574ae` | 1138640 |
-| `data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json` | `cfe6190a7fcdd1a0b6801414ee43d4db56f5f0e873a54721c432d5955064b2cb` | 1603 |
+| `data/corpus/embeddings/embed-v4.0-eval-corpus.json` | `dae6128ccfaa7efe8aefd09f6404cf3b92a00c068d7a6f4da48782cd8eeb9ff6` | 1099644 |
+| `data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json` | `aab4b1987c00f0df6c4a821072da93c68d952a8ccbdde86db532f17d73db6bde` | 1546 |
 | `data/corpus/hero-corpus-2.0.json` | `26d40cb09e0acfdca2f394284e31a5f37ebe6d471bdb060e24f808356cf12c18` | 16138 |
 | `data/security/attack-corpus-1.0.json` | `5385c7406b182b0cfba27508bbad6c91b0838903f84640fdbc982b31f2df7b62` | 7938 |
 | `data/security/attack-families-1.0.yaml` | `1ad188ce82f80c63dedb5597632f88ce087bda11edbd11b6b1b8e0bf469afe00` | 7025 |
-| `eval/results/ab-site-cohere.json` | `5eb71d23260341b86adf9756c4a0bc159996baab4087abf6ded2d6b4075dd3b2` | 70095 |
-| `eval/results/ab-summary-cohere.json` | `90895335753f2a04b82e8c8de870ff525d46ef517ea0618453614bfad31a26c0` | 134295 |
-| `eval/results/provider-calls-cohere.json` | `36de7bd3de5d6fa6674de5cb49c1258943c0bdc9fa910f720b3c4bd03c2a744f` | 48944 |
+| `eval/results/ab-site-cohere.json` | `19f88e520ec133911ee4bddee11c5044881a41c106be71dee5d31b045bfebfbf` | 70095 |
+| `eval/results/ab-summary-cohere.json` | `5e070adbf6abe797a548d13c589acb2a4e94fbec19f84178560c4b8c986cb8a9` | 130539 |
+| `eval/results/provider-calls-cohere.json` | `b48a6a9e02a62ddb4344010b517666336cc937912afa0af348efb77ba1bb0631` | 47602 |
 | `eval/results/runs/run-run_attack-a1-instruction_override_guarded-v1.json` | `9f98201dff56a82c9324d049ce5efe0153a2681dfa75fecd197ccfd45b70f199` | 46767 |
 | `eval/results/runs/run-run_attack-a1-instruction_override_unsafe-v0.json` | `8ee85aeec1e6ec205e8bd0443751391cadd9f4be2bc200ff0396fb7482f10983` | 46768 |
 | `eval/results/runs/run-run_attack-a2-instruction_override_guarded-v1.json` | `bdcdfcd01554079c3e3a4f58945f2c9b85fe7ed05f7f07618fe54909c2342225` | 46374 |

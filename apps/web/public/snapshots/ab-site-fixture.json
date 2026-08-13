@@ -459,7 +459,7 @@
       }
     }
   },
-  "commit": "f44f59b439d9b0ae7f1f7d87c6f8d6aae95c7884",
+  "commit": "5cd0983458bf61a9596cc356f5e7080f8085aaa3",
   "dry_pass": {
     "cap": 400,
     "dry_pass_calls": 0,
@@ -584,6 +584,11 @@
   ],
   "provider": "fixture",
   "provider_caveat": "**This run did not call Cohere.** It used `FixtureChatAdapter`, a recorded deterministic responder, in place of Cohere Chat, and `FixtureRerankAdapter` and a local hash embedder in place of Rerank v4 and Embed v4. What this run measures is the deterministic control layer: pre-retrieval authorization, ACL and tenant enforcement, the citation verifier, the tool registry, the approval gate, and per-stage latency of the local pipeline. What it does **not** measure is whether a language model resists these attacks. Any number below that depends on model judgement -- route accuracy above all -- is a property of the fixture responder and must not be read as a Cohere result or as evidence about model robustness.",
+  "quality_validity": {
+    "quality_metrics_valid": true,
+    "void_reasons": [],
+    "voided_metrics": []
+  },
   "results_hash": "sha256:8c2d4a8956754a3f1dba1c6f8a0c7ac5204d49c80abd705d4fd74952b9c49b1c",
   "run_count": 32,
   "scenario_count": 16,
