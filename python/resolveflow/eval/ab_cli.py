@@ -78,7 +78,10 @@ def main(argv: list[str] | None = None) -> int:
     scenarios = all_scenarios()
     harness, client = _build_harness(args.provider, args.max_calls)
     output_dir = args.output
-    runs_dir = output_dir / "runs"
+    # Per-provider directory. Both providers previously wrote run-<run_id>.json
+    # into one folder, so a fixture run silently overwrote a live run's snapshots
+    # and the checksum manifest then listed fixture files as live artifacts.
+    runs_dir = output_dir / "runs" / args.provider
 
     dry_report: dict[str, Any] | None = None
     if not args.skip_dry_pass:

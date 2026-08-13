@@ -289,7 +289,9 @@ def artifact_paths(provider: str) -> list[Path]:
     ledger = RESULTS_DIR / f"provider-calls-{provider}.json"
     if ledger.exists():
         paths.append(ledger)
-    paths.extend(sorted((RESULTS_DIR / "runs").glob("*.json")))
+    # Only this provider's snapshots. Globbing runs/ as a whole is what let the
+    # cohere manifest checksum the fixture run's files.
+    paths.extend(sorted((RESULTS_DIR / "runs" / provider).glob("*.json")))
     site = RESULTS_DIR / f"ab-site-{provider}.json"
     if site.exists():
         paths.append(site)
@@ -527,6 +529,19 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
         f"Open issues: [`open-issues-{provider}.json`](open-issues-{provider}.json)",
         "",
         f"Checksums: [`SHA256SUMS-{provider}.md`](SHA256SUMS-{provider}.md)",
+        "",
+        (
+            "Per-run snapshots for this provider are under "
+            f"`eval/results/runs/{provider}/`. **The cohere run's 32 per-run "
+            "snapshots were not retained.** Both providers originally wrote into a "
+            "single `runs/` directory, so restoring tracked files from git replaced "
+            "the live snapshots with the fixture run's. What survives for the live "
+            "run is the aggregate in `ab-summary-cohere.json`, which carries a row "
+            "of measurements per run, and the full call ledger in "
+            "`provider-calls-cohere.json`. The retrieval traces, evidence graphs, "
+            "and audit chains of the live run are gone and cannot be reconstructed. "
+            "Runs are now written per provider so this cannot recur."
+        ),
         "",
         "Every number in the results table is read out of "
         f"`ab-summary-{provider}.json` by `resolveflow.eval.publish`. No figure in "
