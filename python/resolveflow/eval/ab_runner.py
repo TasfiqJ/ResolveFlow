@@ -24,6 +24,7 @@ from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import RunSnapshot
 from resolveflow.eval.corpus import build_eval_corpus
 from resolveflow.eval.scenarios import EvalScenario, all_scenarios
+from resolveflow.eval.statistics import newcombe_difference, wilson_interval
 from resolveflow.orchestrator import ResolveOrchestrator, ResolveRunConfiguration
 from resolveflow.policy.authorization import AuthorizationPolicy, make_identity_snapshot
 from resolveflow.replay.io import load_build_config
@@ -214,6 +215,7 @@ class RunMetrics:
     def as_dict(self) -> dict[str, Any]:
         return {
             "scenario_id": self.scenario.scenario_id,
+            "trial": getattr(self, "trial", 1),
             "kind": self.scenario.kind,
             "attack_family": self.scenario.attack_family,
             "attack_variant": self.scenario.attack_variant,
@@ -257,6 +259,7 @@ def _configuration(
     build_id: str,
     corpus: Corpus,
     generated_at: datetime,
+    trial: int = 1,
 ) -> ResolveRunConfiguration:
     build = load_build_config(build_id)
     identity = make_identity_snapshot(
@@ -267,7 +270,13 @@ def _configuration(
         case_time=scenario.case().case_time,
     )
     return ResolveRunConfiguration(
-        run_id=f"run_{scenario.scenario_id}_{build_id}",
+        # Trial 1 keeps the historical run_id so snapshot filenames stay
+        # comparable with earlier single-trial runs.
+        run_id=(
+            f"run_{scenario.scenario_id}_{build_id}"
+            if trial == 1
+            else f"run_{scenario.scenario_id}_{build_id}_t{trial}"
+        ),
         build_id=build_id,
         generated_at=generated_at,
         scenario_id=scenario.scenario_id,
@@ -333,7 +342,7 @@ class ABHarness:
         return self._corpus_cache[key]
 
     def run_one(
-        self, scenario: EvalScenario, build_id: str, generated_at: datetime
+        self, scenario: EvalScenario, build_id: str, generated_at: datetime, trial: int = 1
     ) -> tuple[RunSnapshot, RunMetrics]:
         if self.budgeted_client is not None:
             self.budgeted_client.scenario_id = scenario.scenario_id
@@ -350,9 +359,11 @@ class ABHarness:
             embedding_adapter=self.embedder,
             rerank_adapter=self.reranker,
         )
-        configuration = _configuration(scenario, build_id, corpus, generated_at)
+        configuration = _configuration(scenario, build_id, corpus, generated_at, trial)
         snapshot = orchestrator.run(scenario.case(), configuration)
-        return snapshot, RunMetrics(scenario, build_id, snapshot, corpus)
+        metrics = RunMetrics(scenario, build_id, snapshot, corpus)
+        metrics.trial = trial
+        return snapshot, metrics
 
 
 def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -415,6 +426,40 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
         # Which run produced the slowest wall clock, so an outlier can be
         # attributed to a run and a stage instead of left unexplained.
         "wall_clock_max_run": _slowest(rows),
+        # Every headline proportion with a Wilson 95% interval. A rate without an
+        # interval at n=16 is an anecdote; the interval is what makes it a
+        # measurement. Citation-level rates are counted over citations, not runs,
+        # because that is the unit the claim is about.
+        "intervals": {
+            "forbidden_evidence_exposed": wilson_interval(
+                sum(1 for row in rows if row["forbidden_evidence_exposed"]), len(rows)
+            ),
+            "forbidden_evidence_retrieved": wilson_interval(
+                sum(1 for row in rows if row["forbidden_evidence_retrieved"]), len(rows)
+            ),
+            "route_correct": wilson_interval(
+                sum(1 for row in rows if row["route_correct"]), len(rows)
+            ),
+            "completed": wilson_interval(sum(1 for row in rows if row["completed"]), len(rows)),
+            "successful_forbidden_effect": wilson_interval(
+                sum(1 for row in rows if row["successful_forbidden_effects"]), len(rows)
+            ),
+            # Cohere-facing quality: of the citations the model actually emitted,
+            # how many quote their source verbatim, and how many point at a
+            # document this identity was allowed to see. Both oracles are
+            # mechanical string/set operations. No model judges another model.
+            "citation_quote_verbatim": wilson_interval(
+                sum(row["exact_quote_count"] for row in rows),
+                sum(row["citation_count"] for row in rows),
+            ),
+            "citation_authorized": wilson_interval(
+                sum(
+                    row["citation_count"] - len(row["cited_unauthorized_chunk_ids"])
+                    for row in rows
+                ),
+                sum(row["citation_count"] for row in rows),
+            ),
+        },
         # How much of the wall clock the named stages actually account for. The
         # stage list is not a partition of the run: orchestration between stages
         # is unattributed. Published so no reader infers stage times sum to wall.
@@ -512,19 +557,26 @@ def run_ab(
     scenarios: tuple[EvalScenario, ...] | None = None,
     output_dir: Path | None = None,
     on_scenario: Any | None = None,
+    repetitions: int = 1,
 ) -> dict[str, Any]:
     scenarios = scenarios if scenarios is not None else all_scenarios()
+    if repetitions < 1:
+        raise ValueError("repetitions must be at least 1")
     generated_at = datetime.now(timezone.utc)
     rows: list[dict[str, Any]] = []
     snapshots: list[RunSnapshot] = []
 
-    for scenario in scenarios:
-        for build_id in BUILD_IDS:
-            snapshot, metrics = harness.run_one(scenario, build_id, generated_at)
-            snapshots.append(snapshot)
-            rows.append(metrics.as_dict())
-        if on_scenario is not None:
-            on_scenario(scenario, rows)
+    # Trials are the outer loop so that a run aborted partway through by the
+    # budget cap still holds a complete, balanced repetition rather than a
+    # partial one that would bias whichever scenarios happened to run first.
+    for trial in range(1, repetitions + 1):
+        for scenario in scenarios:
+            for build_id in BUILD_IDS:
+                snapshot, metrics = harness.run_one(scenario, build_id, generated_at, trial)
+                snapshots.append(snapshot)
+                rows.append(metrics.as_dict())
+            if on_scenario is not None:
+                on_scenario(scenario, rows)
 
     by_build = {
         build_id: _aggregate([row for row in rows if row["build_id"] == build_id])
@@ -593,8 +645,123 @@ def run_ab(
         else None
     )
 
+    # Per-trial values for every headline rate, so variance across repetitions is
+    # visible rather than hidden inside a mean.
+    trials_seen = sorted({row["trial"] for row in rows})
+    per_trial: dict[str, list[dict[str, Any]]] = {}
+    for build_id in BUILD_IDS:
+        series: list[dict[str, Any]] = []
+        for trial in trials_seen:
+            subset = [
+                row for row in rows if row["build_id"] == build_id and row["trial"] == trial
+            ]
+            if not subset:
+                continue
+            series.append(
+                {
+                    "trial": trial,
+                    "runs": len(subset),
+                    "forbidden_evidence_exposed": sum(
+                        1 for row in subset if row["forbidden_evidence_exposed"]
+                    ),
+                    "forbidden_evidence_retrieved": sum(
+                        1 for row in subset if row["forbidden_evidence_retrieved"]
+                    ),
+                    "route_correct": sum(1 for row in subset if row["route_correct"]),
+                    "completed": sum(1 for row in subset if row["completed"]),
+                    "successful_forbidden_effect_runs": sum(
+                        1 for row in subset if row["successful_forbidden_effects"]
+                    ),
+                    "citations": sum(row["citation_count"] for row in subset),
+                    "citations_verbatim": sum(row["exact_quote_count"] for row in subset),
+                    "wall_clock_ms_p50": (
+                        round(
+                            statistics.median(
+                                [
+                                    row["wall_clock_ms"]
+                                    for row in subset
+                                    if row["wall_clock_ms"] is not None
+                                ]
+                            ),
+                            6,
+                        )
+                        if any(row["wall_clock_ms"] is not None for row in subset)
+                        else None
+                    ),
+                }
+            )
+        per_trial[build_id] = series
+
+    # The comparison the whole project exists to make, with an interval on the
+    # difference. If an interval spans zero the difference is not established at
+    # this sample size, and the artifact says so instead of reporting a delta.
+    baseline, treatment = BUILD_IDS[0], BUILD_IDS[1]
+    base_rows = [row for row in rows if row["build_id"] == baseline]
+    treat_rows = [row for row in rows if row["build_id"] == treatment]
+
+    def _count(subset: list[dict[str, Any]], key: str) -> int:
+        if key == "successful_forbidden_effects":
+            return sum(1 for row in subset if row[key])
+        return sum(1 for row in subset if row[key])
+
+    comparison: dict[str, Any] = {
+        "baseline_build": baseline,
+        "treatment_build": treatment,
+        "metrics": {
+            name: newcombe_difference(
+                _count(base_rows, name),
+                len(base_rows),
+                _count(treat_rows, name),
+                len(treat_rows),
+            )
+            for name in (
+                "forbidden_evidence_exposed",
+                "forbidden_evidence_retrieved",
+                "route_correct",
+                "completed",
+                "successful_forbidden_effects",
+            )
+        },
+    }
+    comparison["metrics"]["citation_quote_verbatim"] = newcombe_difference(
+        sum(row["exact_quote_count"] for row in base_rows),
+        sum(row["citation_count"] for row in base_rows),
+        sum(row["exact_quote_count"] for row in treat_rows),
+        sum(row["citation_count"] for row in treat_rows),
+    )
+
+    # The governance tax: what enforcement costs, in the units an operator pays.
+    def _tax(key: str) -> dict[str, Any] | None:
+        base = [row[key] for row in base_rows if row.get(key) is not None]
+        treat = [row[key] for row in treat_rows if row.get(key) is not None]
+        if not base or not treat:
+            return None
+        base_p50 = statistics.median(base)
+        treat_p50 = statistics.median(treat)
+        return {
+            "baseline_p50": round(base_p50, 6),
+            "treatment_p50": round(treat_p50, 6),
+            "delta_p50": round(treat_p50 - base_p50, 6),
+            "delta_pct": (
+                round((treat_p50 - base_p50) / base_p50 * 100, 2) if base_p50 else None
+            ),
+        }
+
+    governance_tax = {
+        "wall_clock_ms": _tax("wall_clock_ms"),
+        "provider_call_ms": _tax("provider_call_ms"),
+        "note": (
+            "Cost of enforcement, baseline to treatment, at the median. Wall "
+            "clock already contains provider time; the two rows are not additive."
+        ),
+    }
+
     result: dict[str, Any] = {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
+        "repetitions": repetitions,
+        "per_trial": per_trial,
+        "build_comparison": comparison,
+        "governance_tax": governance_tax,
         "timing": clock_block,
         "generated_at": generated_at.isoformat(),
         "provider": harness.provider,

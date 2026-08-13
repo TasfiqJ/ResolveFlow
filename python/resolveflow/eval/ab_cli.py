@@ -66,6 +66,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-calls", type=int, default=DEFAULT_MAX_CALLS)
     parser.add_argument("--output", type=Path, default=RESULTS_DIR)
     parser.add_argument(
+        "--repetitions",
+        type=int,
+        default=1,
+        help=(
+            "trials per scenario per build. Auto-scaled down if the dry-pass "
+            "projection would exceed --max-calls."
+        ),
+    )
+    parser.add_argument(
         "--skip-dry-pass",
         action="store_true",
         help="only permitted in fixture mode, where no call can be spent",
@@ -83,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     # and the checksum manifest then listed fixture files as live artifacts.
     runs_dir = output_dir / "runs" / args.provider
 
+    repetitions = max(1, args.repetitions)
     dry_report: dict[str, Any] | None = None
     if not args.skip_dry_pass:
         # One benign and one attack scenario: the two shapes have different call
@@ -109,13 +119,51 @@ def main(argv: list[str] | None = None) -> int:
 
         dry_calls = sum(item["calls"] for item in per_scenario)
         per_scenario_mean = dry_calls / len(dry_scenarios) if dry_scenarios else 0.0
-        projected = per_scenario_mean * len(scenarios)
+
+        # Auto-scaling. Take the highest repetition count whose projection fits
+        # under the cap. If even one repetition does not fit, drop the benign
+        # scenarios and keep the attacks -- and record the substitution, because
+        # a run that silently changed its own scope is not reproducible.
+        requested_repetitions = max(1, args.repetitions)
+        scaling_note: str | None = None
+        while repetitions > 1 and (
+            per_scenario_mean * len(scenarios) * repetitions + dry_calls > args.max_calls
+        ):
+            repetitions -= 1
+        if per_scenario_mean * len(scenarios) * repetitions + dry_calls > args.max_calls:
+            attack_only = tuple(s for s in scenarios if s.kind == "attack")
+            if (
+                attack_only
+                and per_scenario_mean * len(attack_only) + dry_calls <= args.max_calls
+            ):
+                scaling_note = (
+                    f"benign scenarios dropped: one repetition of all "
+                    f"{len(scenarios)} scenarios projected "
+                    f"{per_scenario_mean * len(scenarios) + dry_calls:.0f} calls "
+                    f"against a {args.max_calls} cap. Ran {len(attack_only)} attack "
+                    f"scenarios only. Benign utility was NOT measured in this run, so "
+                    f"no utility claim can be made from it."
+                )
+                scenarios = attack_only
+                repetitions = 1
+                print(f"[auto-scale] {scaling_note}")
+        if repetitions != requested_repetitions and scaling_note is None:
+            scaling_note = (
+                f"repetitions reduced from {requested_repetitions} to {repetitions} "
+                f"to fit the {args.max_calls} call cap"
+            )
+            print(f"[auto-scale] {scaling_note}")
+
+        projected = per_scenario_mean * len(scenarios) * repetitions
         dry_report = {
             "dry_scenarios": [s.scenario_id for s in dry_scenarios],
             "per_scenario": per_scenario,
             "dry_pass_calls": dry_calls,
             "mean_calls_per_scenario": round(per_scenario_mean, 2),
             "full_run_scenarios": len(scenarios),
+            "repetitions_requested": requested_repetitions,
+            "repetitions_selected": repetitions,
+            "auto_scaling_note": scaling_note,
             "projected_full_run_calls": round(projected, 1),
             "projected_total_including_dry_pass": round(projected + dry_calls, 1),
             "cap": args.max_calls,
@@ -133,7 +181,10 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 4
 
-    print(f"[run] full pass: {len(scenarios)} scenarios x 2 builds")
+    print(
+        f"[run] full pass: {len(scenarios)} scenarios x 2 builds x "
+        f"{repetitions} repetition(s)"
+    )
 
     def _progress(scenario: Any, rows: list[dict[str, Any]]) -> None:
         print(f"[run] {scenario.scenario_id}: {len(rows)} runs recorded")
@@ -146,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
             scenarios=scenarios,
             output_dir=runs_dir,
             on_scenario=_progress,
+            repetitions=repetitions,
         )
     except BudgetExceeded as exc:
         print(f"[abort] {exc}", file=sys.stderr)

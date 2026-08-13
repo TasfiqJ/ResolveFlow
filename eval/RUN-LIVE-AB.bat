@@ -95,11 +95,12 @@ if exist "measured-evidence-v1.bundle" (
                 echo.
                 echo   Could not fast-forward onto the delivered commit. Usually this
                 echo   means generated files from a previous run are modified in your
-                echo   working tree. They are reproducible outputs, so either:
+                echo   working tree. Stash them:
                 echo     git stash
-                echo   or discard them:
-                echo     git checkout -- eval/results
-                echo   then run this again. Nothing was changed.
+                echo   Do NOT run 'git checkout -- eval/results'. A previous session
+                echo   did exactly that and destroyed a completed live run's snapshots,
+                echo   which cost real API calls to produce and cannot be regenerated
+                echo   for free. Stash, inspect, then decide.
                 echo.
                 pause
                 exit /b 1

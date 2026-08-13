@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from resolveflow.eval.corpus import load_attack_variants
+from resolveflow.eval.statistics import format_difference, format_interval
 from resolveflow.ingestion.fixtures import ROOT
 
 RESULTS_DIR = ROOT / "eval" / "results"
@@ -96,6 +97,125 @@ def results_table(summary: dict[str, Any]) -> str:
             else:
                 cells.append(_pct(value) if kind == "pct" else _fmt(value))
         lines.append(f"| {label} | " + " | ".join(cells) + " |")
+
+    lines.append("")
+    lines.append("### Headline rates with 95% confidence intervals")
+    lines.append("")
+    lines.append(
+        "Wilson score intervals. The interval, not the point estimate, is the "
+        "result: at these sample sizes a rate of 0 does not mean zero risk, it "
+        "means the sample could not distinguish zero from the interval's upper "
+        "bound. `n` is the denominator of that specific rate -- runs for run-level "
+        "rates, citations for citation-level rates."
+    )
+    lines.append("")
+    interval_rows = [
+        ("Forbidden evidence exposed (cited)", "forbidden_evidence_exposed"),
+        ("Forbidden evidence reached retrieval", "forbidden_evidence_retrieved"),
+        ("Successful forbidden effect", "successful_forbidden_effect"),
+        ("Route correct", "route_correct"),
+        ("Completed", "completed"),
+        ("Citation quotes source verbatim", "citation_quote_verbatim"),
+        ("Citation points at authorized source", "citation_authorized"),
+    ]
+    lines.append("| Rate | " + " | ".join(builds) + " |")
+    lines.append("| --- | " + " | ".join("---" for _ in builds) + " |")
+    for label, key in interval_rows:
+        cells = [
+            format_interval((summary["by_build"][build].get("intervals") or {}).get(key))
+            for build in builds
+        ]
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
+
+    comparison = summary.get("build_comparison")
+    if comparison:
+        lines.append("")
+        lines.append(
+            f"### {comparison['treatment_build']} minus {comparison['baseline_build']}"
+        )
+        lines.append("")
+        lines.append(
+            "Newcombe hybrid-score 95% intervals on the difference in proportions. "
+            "**An interval that spans zero is not a result.** It means this sample "
+            "size cannot establish that the two builds differ on that metric, and "
+            "no such claim is made below."
+        )
+        lines.append("")
+        lines.append("| Metric | Difference (percentage points) |")
+        lines.append("| --- | --- |")
+        for name, value in sorted(comparison["metrics"].items()):
+            lines.append(f"| `{name}` | {format_difference(value)} |")
+        established = [
+            name
+            for name, value in sorted(comparison["metrics"].items())
+            if value.get("excludes_zero")
+        ]
+        lines.append("")
+        if established:
+            lines.append(
+                "Metrics on which the difference is established at 95%: "
+                + ", ".join(f"`{name}`" for name in established)
+                + ". Every other metric in the table above is undetermined at this "
+                "sample size."
+            )
+        else:
+            lines.append(
+                "**No metric shows a difference established at 95%.** Every interval "
+                "spans zero. Nothing in this run distinguishes the two builds."
+            )
+
+    tax = summary.get("governance_tax")
+    if tax and (tax.get("wall_clock_ms") or tax.get("provider_call_ms")):
+        lines.append("")
+        lines.append("### Governance tax")
+        lines.append("")
+        lines.append(
+            "What enforcement costs, at the median. A negative delta means the "
+            "guarded build was cheaper, which is a result to report, not to explain "
+            "away."
+        )
+        lines.append("")
+        lines.append("| Cost | baseline p50 | guarded p50 | delta | delta % |")
+        lines.append("| --- | --- | --- | --- | --- |")
+        for label, key in (
+            ("Wall clock (ms)", "wall_clock_ms"),
+            ("Provider call time (ms)", "provider_call_ms"),
+        ):
+            entry = tax.get(key)
+            if not entry:
+                lines.append(f"| {label} | not measured | | | |")
+                continue
+            pct = entry["delta_pct"]
+            lines.append(
+                f"| {label} | {entry['baseline_p50']} | {entry['treatment_p50']} | "
+                f"{entry['delta_p50']:+} | "
+                f"{('%+.2f%%' % pct) if pct is not None else 'n/a'} |"
+            )
+
+    per_trial = summary.get("per_trial") or {}
+    if any(len(series) > 1 for series in per_trial.values()):
+        lines.append("")
+        lines.append("### Per-trial values")
+        lines.append("")
+        lines.append(
+            "Each repetition reported separately, so variance across trials is "
+            "visible rather than absorbed into a mean."
+        )
+        lines.append("")
+        lines.append(
+            "| Build | trial | runs | exposed | retrieved | route correct | "
+            "completed | wall p50 (ms) |"
+        )
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- |")
+        for build in builds:
+            for entry in per_trial.get(build, []):
+                lines.append(
+                    f"| {build} | {entry['trial']} | {entry['runs']} | "
+                    f"{entry['forbidden_evidence_exposed']} | "
+                    f"{entry['forbidden_evidence_retrieved']} | "
+                    f"{entry['route_correct']} | {entry['completed']} | "
+                    f"{_fmt(entry['wall_clock_ms_p50'])} |"
+                )
 
     lines.append("")
     lines.append("### End-to-end wall time (milliseconds)")
@@ -468,6 +588,12 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
         "- **Attack delivered**: whether the attack artifact actually reached the "
         "retrieval candidate set. An attack that was never delivered was never "
         "tested, and is excluded from 'got through' rather than counted as a pass.",
+        "- **Confidence intervals**: Wilson score, two-sided 95%, on every "
+        "published rate; Newcombe hybrid-score 95% on every build-to-build "
+        "difference. A difference whose interval spans zero is reported as not "
+        "established rather than as a delta. No p-values are computed and no "
+        "multiple-comparison correction is applied, so the intervals are "
+        "descriptive of each metric alone.",
         "- **Latency**: `time.perf_counter_ns`, accumulated in integer nanoseconds "
         "and reported in milliseconds, per stage, with p50 and p95. The clock name, "
         "its advertised resolution and the host OS are recorded in the summary artifact under `timing`. "
@@ -692,6 +818,10 @@ def main(provider: str = "fixture") -> int:
         # Clock provenance travels with the numbers, so the page can name the
         # clock instead of the reader having to trust an unlabelled latency table.
         "timing": summary.get("timing"),
+        "repetitions": summary.get("repetitions", 1),
+        "per_trial": summary.get("per_trial"),
+        "build_comparison": summary.get("build_comparison"),
+        "governance_tax": summary.get("governance_tax"),
         "commit": _git_sha(),
         "scenario_count": summary["scenario_count"],
         "run_count": summary["run_count"],

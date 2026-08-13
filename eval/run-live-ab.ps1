@@ -59,14 +59,17 @@ Write-Host "api key: loaded (not displayed)" -ForegroundColor Green
 $env:PYTHONPATH = "python;."
 
 # --- 1. Embed the corpus once ----------------------------------------------
-Write-Host "`n== step 1/3: Embed v4 pass (cached; skipped if already complete) ==" -ForegroundColor Cyan
+Write-Host "`n== step 1/4: Embed v4 pass (cached; skipped if already complete) ==" -ForegroundColor Cyan
 & $vpy -m resolveflow.eval.embed_corpus
 if ($LASTEXITCODE -ne 0) { throw "embed pass failed; no A/B was attempted" }
 
 # --- 2. The A/B -------------------------------------------------------------
-Write-Host "`n== step 2/3: live A/B, 16 scenarios x 2 builds ==" -ForegroundColor Cyan
+Write-Host "`n== step 2/4: live A/B, 16 scenarios x 2 builds x up to 3 trials ==" -ForegroundColor Cyan
+Write-Host "Repetitions exist so every published rate carries a confidence interval."
+Write-Host "A 2-scenario dry pass measures the real cost first and scales the trial"
+Write-Host "count down to whatever fits under the cap. It never exceeds it."
 Write-Host "This sleeps to respect the per-minute limits and will take several minutes."
-& $vpy -m resolveflow.eval.ab_cli --provider cohere --max-calls 400
+& $vpy -m resolveflow.eval.ab_cli --provider cohere --max-calls 400 --repetitions 3
 $abExit = $LASTEXITCODE
 if ($abExit -eq 4) {
     Write-Host "`nABORTED: the dry pass projected more calls than the cap allows." -ForegroundColor Red
@@ -80,11 +83,33 @@ if ($abExit -eq 3) {
 if ($abExit -ne 0) { throw "the A/B failed with exit code $abExit" }
 
 # --- 3. Publish -------------------------------------------------------------
-Write-Host "`n== step 3/3: regenerate published documents ==" -ForegroundColor Cyan
+Write-Host "`n== step 3/4: regenerate published documents ==" -ForegroundColor Cyan
 & $vpy -m resolveflow.eval.publish cohere
 if ($LASTEXITCODE -ne 0) { throw "publish failed" }
 
 Copy-Item "eval\results\ab-site-cohere.json" "apps\web\public\snapshots\" -Force
+
+# --- 4. Verify every published checksum against disk ------------------------
+Write-Host "`n== step 4/4: verify checksums ==" -ForegroundColor Cyan
+& $vpy -m resolveflow.eval.verify_checksums cohere
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "CHECKSUM MISMATCH. The manifest does not describe the files on disk." -ForegroundColor Red
+    Write-Host "Do not publish these artifacts until this is understood." -ForegroundColor Red
+    exit 5
+}
+
+# --- optional: safety_mode probe --------------------------------------------
+# 12 extra calls. Records which (safety_mode, tools/documents) combinations the
+# API accepts and which it refuses. Skipped automatically if the budget spent by
+# the A/B leaves no comfortable headroom.
+Write-Host "`n== optional: safety_mode acceptance probe (12 calls) ==" -ForegroundColor Cyan
+$probe = Read-Host "Run the safety_mode probe? [y/N]"
+if ($probe -eq "y" -or $probe -eq "Y") {
+    & $vpy -m resolveflow.eval.safety_mode_probe
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "probe failed; the A/B artifacts above are unaffected." -ForegroundColor Yellow
+    }
+}
 
 Write-Host "`n== done ==" -ForegroundColor Green
 Write-Host "Artifacts written to eval\results\:"
@@ -93,6 +118,12 @@ Write-Host "  provider-calls-cohere.json  every provider call, hashed"
 Write-Host "  results-table-cohere.md     the table"
 Write-Host "  README.md                   methodology, regenerated"
 Write-Host "  SHA256SUMS-cohere.md        checksums"
-Write-Host "  runs\                       32 per-run snapshots"
+Write-Host "  runs\cohere\                per-run snapshots, live only"
+Write-Host "  safety-mode-probe-cohere.json   if the probe was run"
+Write-Host ""
+Write-Host "Read results-table-cohere.md first. The sections that matter:"
+Write-Host "  'Headline rates with 95% confidence intervals'"
+Write-Host "  'guarded-v1 minus unsafe-v0'  - anything spanning zero is NOT a result"
+Write-Host "  'Governance tax'              - what enforcement cost"
 Write-Host "`nCommit them, then send eval\results\ab-summary-cohere.json back if you"
 Write-Host "want the write-up updated."

@@ -44,7 +44,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:1940a0ccba19c63ff54d49b91ceb99d6164fdc55ad368c4e5479febc89ce9ca7",
+  "content_hash": "sha256:2b386ee179796e68d908af75c4f00d54ba969a89285102478a23ec76e52e10e2",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -334,7 +334,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-13T12:36:21.426574Z",
+  "generated_at": "2026-08-13T14:55:41.008397Z",
   "identity_snapshot": {
     "active_role": "support_engineer",
     "actor_id": "eval_benign-03-settlement-duplicates",
@@ -792,7 +792,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_473bd9bc60a9107efb01dbf6",
     "authorization_mode": "enforced",
-    "clock": "sha256:49ecfd0a0354e10f760a37b7e599797c2b0e0f50b85db8332a4b556bbc7e4415",
+    "clock": "sha256:2189b4d3246644bbdf71b3da1c50026c6510a2fd0a7e7c30a50ec1bb6c18e088",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:8f9c664af6d33aa2dd72061521548d925d434eb8bcf2135eac6b3895401fd58d",
@@ -813,92 +813,92 @@
     "schema_version": "1.1",
     "stages": [
       {
-        "duration_ms": 0.00655,
+        "duration_ms": 0.0048,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.00781
+        "started_offset_ms": 0.0081
       },
       {
-        "duration_ms": 0.073609,
+        "duration_ms": 0.06958,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.01911
+        "started_offset_ms": 0.0174
       },
       {
-        "duration_ms": 0.095139,
+        "duration_ms": 0.094169,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.111149
+        "started_offset_ms": 0.10508
       },
       {
-        "duration_ms": 0.233578,
+        "duration_ms": 0.223558,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.209698
+        "started_offset_ms": 0.202859
       },
       {
-        "duration_ms": 0.02656,
+        "duration_ms": 0.02326,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.446026
+        "started_offset_ms": 0.428967
       },
       {
-        "duration_ms": 0.04018,
+        "duration_ms": 0.03536,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.474626
+        "started_offset_ms": 0.454417
       },
       {
-        "duration_ms": 0.03785,
+        "duration_ms": 0.02845,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.517096
+        "started_offset_ms": 0.491987
       },
       {
-        "duration_ms": 0.311827,
+        "duration_ms": 0.318518,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.557416
+        "started_offset_ms": 0.522516
       },
       {
-        "duration_ms": 0.742654,
+        "duration_ms": 0.723715,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 3.058637
+        "started_offset_ms": 2.885999
       },
       {
-        "duration_ms": 3.024503,
+        "duration_ms": 2.75074,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 3.822741
+        "started_offset_ms": 3.627893
       },
       {
-        "duration_ms": 0.252442,
+        "duration_ms": 0.246253,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 5.093992
+        "started_offset_ms": 4.798205
       },
       {
-        "duration_ms": 0.472317,
+        "duration_ms": 0.446797,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 6.852713
+        "started_offset_ms": 6.383813
       },
       {
-        "duration_ms": 1.131772,
+        "duration_ms": 1.074182,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 7.32858
+        "started_offset_ms": 6.83345
       },
       {
-        "duration_ms": 0.08128,
+        "duration_ms": 0.07725,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 8.481051
+        "started_offset_ms": 7.927291
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 8.60345
+    "wall_clock_ms": 8.041691
   },
   "tool_traces": [
     {
@@ -931,8 +931,8 @@
       "actor": "resolveflow-service",
       "component": "identity",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.00655,
-      "event_hash": "sha256:af27b5bddebe84ac64e7e0f24d93e7ff4662ff4c413e9331031e791231e15cf0",
+      "duration_ms": 0.0048,
+      "event_hash": "sha256:944585ea0cd8839a07f70153b3126abb80bce7380a9026e201c7474426791d27",
       "event_id": "evt_001",
       "event_name": "identity.snapshot.captured",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -954,13 +954,13 @@
       "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.00655,
-      "event_hash": "sha256:6e1537f1b079e45a17242cc7c91fbac24547557b2d4c67f3882311d492f4a10e",
+      "duration_ms": 0.0048,
+      "event_hash": "sha256:b388350ff9ed1f3ccdc5c2192b2b9eb2137849f97ab7443faee013195c668fca",
       "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:af27b5bddebe84ac64e7e0f24d93e7ff4662ff4c413e9331031e791231e15cf0",
+      "previous_event_hash": "sha256:944585ea0cd8839a07f70153b3126abb80bce7380a9026e201c7474426791d27",
       "safe_detail": {
         "source": "web"
       },
@@ -976,13 +976,13 @@
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.073609,
-      "event_hash": "sha256:b6f8389ecbe3f6d8425dabd16320077e51e8c598a78f6a35344c580bc7cac752",
+      "duration_ms": 0.06958,
+      "event_hash": "sha256:ecd8c64f57fd694133e22ef6734fe75d7d590717b2ced775ba440577fbaea9c9",
       "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:6e1537f1b079e45a17242cc7c91fbac24547557b2d4c67f3882311d492f4a10e",
+      "previous_event_hash": "sha256:b388350ff9ed1f3ccdc5c2192b2b9eb2137849f97ab7443faee013195c668fca",
       "safe_detail": {
         "operations": 4
       },
@@ -998,13 +998,13 @@
       "actor": "resolveflow-service",
       "component": "policy",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.095139,
-      "event_hash": "sha256:27d15bfecf6c254a73b996a727386979a1ca97bed0237874874d8295dfc044b7",
+      "duration_ms": 0.094169,
+      "event_hash": "sha256:30e0cbd5a7af61a6e5964d354f5d819dce3c511cfd7cc00d4b72ae8b020dc5ce",
       "event_id": "evt_004",
       "event_name": "retrieval.authorization.applied",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:b6f8389ecbe3f6d8425dabd16320077e51e8c598a78f6a35344c580bc7cac752",
+      "previous_event_hash": "sha256:ecd8c64f57fd694133e22ef6734fe75d7d590717b2ced775ba440577fbaea9c9",
       "safe_detail": {
         "eligible_count": 12,
         "reason_code": "eligible_by_snapshot"
@@ -1021,13 +1021,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.233578,
-      "event_hash": "sha256:367d3316c2c22aa769ac96b0305c0fe62e1a837b41440f5cdc12ae7b80f00146",
+      "duration_ms": 0.223558,
+      "event_hash": "sha256:39d126fceeb6efa38d405d051eefe1f4317fbfd42502e74d4622f612c4b0dcca",
       "event_id": "evt_005",
       "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:27d15bfecf6c254a73b996a727386979a1ca97bed0237874874d8295dfc044b7",
+      "previous_event_hash": "sha256:30e0cbd5a7af61a6e5964d354f5d819dce3c511cfd7cc00d4b72ae8b020dc5ce",
       "safe_detail": {
         "authorized": true
       },
@@ -1043,13 +1043,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.04018,
-      "event_hash": "sha256:63777e4a59d4aab259e78aa7578c97a2babb2c5454c81ec5b5153590cfb16c5e",
+      "duration_ms": 0.03536,
+      "event_hash": "sha256:073ee9c4cf6f84bbdb1573a1b265b21c1735cc3ee165ecf6a7e681b2abbaaa35",
       "event_id": "evt_006",
       "event_name": "retrieval.vector.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:367d3316c2c22aa769ac96b0305c0fe62e1a837b41440f5cdc12ae7b80f00146",
+      "previous_event_hash": "sha256:39d126fceeb6efa38d405d051eefe1f4317fbfd42502e74d4622f612c4b0dcca",
       "safe_detail": {
         "authorized": true
       },
@@ -1065,13 +1065,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.03785,
-      "event_hash": "sha256:ce5f88380a1cfdc678e87cb1fa6f8c446b337629be3f52b36f9761864ce228c1",
+      "duration_ms": 0.02845,
+      "event_hash": "sha256:74bf49067677e7bd6fa83c7aef078461a7848d57f2aabbee29b8e3aed5779a0d",
       "event_id": "evt_007",
       "event_name": "retrieval.fusion.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:63777e4a59d4aab259e78aa7578c97a2babb2c5454c81ec5b5153590cfb16c5e",
+      "previous_event_hash": "sha256:073ee9c4cf6f84bbdb1573a1b265b21c1735cc3ee165ecf6a7e681b2abbaaa35",
       "safe_detail": {
         "authorized": true
       },
@@ -1087,13 +1087,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.311827,
-      "event_hash": "sha256:c9310fce73fa7840030ed14da01da454008f9300b80e90e6352520680f547d27",
+      "duration_ms": 0.318518,
+      "event_hash": "sha256:170d235d349091a0b03bb29e8b07023d28d4845489c82b53ac924cc7d8fe2129",
       "event_id": "evt_008",
       "event_name": "retrieval.rerank.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:ce5f88380a1cfdc678e87cb1fa6f8c446b337629be3f52b36f9761864ce228c1",
+      "previous_event_hash": "sha256:74bf49067677e7bd6fa83c7aef078461a7848d57f2aabbee29b8e3aed5779a0d",
       "safe_detail": {
         "authorized": true
       },
@@ -1109,13 +1109,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 3.024503,
-      "event_hash": "sha256:3171f39b9ae3af2c3ae612c7aff07fdb37f1b708bd652487f1cdcb16834138a4",
+      "duration_ms": 2.75074,
+      "event_hash": "sha256:ec82d71624046b336a943e52b166a729aeae88569766e60a5bd533bddc006939",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:c9310fce73fa7840030ed14da01da454008f9300b80e90e6352520680f547d27",
+      "previous_event_hash": "sha256:170d235d349091a0b03bb29e8b07023d28d4845489c82b53ac924cc7d8fe2129",
       "safe_detail": {
         "provider_calls": 3,
         "terminal_reason": "complete"
@@ -1132,13 +1132,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.252442,
-      "event_hash": "sha256:6eeae68f8406ceb83614c6d1e6e2ddd5fd60cadba5d21203b1e0883b438ea0a1",
+      "duration_ms": 0.246253,
+      "event_hash": "sha256:c6ef5d4677de5304ff3fc319080edab407383f6daf3790a65b631d036039aa09",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:3171f39b9ae3af2c3ae612c7aff07fdb37f1b708bd652487f1cdcb16834138a4",
+      "previous_event_hash": "sha256:ec82d71624046b336a943e52b166a729aeae88569766e60a5bd533bddc006939",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -1154,13 +1154,13 @@
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.742654,
-      "event_hash": "sha256:346805083834e249afd431fd1ef66c70912ea04043d591560f1b2513e7f08af8",
+      "duration_ms": 0.723715,
+      "event_hash": "sha256:1d5d547030ac996ae8f04f25de36082427bc7b445d453a2913ae5a7af3b5490b",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:6eeae68f8406ceb83614c6d1e6e2ddd5fd60cadba5d21203b1e0883b438ea0a1",
+      "previous_event_hash": "sha256:c6ef5d4677de5304ff3fc319080edab407383f6daf3790a65b631d036039aa09",
       "safe_detail": {
         "attempted_effects": 0
       },
@@ -1176,13 +1176,13 @@
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.472317,
-      "event_hash": "sha256:ec721fa5743f2f8fb96d394a3fa37f60d6ff6e0682fd278bdd79a68b19e0247c",
+      "duration_ms": 0.446797,
+      "event_hash": "sha256:cda4e106cdbfd2bba13a11e8ee4fee19d6d651682cca192252a06824fcd9ac60",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:346805083834e249afd431fd1ef66c70912ea04043d591560f1b2513e7f08af8",
+      "previous_event_hash": "sha256:1d5d547030ac996ae8f04f25de36082427bc7b445d453a2913ae5a7af3b5490b",
       "safe_detail": {
         "claims": 4,
         "enforcement": "enforced",
@@ -1201,13 +1201,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 1.131772,
-      "event_hash": "sha256:2852f70de91b670476acfa1e7d5adec627fbe76e29fce534dad91e9dbb972bbe",
+      "duration_ms": 1.074182,
+      "event_hash": "sha256:04a50f810b690c0d446dbe1c0c98c5e3673e695422bd65bc1dd72eac952cd0fd",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:ec721fa5743f2f8fb96d394a3fa37f60d6ff6e0682fd278bdd79a68b19e0247c",
+      "previous_event_hash": "sha256:cda4e106cdbfd2bba13a11e8ee4fee19d6d651682cca192252a06824fcd9ac60",
       "safe_detail": {
         "disposition": "resolved"
       },
@@ -1223,13 +1223,13 @@
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_benign-03-settlement-duplicates_guarded-v1",
-      "duration_ms": 0.08128,
-      "event_hash": "sha256:c18e5db343e93568324f53f66399b9665c5dd207fa018c1b8c6a8e0c0ae33395",
+      "duration_ms": 0.07725,
+      "event_hash": "sha256:511613952c48461674aeab69e1157f78aed1acfca1b4960a3d2a54188281480f",
       "event_id": "evt_014",
       "event_name": "proposal.created",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:2852f70de91b670476acfa1e7d5adec627fbe76e29fce534dad91e9dbb972bbe",
+      "previous_event_hash": "sha256:04a50f810b690c0d446dbe1c0c98c5e3673e695422bd65bc1dd72eac952cd0fd",
       "safe_detail": {
         "blocked_reason": null,
         "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",
