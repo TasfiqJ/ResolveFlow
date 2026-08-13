@@ -15,6 +15,7 @@ import math
 from pathlib import Path
 from typing import Any
 
+from resolveflow.retrieval.cohere import read_float_embeddings
 from resolveflow.domain.hashing import checksum
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -126,7 +127,7 @@ class CachedEmbeddingAdapter:
                 embedding_types=["float"],
             )
             self.provider_embed_calls += 1
-            vectors = response.embeddings.float
+            vectors = read_float_embeddings(response)
             if len(vectors) != len(batch):
                 raise RuntimeError("embed response length does not match the request batch")
             for text, vector in zip(batch, vectors, strict=True):

@@ -50,7 +50,7 @@ def _build_harness(provider: str, max_calls: int) -> tuple[ABHarness, BudgetedCo
         )
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key), max_calls=max_calls)
+    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES), max_calls=max_calls)
     # allow_provider=False: the A/B must not be able to spend an embed call. Any
     # cache miss is a setup error and should stop the run, not quietly bill it.
     embedder = CachedEmbeddingAdapter(CACHE_PATH, client=None, allow_provider=False)

@@ -12,7 +12,7 @@ import os
 import sys
 from pathlib import Path
 
-from resolveflow.eval.budget import BudgetedCohereClient
+from resolveflow.eval.budget import SDK_MAX_RETRIES, BudgetedCohereClient
 from resolveflow.eval.corpus import ATTACK_MANIFEST, BASE_MANIFEST
 from resolveflow.eval.embedding_cache import CACHE_DIR, CachedEmbeddingAdapter
 from resolveflow.eval.scenarios import scenario_queries
@@ -44,7 +44,7 @@ def main() -> int:
 
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key))
+    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES))
     adapter = CachedEmbeddingAdapter(CACHE_PATH, client=client, allow_provider=True)
 
     documents = chunk_texts()

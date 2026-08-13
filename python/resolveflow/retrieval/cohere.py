@@ -3,6 +3,32 @@ from __future__ import annotations
 from typing import Any
 
 
+def read_float_embeddings(response: Any) -> Any:
+    """Read float vectors out of an Embed v2 response.
+
+    The SDK models the response field as ``float_`` with the wire alias
+    ``"float"``, because ``float`` is a Python builtin. Reading ``.float``
+    raises AttributeError -- which surfaces wrapped as a provider error, after
+    the embed calls have already been spent. Read the real attribute, and keep
+    fallbacks so a future SDK rename does not silently cost a run.
+    """
+    embeddings = getattr(response, "embeddings", None)
+    if embeddings is None:
+        raise AttributeError("embed response carried no embeddings")
+    for name in ("float_", "float"):
+        values = getattr(embeddings, name, None)
+        if values is not None:
+            return values
+    if isinstance(embeddings, dict):
+        values = embeddings.get("float") or embeddings.get("float_")
+        if values is not None:
+            return values
+    raise AttributeError(
+        "embed response exposed no float embeddings; "
+        f"available: {sorted(type(embeddings).model_fields)}"
+    )
+
+
 class ProviderAdapterError(RuntimeError):
     def __init__(self, endpoint: str, model: str) -> None:
         super().__init__(f"{endpoint} provider request failed for {model}")
@@ -35,7 +61,7 @@ class CohereEmbedAdapter:
             )
         except Exception as exc:
             raise ProviderAdapterError("embed", self.model) from exc
-        values = response.embeddings.float
+        values = read_float_embeddings(response)
         return tuple(tuple(float(value) for value in vector) for vector in values)
 
     def embed_documents(self, texts: tuple[str, ...]) -> tuple[tuple[float, ...], ...]:

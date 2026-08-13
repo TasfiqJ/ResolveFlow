@@ -29,6 +29,14 @@ Endpoint = Literal["chat", "embed", "rerank"]
 
 # Cohere trial key ceilings, as stated in the task brief.
 DEFAULT_RATE_LIMITS: dict[Endpoint, int] = {"chat": 20, "embed": 5, "rerank": 10}
+# The SDK retries 429/408/409/5xx internally, by default twice, and those
+# retries are real HTTP requests against the monthly key quota that this
+# wrapper never sees. That would make the ledger's central claim -- "the run
+# consumed exactly N provider calls, because a counter incremented once per
+# HTTP attempt" -- false, and would let a rate-limited burst spend 3x the
+# counted budget. Retries are handled here instead, where they are counted.
+SDK_MAX_RETRIES = 0
+
 DEFAULT_MAX_CALLS = 400
 RATE_WINDOW_SECONDS = 60.0
 # Leave headroom so a clock skew between us and the provider does not trip a 429.

@@ -35,7 +35,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from resolveflow.eval.budget import BudgetedCohereClient
+from resolveflow.eval.budget import SDK_MAX_RETRIES, BudgetedCohereClient
 from resolveflow.ingestion.fixtures import ROOT
 
 RESULTS_DIR = ROOT / "eval" / "results"
@@ -131,7 +131,7 @@ def main(argv: list[str] | None = None) -> int:
 
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key), max_calls=40)
+    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES), max_calls=40)
     cells = probe(client, model)
 
     accepted = [cell for cell in cells if cell["accepted"]]
