@@ -363,6 +363,11 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
     ]
     walls = [row["wall_clock_ms"] for row in rows if row["wall_clock_ms"] is not None]
     providers = [row["provider_call_ms"] for row in rows if row["provider_call_ms"] is not None]
+    locals_ = [
+        row["wall_clock_ms"] - row["provider_call_ms"]
+        for row in rows
+        if row["wall_clock_ms"] is not None and row["provider_call_ms"] is not None
+    ]
     stages: dict[str, list[float]] = {}
     for row in rows:
         for stage, value in (row["stage_ms"] or {}).items():
@@ -391,11 +396,29 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "attacks_not_exercised": sum(1 for row in rows if row["attack_delivered"] is False),
         "proposal_states": _counter(row["proposal_state"] for row in rows),
         "terminal_reasons": _counter(row["terminal_reason"] for row in rows),
+        # Wall clock and provider-call time are reported separately and are never
+        # summed: wall clock already contains provider time.
         "wall_clock_ms": _stats(walls),
         "provider_call_ms": _stats(providers),
+        "local_compute_ms": _stats(locals_),
+        # p50 and p95 for every stage. The previous artifact published a median
+        # only, so a stage with a long tail was indistinguishable from a flat one.
+        "stage_ms": {stage: _stats(values) for stage, values in sorted(stages.items())},
+        # Retained under its old key so existing readers of the artifact do not
+        # silently lose the series when the richer block is added.
         "stage_ms_median": {
-            stage: round(statistics.median(values), 3) for stage, values in sorted(stages.items())
+            stage: round(statistics.median(values), 6) for stage, values in sorted(stages.items())
         },
+        "stage_ms_p95": {
+            stage: _percentile(values, 0.95) for stage, values in sorted(stages.items())
+        },
+        # Which run produced the slowest wall clock, so an outlier can be
+        # attributed to a run and a stage instead of left unexplained.
+        "wall_clock_max_run": _slowest(rows),
+        # How much of the wall clock the named stages actually account for. The
+        # stage list is not a partition of the run: orchestration between stages
+        # is unattributed. Published so no reader infers stage times sum to wall.
+        "stage_attribution": _attribution(rows),
     }
 
 
@@ -407,17 +430,79 @@ def _counter(values: Any) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def _percentile(values: list[float], q: float) -> float | None:
+    """Nearest-rank percentile on the sorted sample.
+
+    With n=16 per cell a p95 is the 16th-of-16 order statistic; it is a sample
+    maximum wearing a percentile's name, not an estimate of a population tail.
+    The count travels with every stats block so a reader can see that.
+    """
+    if not values:
+        return None
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, int(round(q * (len(ordered) - 1))))
+    return round(ordered[index], 6)
+
+
 def _stats(values: list[float]) -> dict[str, float] | None:
     if not values:
         return None
     ordered = sorted(values)
     return {
         "count": len(ordered),
-        "min": round(ordered[0], 3),
-        "median": round(statistics.median(ordered), 3),
-        "mean": round(statistics.fmean(ordered), 3),
-        "p95": round(ordered[min(len(ordered) - 1, int(round(0.95 * (len(ordered) - 1))))], 3),
-        "max": round(ordered[-1], 3),
+        "min": round(ordered[0], 6),
+        "p50": round(statistics.median(ordered), 6),
+        "median": round(statistics.median(ordered), 6),
+        "mean": round(statistics.fmean(ordered), 6),
+        "stdev": round(statistics.stdev(ordered), 6) if len(ordered) > 1 else 0.0,
+        "p95": _percentile(ordered, 0.95),
+        "max": round(ordered[-1], 6),
+    }
+
+
+def _attribution(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Share of wall-clock time that lands inside a named stage."""
+    timed = [
+        row for row in rows if row.get("wall_clock_ms") is not None and row["wall_clock_ms"] > 0
+    ]
+    if not timed:
+        return None
+    shares = [sum((row.get("stage_ms") or {}).values()) / row["wall_clock_ms"] for row in timed]
+    unattributed = [
+        row["wall_clock_ms"] - sum((row.get("stage_ms") or {}).values()) for row in timed
+    ]
+    return {
+        "runs": len(timed),
+        "attributed_fraction_p50": round(statistics.median(shares), 4),
+        "attributed_fraction_min": round(min(shares), 4),
+        "unattributed_ms_p50": round(statistics.median(unattributed), 6),
+        "unattributed_ms_max": round(max(unattributed), 6),
+        "note": (
+            "Stages are instrumented spans, not a partition of the run. The "
+            "remainder is orchestrator work between spans and is not a measured "
+            "stage."
+        ),
+    }
+
+
+def _slowest(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The slowest run in the cell, with its stage breakdown.
+
+    Present so that a wall-clock outlier is attributable rather than unexplained.
+    """
+    timed = [row for row in rows if row.get("wall_clock_ms") is not None]
+    if not timed:
+        return None
+    worst = max(timed, key=lambda row: row["wall_clock_ms"])
+    stage_ms = worst.get("stage_ms") or {}
+    accounted = sum(stage_ms.values())
+    return {
+        "run_id": worst["run_id"],
+        "wall_clock_ms": worst["wall_clock_ms"],
+        "provider_call_ms": worst["provider_call_ms"],
+        "stage_ms_total": round(accounted, 6),
+        "unattributed_ms": round(worst["wall_clock_ms"] - accounted, 6),
+        "top_stages": dict(sorted(stage_ms.items(), key=lambda kv: -kv[1])[:5]),
     }
 
 
@@ -492,8 +577,25 @@ def run_ab(
                 ),
             }
 
+    # Name the clock in the artifact itself. A latency table whose clock is
+    # unstated cannot be audited, and the previous run's 0.0 ms stages were a
+    # clock-granularity artifact that the artifact gave no way to detect.
+    first_timing = next((s.timing for s in snapshots if s.timing is not None), None)
+    clock_block = (
+        {
+            "clock": first_timing.clock,
+            "clock_resolution_ns": first_timing.clock_resolution_ns,
+            "platform": first_timing.platform,
+            "unit": first_timing.unit,
+            "timing_schema_version": first_timing.schema_version,
+        }
+        if first_timing is not None
+        else None
+    )
+
     result: dict[str, Any] = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
+        "timing": clock_block,
         "generated_at": generated_at.isoformat(),
         "provider": harness.provider,
         "command_model": harness.command_model if harness.provider == "cohere" else None,

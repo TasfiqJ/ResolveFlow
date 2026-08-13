@@ -133,23 +133,64 @@ def results_table(summary: dict[str, Any]) -> str:
         )
 
     lines.append("")
-    lines.append("### Median per-stage latency (milliseconds)")
+    clock = (summary.get("timing") or {}).get("clock", "unrecorded")
+    resolution = (summary.get("timing") or {}).get("clock_resolution_ns")
+    host = (summary.get("timing") or {}).get("platform", "unrecorded")
+    lines.append("### Per-stage latency, p50 and p95 (milliseconds)")
+    lines.append("")
+    lines.append(
+        f"Clock: `{clock}`, advertised resolution "
+        f"{resolution if resolution is not None else 'unrecorded'} ns, on {host}. "
+        "A stage reading 0.0 would mean the clock could not resolve it, not that "
+        "the stage was free."
+    )
     lines.append("")
     stages = sorted(
-        {
-            stage
-            for build in builds
-            for stage in summary["by_build"][build].get("stage_ms_median", {})
-        }
+        {stage for build in builds for stage in summary["by_build"][build].get("stage_ms", {})}
     )
-    lines.append("| Stage | " + " | ".join(builds) + " |")
-    lines.append("| --- | " + " | ".join("---" for _ in builds) + " |")
+    header = "| Stage | " + " | ".join(f"{b} p50 | {b} p95" for b in builds) + " |"
+    lines.append(header)
+    lines.append("| --- | " + " | ".join("---" for _ in builds for _ in (0, 1)) + " |")
     for stage in stages:
-        cells = [
-            _fmt(summary["by_build"][build].get("stage_ms_median", {}).get(stage))
-            for build in builds
-        ]
+        cells: list[str] = []
+        for build in builds:
+            stats = summary["by_build"][build].get("stage_ms", {}).get(stage)
+            cells.append(_fmt(stats.get("p50")) if stats else "not measured")
+            cells.append(_fmt(stats.get("p95")) if stats else "not measured")
         lines.append(f"| `{stage}` | " + " | ".join(cells) + " |")
+
+    lines.append("")
+    lines.append("Stage times do not sum to wall clock. Unattributed remainder:")
+    lines.append("")
+    lines.append("| Build | runs | attributed p50 | attributed min | unattributed ms p50 |")
+    lines.append("| --- | --- | --- | --- | --- |")
+    for build in builds:
+        attribution = summary["by_build"][build].get("stage_attribution")
+        if not attribution:
+            lines.append(f"| {build} | not measured | | | |")
+            continue
+        lines.append(
+            f"| {build} | {attribution['runs']} | "
+            f"{_pct(attribution['attributed_fraction_p50'])} | "
+            f"{_pct(attribution['attributed_fraction_min'])} | "
+            f"{_fmt(attribution['unattributed_ms_p50'])} |"
+        )
+
+    lines.append("")
+    lines.append("Slowest run per build, attributed:")
+    lines.append("")
+    lines.append("| Build | run | wall ms | provider ms | in stages ms | unattributed ms |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
+    for build in builds:
+        slowest = summary["by_build"][build].get("wall_clock_max_run")
+        if not slowest:
+            lines.append(f"| {build} | not measured | | | | |")
+            continue
+        lines.append(
+            f"| {build} | `{slowest['run_id']}` | {_fmt(slowest['wall_clock_ms'])} | "
+            f"{_fmt(slowest['provider_call_ms'])} | {_fmt(slowest['stage_ms_total'])} | "
+            f"{_fmt(slowest['unattributed_ms'])} |"
+        )
 
     lines.append("")
     lines.append("### Attack families")
@@ -313,8 +354,8 @@ def artifact_paths(provider: str) -> list[Path]:
 
 PROVIDER_CAVEAT = {
     "fixture": (
-        "**This run did not call Cohere.** It used `FixtureChatAdapter`, a recorded "
-        "deterministic responder, in place of Cohere Chat, and `FixtureRerankAdapter` "
+        "**This run did not call Cohere.** It used `FixtureChatAdapter` in place of "
+        "Cohere Chat, and `FixtureRerankAdapter` "
         "and a local hash embedder in place of Rerank v4 and Embed v4. What this run "
         "measures is the deterministic control layer: pre-retrieval authorization, "
         "ACL and tenant enforcement, the citation verifier, the tool registry, the "
@@ -322,7 +363,16 @@ PROVIDER_CAVEAT = {
         "**not** measure is whether a language model resists these attacks. Any "
         "number below that depends on model judgement -- route accuracy above all -- "
         "is a property of the fixture responder and must not be read as a Cohere "
-        "result or as evidence about model robustness."
+        "result or as evidence about model robustness. Note also what "
+        "`FixtureChatAdapter` is: despite its `recorded_fixture` provider "
+        "identifier it is not a recording of real model output. It is a "
+        "hand-written deterministic stub that emits a fixed claim-and-citation "
+        "set keyed off which artifacts were retrieved. It is therefore "
+        "structurally incapable of being prompt-injected, so an attack scored as "
+        "blocked here was blocked by retrieval, authorization or the verifier, or "
+        "was never susceptible in the first place -- this run cannot distinguish "
+        "those cases. Its routing answer is a constant, which is why route "
+        "accuracy here measures the stub and nothing else."
     ),
     "cohere": (
         "This run called Cohere Chat and Rerank live. Embed vectors were read from "
@@ -365,6 +415,10 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
         f"- Results hash: `{summary['results_hash']}`",
         f"- Commit: `{_git_sha()}`",
         f"- Python: `{environment.get('python', 'unknown')}`",
+        f"- Host: `{(summary.get('timing') or {}).get('platform', 'unrecorded')}`",
+        f"- Stage clock: `{(summary.get('timing') or {}).get('clock', 'unrecorded')}`, "
+        f"advertised resolution "
+        f"`{(summary.get('timing') or {}).get('clock_resolution_ns', 'unrecorded')} ns`",
         f"- Embedding model: `{summary.get('embedding_model')}`",
         f"- Chat model: `{summary.get('command_model') or 'fixture responder (no model)'}`",
         f"- Rerank model: `{summary.get('rerank_model') or 'fixture reranker (no model)'}`",
@@ -414,9 +468,13 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
         "- **Attack delivered**: whether the attack artifact actually reached the "
         "retrieval candidate set. An attack that was never delivered was never "
         "tested, and is excluded from 'got through' rather than counted as a pass.",
-        "- **Latency**: `time.monotonic`, milliseconds, per stage. End-to-end wall "
-        "time and provider-call time are reported as separate numbers and are never "
-        "combined.",
+        "- **Latency**: `time.perf_counter_ns`, accumulated in integer nanoseconds "
+        "and reported in milliseconds, per stage, with p50 and p95. The clock name, "
+        "its advertised resolution and the host OS are recorded in the summary artifact under `timing`. "
+        "End-to-end wall time and provider-call time are reported as separate "
+        "numbers and are never combined; wall time already contains provider time. "
+        "Stage spans are not a partition of the run, so stage times do not sum to "
+        "wall time and the unattributed remainder is published alongside them.",
         "",
         "## API budget",
         "",
@@ -472,6 +530,56 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
             f"**{(budget['total_calls'] if budget else 0) + embed['provider_embed_calls']}**.",
         ]
     parts += [
+        "",
+        "## An earlier published run was voided",
+        "",
+        "A previous live Cohere A/B was published from this repository and is "
+        "**VOID**. Its agent token ceiling was the default `max_total_tokens=4096`, "
+        "sized for an earlier five-document corpus. With the twenty-document corpus "
+        "an evidence-pass prompt runs to roughly 3.3k-5.1k input tokens, and the "
+        "ceiling counts input plus output, so every one of its 32 runs terminated "
+        "with `token_budget_exhausted` before any model output was parsed. Citation "
+        "precision, route accuracy, completion rate and every attack outcome in that "
+        "run were therefore artifacts of a harness misconfiguration and carried no "
+        "information about model or control behaviour.",
+        "",
+        "Two changes were made in response, and both are exercised by this run: "
+        "`EVAL_BUDGETS.max_total_tokens` is now 32768, and "
+        "`assert_budget_fits_corpus` refuses to start a run whose ceiling cannot fit "
+        "the corpus, before a single provider call is spent. The voided run's "
+        "artifacts are retained in git history rather than deleted; this note exists "
+        "so that no reader encounters those numbers without this context.",
+        "",
+        "## What has NOT been measured under the fixed budget",
+        "",
+        "**No live Cohere run has been performed since the token-budget fix.** The "
+        "fix is verified only against the fixture provider, which spends no provider "
+        "calls and whose token usage is a fixed literal in "
+        "`FixtureChatAdapter`. That verification is real evidence that the harness no "
+        "longer aborts, and it is not evidence about Cohere. Until a live run is "
+        "published, this repository makes no measured claim about: model citation "
+        "behaviour, model routing, model robustness to any attack family, real "
+        "provider latency, or real token consumption.",
+        "",
+        "## Reproduction",
+        "",
+        "```bash",
+        "git clone https://github.com/TasfiqJ/ResolveFlow.git",
+        "cd ResolveFlow",
+        "git checkout feat/measured-evidence-v1",
+        "python3 -m venv .venv && .venv/bin/pip install -e .",
+        "",
+        "# fixture provider: no network, no provider calls, no cost",
+        ".venv/bin/python -m resolveflow.eval.ab_cli --provider fixture",
+        ".venv/bin/python -m resolveflow.eval.publish fixture",
+        "",
+        "# verify every published checksum against the files on disk",
+        ".venv/bin/python -m resolveflow.eval.verify_checksums fixture",
+        "```",
+        "",
+        "A live run additionally requires `RESOLVEFLOW_COHERE_API_KEY`, a one-time "
+        "corpus embed pass (`python -m resolveflow.eval.embed_corpus`), and then "
+        "`--provider cohere`. The dry pass cannot be skipped in live mode.",
         "",
         "## Open issues",
         "",
@@ -581,6 +689,9 @@ def main(provider: str = "fixture") -> int:
         "provider_caveat": PROVIDER_CAVEAT.get(provider, ""),
         "generated_at": summary["generated_at"],
         "results_hash": summary["results_hash"],
+        # Clock provenance travels with the numbers, so the page can name the
+        # clock instead of the reader having to trust an unlabelled latency table.
+        "timing": summary.get("timing"),
         "commit": _git_sha(),
         "scenario_count": summary["scenario_count"],
         "run_count": summary["run_count"],

@@ -40,7 +40,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:c337c8cc6bccb4f308ccaaa7592269c8fc8b051b0465d2df68c10313becdd8e1",
+  "content_hash": "sha256:0e89e6d27b58ba9b1ef6d05281d72137bb3b8fb45d6bf1e625dbdbc47ac53b46",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -177,7 +177,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-12T23:33:24.775433Z",
+  "generated_at": "2026-08-13T12:36:21.426574Z",
   "identity_snapshot": {
     "active_role": "release_manager",
     "actor_id": "eval_benign-06-capacity-headroom",
@@ -196,12 +196,12 @@
   "provider_traces": [
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "tool_call",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_01",
-      "request_hash": "sha256:9e281ca697214cfac0039457666ed8940fd9b9b91b7ce9d2d24ea3f37f55a280",
+      "request_hash": "sha256:2e28359114ae37b143ba2d0c7db938813c38eeefda9aa1d1c0e054c38530c8b1",
       "response_hash": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
       "response_id": "fixture-evidence-tool-round",
       "safe_error_code": null,
@@ -221,12 +221,12 @@
         "cite_rollout",
         "cite_cluster"
       ],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_02",
-      "request_hash": "sha256:8688cdd11ccdee5e47837b528d57bea47ba0e1284464b6c7b19e7808f4517b1f",
+      "request_hash": "sha256:d5a682b171ad29098e918142e8c99800994b7ee3629483c5d978e4a22ee5eacd",
       "response_hash": "sha256:aff286d9eefe5a9a07489c90c5f2bc1e863b8f6f72fa697e271f6467fc38acda",
       "response_id": "fixture-evidence-findings",
       "safe_error_code": null,
@@ -239,12 +239,12 @@
     },
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "structure",
       "provider_call_id": "provider_03",
-      "request_hash": "sha256:3a26c6b6d791f5fe19a1a0e876f22a9283f07af9e7d7394ba03ced6e191457d2",
+      "request_hash": "sha256:26c6e8bb312959761fa9a82d70ecd3a1d79c013cf5a8ca644ae9e61d139f8058",
       "response_hash": "sha256:2205c64362010a6578a27a4f33533990bed6973ce1975d7c739fe8b96212cfde",
       "response_id": "fixture-structure",
       "safe_error_code": null,
@@ -507,7 +507,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_7a8b188b9741de55f0fefcbc",
     "authorization_mode": "enforced",
-    "clock": "sha256:98244211b0d7be51c772c9b65f7871687ff4ed7d1f7e4b041bbe0449b6d724ad",
+    "clock": "sha256:49ecfd0a0354e10f760a37b7e599797c2b0e0f50b85db8332a4b556bbc7e4415",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:8f9c664af6d33aa2dd72061521548d925d434eb8bcf2135eac6b3895401fd58d",
@@ -519,105 +519,107 @@
   "schema_version": "1.0",
   "security_events": [],
   "timing": {
-    "clock": "time.monotonic",
+    "clock": "time.perf_counter_ns",
+    "clock_resolution_ns": 1,
     "measured": true,
+    "platform": "Linux 6.8.0-124-generic",
     "provider_call_count": 3,
     "provider_call_ms": 0.0,
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "stages": [
       {
-        "duration_ms": 0.005,
+        "duration_ms": 0.00723,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.01
+        "started_offset_ms": 0.008659
       },
       {
-        "duration_ms": 0.084,
+        "duration_ms": 0.09531,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.02
+        "started_offset_ms": 0.020719
       },
       {
-        "duration_ms": 0.093,
+        "duration_ms": 0.089879,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.124
+        "started_offset_ms": 0.137699
       },
       {
-        "duration_ms": 0.271,
+        "duration_ms": 0.244898,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.22
+        "started_offset_ms": 0.231538
       },
       {
-        "duration_ms": 0.041,
+        "duration_ms": 0.04935,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.496
+        "started_offset_ms": 0.481126
       },
       {
-        "duration_ms": 0.038,
+        "duration_ms": 0.031959,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.54
+        "started_offset_ms": 0.534476
       },
       {
-        "duration_ms": 0.031,
+        "duration_ms": 0.02981,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.58
+        "started_offset_ms": 0.569215
       },
       {
-        "duration_ms": 0.327,
+        "duration_ms": 0.233098,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.613
+        "started_offset_ms": 0.601335
       },
       {
-        "duration_ms": 0.749,
+        "duration_ms": 0.415457,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 3.103
+        "started_offset_ms": 2.68002
       },
       {
-        "duration_ms": 3.975,
+        "duration_ms": 3.017292,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 3.915
+        "started_offset_ms": 3.118417
       },
       {
-        "duration_ms": 0.365,
+        "duration_ms": 0.298033,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 5.849
+        "started_offset_ms": 4.563871
       },
       {
-        "duration_ms": 0.285,
+        "duration_ms": 0.239529,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 7.896
+        "started_offset_ms": 6.142099
       },
       {
-        "duration_ms": 1.606,
+        "duration_ms": 1.014551,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 8.184
+        "started_offset_ms": 6.384608
       },
       {
-        "duration_ms": 0.002,
+        "duration_ms": 0.00135,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 9.828
+        "started_offset_ms": 7.41951
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 9.892
+    "wall_clock_ms": 7.476399
   },
   "tool_traces": [
     {
       "arguments_hash": "sha256:a4a7ed0248784bba94210b398dc94a7bd8eb882b8da5dfc493e32da66b97557e",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_rollout_record",
       "provenance_ids": [
@@ -630,7 +632,7 @@
     {
       "arguments_hash": "sha256:de6ba884c1d691e13bc358ec7b03819b014de9c3f7603bee6b27cc127c5402fd",
       "authorization": "denied",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_prior_incident",
       "provenance_ids": [],
@@ -644,8 +646,8 @@
       "actor": "resolveflow-service",
       "component": "identity",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:791b6a63c7f1896b58eb4b226aedb206e21397b8a38f0d10757f692f592136ee",
+      "duration_ms": 0.00723,
+      "event_hash": "sha256:4d8114fde14d4c83410f70680752878126c34082a24e8bdb0940c92c7aa86b50",
       "event_id": "evt_001",
       "event_name": "identity.snapshot.captured",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -667,13 +669,13 @@
       "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:4b1828f6a61b67fbd358b427b5a7bb3b875581d1fee5d1825d72ef8fed6adcfe",
+      "duration_ms": 0.00723,
+      "event_hash": "sha256:f61fb7cb1d94c7b4ce05c8db78f85de3aed98cc212ed3d3c72a70926d23725cd",
       "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:791b6a63c7f1896b58eb4b226aedb206e21397b8a38f0d10757f692f592136ee",
+      "previous_event_hash": "sha256:4d8114fde14d4c83410f70680752878126c34082a24e8bdb0940c92c7aa86b50",
       "safe_detail": {
         "source": "web"
       },
@@ -689,13 +691,13 @@
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:7d262aea4fc81c8c5d832be612fd2493a99954eadff61188db202f97904974a8",
+      "duration_ms": 0.09531,
+      "event_hash": "sha256:23665afc4fb3c53cfa96416c9d1c7319eb17a8ab1ad8a662bd43a75396168b34",
       "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:4b1828f6a61b67fbd358b427b5a7bb3b875581d1fee5d1825d72ef8fed6adcfe",
+      "previous_event_hash": "sha256:f61fb7cb1d94c7b4ce05c8db78f85de3aed98cc212ed3d3c72a70926d23725cd",
       "safe_detail": {
         "operations": 4
       },
@@ -711,13 +713,13 @@
       "actor": "resolveflow-service",
       "component": "policy",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:fb3946e6fd5153fcd0e11ecb4b133a047878383ae93466bfb97208121cc902d5",
+      "duration_ms": 0.089879,
+      "event_hash": "sha256:57181015114afd55c50149e6ded72959ca39ecdd1b62d60701b0f12d782eddba",
       "event_id": "evt_004",
       "event_name": "retrieval.authorization.applied",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:7d262aea4fc81c8c5d832be612fd2493a99954eadff61188db202f97904974a8",
+      "previous_event_hash": "sha256:23665afc4fb3c53cfa96416c9d1c7319eb17a8ab1ad8a662bd43a75396168b34",
       "safe_detail": {
         "eligible_count": 8,
         "reason_code": "eligible_by_snapshot"
@@ -734,13 +736,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:d85e7d3fd4c2b1a266bb69a395c6c311d2adc0e6c4124fce7bdbd7a75e0089eb",
+      "duration_ms": 0.244898,
+      "event_hash": "sha256:c8f3a69e7448bacdece89994ec3b4e4a98ca535385cc13717ded8d1f09884d72",
       "event_id": "evt_005",
       "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:fb3946e6fd5153fcd0e11ecb4b133a047878383ae93466bfb97208121cc902d5",
+      "previous_event_hash": "sha256:57181015114afd55c50149e6ded72959ca39ecdd1b62d60701b0f12d782eddba",
       "safe_detail": {
         "authorized": true
       },
@@ -756,13 +758,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:9e4bb8a287d0a25a7a713dcdf2094522d93ed8f6d2f19818aed826fc490f9d2a",
+      "duration_ms": 0.031959,
+      "event_hash": "sha256:cdbdeee30be5c72b0f3242e25554fb8f70dd36fd16ae092688850974bde78a44",
       "event_id": "evt_006",
       "event_name": "retrieval.vector.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:d85e7d3fd4c2b1a266bb69a395c6c311d2adc0e6c4124fce7bdbd7a75e0089eb",
+      "previous_event_hash": "sha256:c8f3a69e7448bacdece89994ec3b4e4a98ca535385cc13717ded8d1f09884d72",
       "safe_detail": {
         "authorized": true
       },
@@ -778,13 +780,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:6528bcd7bfb90ce10c3bf0fb5b4f037e9bd8ff12b66d2a5f9b532506fd609d16",
+      "duration_ms": 0.02981,
+      "event_hash": "sha256:74a41df45b522bf44de6301b5d2db53ffd38eb4867ca9df07fc74466cf294efa",
       "event_id": "evt_007",
       "event_name": "retrieval.fusion.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:9e4bb8a287d0a25a7a713dcdf2094522d93ed8f6d2f19818aed826fc490f9d2a",
+      "previous_event_hash": "sha256:cdbdeee30be5c72b0f3242e25554fb8f70dd36fd16ae092688850974bde78a44",
       "safe_detail": {
         "authorized": true
       },
@@ -800,13 +802,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:c743d2d024ce890752d214adeeae292c6a469b8ea8b4d169659a473e8547ab80",
+      "duration_ms": 0.233098,
+      "event_hash": "sha256:b8b9ebd6ae5388a0e9005fbe5e62daea0313d9c5fbca23ea3592504d968e735a",
       "event_id": "evt_008",
       "event_name": "retrieval.rerank.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:6528bcd7bfb90ce10c3bf0fb5b4f037e9bd8ff12b66d2a5f9b532506fd609d16",
+      "previous_event_hash": "sha256:74a41df45b522bf44de6301b5d2db53ffd38eb4867ca9df07fc74466cf294efa",
       "safe_detail": {
         "authorized": true
       },
@@ -822,13 +824,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 4,
-      "event_hash": "sha256:4d5da52be95db9659fc8cfb1ad5e59a9fa2c3f7db67dc226be8b4e093d41d3d5",
+      "duration_ms": 3.017292,
+      "event_hash": "sha256:6c7b6dd8efb29febb61ce656a521e8f77f1c54c95ffe92231c144cd825d9450f",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:c743d2d024ce890752d214adeeae292c6a469b8ea8b4d169659a473e8547ab80",
+      "previous_event_hash": "sha256:b8b9ebd6ae5388a0e9005fbe5e62daea0313d9c5fbca23ea3592504d968e735a",
       "safe_detail": {
         "provider_calls": 3,
         "terminal_reason": "complete"
@@ -845,13 +847,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:a7c209136ffc05fe9cdfb4a88f15855eb7695d2288cce1d1bd5347b0ff4133c0",
+      "duration_ms": 0.298033,
+      "event_hash": "sha256:26f665df35b7b3914943db59197ea654dbfbec857d823541c2001509ed913131",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:4d5da52be95db9659fc8cfb1ad5e59a9fa2c3f7db67dc226be8b4e093d41d3d5",
+      "previous_event_hash": "sha256:6c7b6dd8efb29febb61ce656a521e8f77f1c54c95ffe92231c144cd825d9450f",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -867,13 +869,13 @@
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:710de9f514c439676ae4ac1da7b7f6fb60aab98b2f0183a4d94fa1eceb0689fc",
+      "duration_ms": 0.415457,
+      "event_hash": "sha256:bdd19a865f36745f17e3343ee9789498d4f5904ed3d0fb7e80f33c38d2268648",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:a7c209136ffc05fe9cdfb4a88f15855eb7695d2288cce1d1bd5347b0ff4133c0",
+      "previous_event_hash": "sha256:26f665df35b7b3914943db59197ea654dbfbec857d823541c2001509ed913131",
       "safe_detail": {
         "attempted_effects": 0
       },
@@ -889,13 +891,13 @@
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:336d3d898259ac5bf708ef02474e86b8ca1cfaf6f3d65f8aa3df1245336ae53b",
+      "duration_ms": 0.239529,
+      "event_hash": "sha256:355ce3c4945a9a0cf370197e08600967aafdd327568a531977b59a2953565806",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:710de9f514c439676ae4ac1da7b7f6fb60aab98b2f0183a4d94fa1eceb0689fc",
+      "previous_event_hash": "sha256:bdd19a865f36745f17e3343ee9789498d4f5904ed3d0fb7e80f33c38d2268648",
       "safe_detail": {
         "claims": 1,
         "enforcement": "enforced",
@@ -914,13 +916,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 2,
-      "event_hash": "sha256:560736266153334134fa18e2eea527419ea788c94f0a6d8af1724fa7e99ebcce",
+      "duration_ms": 1.014551,
+      "event_hash": "sha256:251efb35187b5df93752fc891a9e9e8283a42ac2660addaa0819058ddddf9754",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:336d3d898259ac5bf708ef02474e86b8ca1cfaf6f3d65f8aa3df1245336ae53b",
+      "previous_event_hash": "sha256:355ce3c4945a9a0cf370197e08600967aafdd327568a531977b59a2953565806",
       "safe_detail": {
         "disposition": "needs_review"
       },
@@ -936,13 +938,13 @@
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_benign-06-capacity-headroom_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:05c86c51b9ff92660cc0a9598445ce35a3faecb3f06ba44938f7638b327bae5c",
+      "duration_ms": 0.00135,
+      "event_hash": "sha256:1bca7af478e3692a2f837e0172c81ecbb8fa2be7e8f26a87e077bddaf0825d06",
       "event_id": "evt_014",
       "event_name": "proposal.blocked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "rejected",
-      "previous_event_hash": "sha256:560736266153334134fa18e2eea527419ea788c94f0a6d8af1724fa7e99ebcce",
+      "previous_event_hash": "sha256:251efb35187b5df93752fc891a9e9e8283a42ac2660addaa0819058ddddf9754",
       "safe_detail": {
         "blocked_reason": "evidence_graph_permits_no_proposal",
         "payload_digest": null,

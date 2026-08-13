@@ -13,7 +13,25 @@ from resolveflow.agent.contracts import (
 
 
 class FixtureChatAdapter:
-    """Deterministic two-pass provider fixture; it never performs network I/O."""
+    """Deterministic two-pass provider stub; it never performs network I/O.
+
+    This is a hand-written stub, not a recording of real model output. The
+    ``recorded_fixture`` provider identifier below is a legacy name and is load
+    bearing (the orchestrator and several tests compare against it), so it is
+    left alone -- but nothing here was ever produced by a language model.
+
+    Consequences for anything measured against this adapter:
+
+    * It cannot be prompt-injected. It never reads instruction text out of the
+      retrieved documents; it keys off which artifact IDs are present. An attack
+      that "fails" against it was not resisted by a model.
+    * Its route answer is a constant, so route accuracy measured here is a
+      property of this file.
+    * Its usage numbers are fixed literals, so token counts measured here are
+      not model token counts.
+    * Its latency is local dict manipulation, so ``model_evidence_pass`` timing
+      here is not provider latency.
+    """
 
     provider_name = "recorded_fixture"
 

@@ -103,7 +103,7 @@ class ProviderTrace(FrozenModel):
     tool_call_names: tuple[str, ...]
     citation_ids: tuple[str, ...]
     usage: ProviderUsage
-    duration_ms: int = Field(ge=0)
+    duration_ms: float = Field(ge=0.0)
     safe_error_code: str | None = None
 
 
@@ -113,7 +113,7 @@ class ToolTrace(FrozenModel):
     status: Literal["ok", "rejected", "timeout", "error"]
     authorization: Literal["allowed", "denied", "not_evaluated"]
     arguments_hash: str
-    duration_ms: int = Field(ge=0)
+    duration_ms: float = Field(ge=0.0)
     provenance_ids: tuple[str, ...]
     safe_error_code: str | None = None
     external_write: Literal[False] = False

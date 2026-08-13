@@ -98,7 +98,7 @@ class BudgetedCohereClient:
         max_attempts: int = 4,
         backoff_base_seconds: float = 5.0,
         sleep: Callable[[float], None] = time.sleep,
-        clock: Callable[[], float] = time.monotonic,
+        clock: Callable[[], float] = time.perf_counter,
         on_call: Callable[[ProviderCallRecord], None] | None = None,
     ) -> None:
         self._client = client

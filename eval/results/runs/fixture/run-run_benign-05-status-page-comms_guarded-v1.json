@@ -40,7 +40,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:da338a621bf326e746e9ab2cbe4994a7f06db82fb7706cfcd5be57f523eb7cb7",
+  "content_hash": "sha256:eb8be65c4040b2650f3595b68cd105e653f9633bd94f014b4bba8bdbbaf595a3",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -230,7 +230,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-12T23:33:24.775433Z",
+  "generated_at": "2026-08-13T12:36:21.426574Z",
   "identity_snapshot": {
     "active_role": "support_engineer",
     "actor_id": "eval_benign-05-status-page-comms",
@@ -249,12 +249,12 @@
   "provider_traces": [
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "tool_call",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_01",
-      "request_hash": "sha256:5c21ab260e06b5dff79539c955e927ab2a225d2ef4200c7f2633abc50d0ae701",
+      "request_hash": "sha256:d54e29095e8f9b6d4f33beb019bfa91d838e12b6b99fa066be93b5b06ff2183d",
       "response_hash": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
       "response_id": "fixture-evidence-tool-round",
       "safe_error_code": null,
@@ -274,12 +274,12 @@
         "cite_rollout",
         "cite_cluster"
       ],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_02",
-      "request_hash": "sha256:8c1e8164e44f93b4e8ddaf4270ae8049762a43cd3df0b2f1f4d3e0fd1f26284e",
+      "request_hash": "sha256:124111919127917f89cd31773864012f3c5c65f8145554471f5091aa9290a450",
       "response_hash": "sha256:b80de2462deaabfcb3faa774e3bcd8679fcec40d1a51a39572748d9c4183974f",
       "response_id": "fixture-evidence-findings",
       "safe_error_code": null,
@@ -292,12 +292,12 @@
     },
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "structure",
       "provider_call_id": "provider_03",
-      "request_hash": "sha256:22094db6fcf45ce9ab8da30cc001c37179de10676a9b0f21cc65357cc3d20fdc",
+      "request_hash": "sha256:4c088e0d84deb12cd218d8512ac1688ec33e5bfe312795d49fdab9197c42efc5",
       "response_hash": "sha256:2f094986e0616d621f1cc5df4a3ade242df128a6a543a095dc87462821cdfc00",
       "response_id": "fixture-structure",
       "safe_error_code": null,
@@ -625,7 +625,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_be6a897499751cc8db74fcfe",
     "authorization_mode": "enforced",
-    "clock": "sha256:98244211b0d7be51c772c9b65f7871687ff4ed7d1f7e4b041bbe0449b6d724ad",
+    "clock": "sha256:49ecfd0a0354e10f760a37b7e599797c2b0e0f50b85db8332a4b556bbc7e4415",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:8f9c664af6d33aa2dd72061521548d925d434eb8bcf2135eac6b3895401fd58d",
@@ -637,105 +637,107 @@
   "schema_version": "1.0",
   "security_events": [],
   "timing": {
-    "clock": "time.monotonic",
+    "clock": "time.perf_counter_ns",
+    "clock_resolution_ns": 1,
     "measured": true,
+    "platform": "Linux 6.8.0-124-generic",
     "provider_call_count": 3,
     "provider_call_ms": 0.0,
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "stages": [
       {
-        "duration_ms": 0.005,
+        "duration_ms": 0.00596,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.012
+        "started_offset_ms": 0.00775
       },
       {
-        "duration_ms": 0.099,
+        "duration_ms": 0.072979,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.024
+        "started_offset_ms": 0.01822
       },
       {
-        "duration_ms": 0.156,
+        "duration_ms": 0.09514,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.157
+        "started_offset_ms": 0.111419
       },
       {
-        "duration_ms": 0.337,
+        "duration_ms": 0.227798,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.318
+        "started_offset_ms": 0.209779
       },
       {
-        "duration_ms": 0.052,
+        "duration_ms": 0.047749,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.66
+        "started_offset_ms": 0.440267
       },
       {
-        "duration_ms": 0.052,
+        "duration_ms": 0.03796,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.715
+        "started_offset_ms": 0.492656
       },
       {
-        "duration_ms": 0.039,
+        "duration_ms": 0.03377,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.77
+        "started_offset_ms": 0.533246
       },
       {
-        "duration_ms": 0.393,
+        "duration_ms": 0.314688,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.811
+        "started_offset_ms": 0.569836
       },
       {
-        "duration_ms": 0.871,
+        "duration_ms": 0.721974,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 4.441
+        "started_offset_ms": 2.892799
       },
       {
-        "duration_ms": 4.048,
+        "duration_ms": 2.81447,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 5.352
+        "started_offset_ms": 3.643093
       },
       {
-        "duration_ms": 0.662,
+        "duration_ms": 0.410337,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 7.101
+        "started_offset_ms": 4.834654
       },
       {
-        "duration_ms": 0.46,
+        "duration_ms": 0.316677,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 9.406
+        "started_offset_ms": 6.463443
       },
       {
-        "duration_ms": 1.679,
+        "duration_ms": 1.43306,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 9.87
+        "started_offset_ms": 6.78314
       },
       {
-        "duration_ms": 0.002,
+        "duration_ms": 0.0014,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 11.591
+        "started_offset_ms": 8.240829
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 11.675
+    "wall_clock_ms": 8.291679
   },
   "tool_traces": [
     {
       "arguments_hash": "sha256:a4a7ed0248784bba94210b398dc94a7bd8eb882b8da5dfc493e32da66b97557e",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_rollout_record",
       "provenance_ids": [
@@ -748,7 +750,7 @@
     {
       "arguments_hash": "sha256:de6ba884c1d691e13bc358ec7b03819b014de9c3f7603bee6b27cc127c5402fd",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_prior_incident",
       "provenance_ids": [
@@ -764,8 +766,8 @@
       "actor": "resolveflow-service",
       "component": "identity",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:8b664ae2d4404cd176d81ab24ae7980d35267c4f152eb2ca44ddb72236684bc0",
+      "duration_ms": 0.00596,
+      "event_hash": "sha256:99dca11de77a12ee3503120c029657cfc667f3c82314d954866b6d4d2b7c091e",
       "event_id": "evt_001",
       "event_name": "identity.snapshot.captured",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -787,13 +789,13 @@
       "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:fbaadb70fd51b8942d1214774c172740d4ee98225c5787c5eda9088952abbb28",
+      "duration_ms": 0.00596,
+      "event_hash": "sha256:8edd275ab82cbfe7198dbeaa4d68ff990687216d5e2438ab4aa4425bd3970c11",
       "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:8b664ae2d4404cd176d81ab24ae7980d35267c4f152eb2ca44ddb72236684bc0",
+      "previous_event_hash": "sha256:99dca11de77a12ee3503120c029657cfc667f3c82314d954866b6d4d2b7c091e",
       "safe_detail": {
         "source": "web"
       },
@@ -809,13 +811,13 @@
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:3804809b43041e2565ae4b44eb80a0e3ae41f3af53e0a3dd370bb5455866c992",
+      "duration_ms": 0.072979,
+      "event_hash": "sha256:7f5fe661478559f8d4118422103c1f359201c8fec95644e8c6f678c287a217f6",
       "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:fbaadb70fd51b8942d1214774c172740d4ee98225c5787c5eda9088952abbb28",
+      "previous_event_hash": "sha256:8edd275ab82cbfe7198dbeaa4d68ff990687216d5e2438ab4aa4425bd3970c11",
       "safe_detail": {
         "operations": 4
       },
@@ -831,13 +833,13 @@
       "actor": "resolveflow-service",
       "component": "policy",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:7587ca90a4f557a84a081ff8407000fe706890efee5b0f4108bcd44248d94012",
+      "duration_ms": 0.09514,
+      "event_hash": "sha256:6eddb5b196233340a1bd2cd58d154ac2500cd1217724d62f244f88ef1592225f",
       "event_id": "evt_004",
       "event_name": "retrieval.authorization.applied",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:3804809b43041e2565ae4b44eb80a0e3ae41f3af53e0a3dd370bb5455866c992",
+      "previous_event_hash": "sha256:7f5fe661478559f8d4118422103c1f359201c8fec95644e8c6f678c287a217f6",
       "safe_detail": {
         "eligible_count": 12,
         "reason_code": "eligible_by_snapshot"
@@ -854,13 +856,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:7662e29149fc1077199771c02620cc2676f3a3040f963967569cc059c09a7a55",
+      "duration_ms": 0.227798,
+      "event_hash": "sha256:673e417805964b66b21a4bbda77a1b09f94a08bf064ae5ea084da0b8433c0016",
       "event_id": "evt_005",
       "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:7587ca90a4f557a84a081ff8407000fe706890efee5b0f4108bcd44248d94012",
+      "previous_event_hash": "sha256:6eddb5b196233340a1bd2cd58d154ac2500cd1217724d62f244f88ef1592225f",
       "safe_detail": {
         "authorized": true
       },
@@ -876,13 +878,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:e52918de3dcce16eb23f377c010e60d462d7adfd8f58e46aa15d47a8e8335a94",
+      "duration_ms": 0.03796,
+      "event_hash": "sha256:281ae95d5a1ac0344e6a4d625c9f878daccbe4a6f7e40b9f2be46d583c0856ad",
       "event_id": "evt_006",
       "event_name": "retrieval.vector.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:7662e29149fc1077199771c02620cc2676f3a3040f963967569cc059c09a7a55",
+      "previous_event_hash": "sha256:673e417805964b66b21a4bbda77a1b09f94a08bf064ae5ea084da0b8433c0016",
       "safe_detail": {
         "authorized": true
       },
@@ -898,13 +900,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:a586639989ef03cc3dc76736d19eaf08f5058ad2b0fdfc46df3d7d612cb41a01",
+      "duration_ms": 0.03377,
+      "event_hash": "sha256:2b864d85100f82a066d3b378368535ca2b9c31f4e2b29ddf0643262c6f2d7ff6",
       "event_id": "evt_007",
       "event_name": "retrieval.fusion.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:e52918de3dcce16eb23f377c010e60d462d7adfd8f58e46aa15d47a8e8335a94",
+      "previous_event_hash": "sha256:281ae95d5a1ac0344e6a4d625c9f878daccbe4a6f7e40b9f2be46d583c0856ad",
       "safe_detail": {
         "authorized": true
       },
@@ -920,13 +922,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:e727061f53052ac2d914ffe3cb5bb5a0e5317e9ec8cf85a4660eed7c7659deaf",
+      "duration_ms": 0.314688,
+      "event_hash": "sha256:4413566543001e9a406a2d38c6410f05c4be1e9f90f0aaf6382cfc05db20cd15",
       "event_id": "evt_008",
       "event_name": "retrieval.rerank.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:a586639989ef03cc3dc76736d19eaf08f5058ad2b0fdfc46df3d7d612cb41a01",
+      "previous_event_hash": "sha256:2b864d85100f82a066d3b378368535ca2b9c31f4e2b29ddf0643262c6f2d7ff6",
       "safe_detail": {
         "authorized": true
       },
@@ -942,13 +944,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 4,
-      "event_hash": "sha256:8178bc3765e12d8101906bb07ccfb40d4e9bab4589826e94078a9cb87a5b9450",
+      "duration_ms": 2.81447,
+      "event_hash": "sha256:27701359aac435ce420f641f2a8d8a8052cb78696f4af1a55bf9e8f39c82a3f4",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:e727061f53052ac2d914ffe3cb5bb5a0e5317e9ec8cf85a4660eed7c7659deaf",
+      "previous_event_hash": "sha256:4413566543001e9a406a2d38c6410f05c4be1e9f90f0aaf6382cfc05db20cd15",
       "safe_detail": {
         "provider_calls": 3,
         "terminal_reason": "complete"
@@ -965,13 +967,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:2abd66b416d9a2cc38130622a04b3d3f11c043abe0973f1adeb50257814639a7",
+      "duration_ms": 0.410337,
+      "event_hash": "sha256:d0feac17629d2e69748988e254ac92bad8b42ef23c8d803e23c55d377d01b1bf",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:8178bc3765e12d8101906bb07ccfb40d4e9bab4589826e94078a9cb87a5b9450",
+      "previous_event_hash": "sha256:27701359aac435ce420f641f2a8d8a8052cb78696f4af1a55bf9e8f39c82a3f4",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -987,13 +989,13 @@
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:896017f1f09f6491105affadfea16e0879e537c4a84c2b7f845c5f5bbb9a0165",
+      "duration_ms": 0.721974,
+      "event_hash": "sha256:983510f45838823b53229fb257e374b1fb81660984bb7e69cd7d50c060143323",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:2abd66b416d9a2cc38130622a04b3d3f11c043abe0973f1adeb50257814639a7",
+      "previous_event_hash": "sha256:d0feac17629d2e69748988e254ac92bad8b42ef23c8d803e23c55d377d01b1bf",
       "safe_detail": {
         "attempted_effects": 0
       },
@@ -1009,13 +1011,13 @@
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:85256420e9f5fb86f19cb03e03c9458aaadae767a8e9237c61bfd190a6d20a28",
+      "duration_ms": 0.316677,
+      "event_hash": "sha256:fd1951740c735ef346e0ae05adc04fcbe4e2d513fae842355430f30338ce27d1",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:896017f1f09f6491105affadfea16e0879e537c4a84c2b7f845c5f5bbb9a0165",
+      "previous_event_hash": "sha256:983510f45838823b53229fb257e374b1fb81660984bb7e69cd7d50c060143323",
       "safe_detail": {
         "claims": 2,
         "enforcement": "enforced",
@@ -1034,13 +1036,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 2,
-      "event_hash": "sha256:83ca892344accf4f4a8f583c09c68907b2a8e62cbc50b8c3195a49124672b05b",
+      "duration_ms": 1.43306,
+      "event_hash": "sha256:e388eec6f8222c0ba71125808be1d64b96ed0f747e5f92b32cf143e8bf5757a2",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:85256420e9f5fb86f19cb03e03c9458aaadae767a8e9237c61bfd190a6d20a28",
+      "previous_event_hash": "sha256:fd1951740c735ef346e0ae05adc04fcbe4e2d513fae842355430f30338ce27d1",
       "safe_detail": {
         "disposition": "resolved"
       },
@@ -1056,13 +1058,13 @@
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_benign-05-status-page-comms_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:77814559939ba2f5b990374309b4761093ae6b54de5dd76de52b4235d693be5f",
+      "duration_ms": 0.0014,
+      "event_hash": "sha256:f12938e6714b98eb6c9cf0d0de8dc96d5008049b77e217e8c280f58ceceada73",
       "event_id": "evt_014",
       "event_name": "proposal.blocked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "rejected",
-      "previous_event_hash": "sha256:83ca892344accf4f4a8f583c09c68907b2a8e62cbc50b8c3195a49124672b05b",
+      "previous_event_hash": "sha256:e388eec6f8222c0ba71125808be1d64b96ed0f747e5f92b32cf143e8bf5757a2",
       "safe_detail": {
         "blocked_reason": "evidence_graph_permits_no_proposal",
         "payload_digest": null,

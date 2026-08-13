@@ -82,7 +82,7 @@ class GovernedAgent:
         *,
         budgets: AgentBudgets | None = None,
         model: str = "command-a-plus-05-2026",
-        clock: Callable[[], float] = time.monotonic,
+        clock: Callable[[], int] = time.perf_counter_ns,
     ) -> None:
         self.provider = provider
         self.budgets = budgets or AgentBudgets()
@@ -193,7 +193,7 @@ class GovernedAgent:
                 len(provider_traces) + 1,
                 timeout_seconds=max(
                     0.001,
-                    self.budgets.wall_clock_seconds - (self.clock() - started),
+                    self.budgets.wall_clock_seconds - (self.clock() - started) / 1_000_000_000.0,
                 ),
             )
             provider_traces.append(trace)
@@ -234,11 +234,11 @@ class GovernedAgent:
                     )
                     timer.record(
                         STAGE_TOOLS,
-                        (self.clock() - tool_started) * 1000.0,
+                        (self.clock() - tool_started) / 1_000_000.0,
                         tool_offset,
                     )
                     if self.provider.provider_name == "recorded_fixture":
-                        tool_trace = tool_trace.model_copy(update={"duration_ms": 0})
+                        tool_trace = tool_trace.model_copy(update={"duration_ms": 0.0})
                     tool_traces.append(tool_trace)
                     messages.append(result.as_message())
                 continue
@@ -289,7 +289,7 @@ class GovernedAgent:
                     len(provider_traces) + 1,
                     timeout_seconds=max(
                         0.001,
-                        self.budgets.wall_clock_seconds - (self.clock() - started),
+                        self.budgets.wall_clock_seconds - (self.clock() - started) / 1_000_000_000.0,
                     ),
                 )
                 provider_traces.append(repair_trace)
@@ -314,7 +314,7 @@ class GovernedAgent:
 
         timer.record(
             STAGE_EVIDENCE_PASS,
-            (self.clock() - evidence_pass_started) * 1000.0,
+            (self.clock() - evidence_pass_started) / 1_000_000.0,
             evidence_pass_offset,
         )
         if findings is None:
@@ -376,7 +376,7 @@ class GovernedAgent:
                 len(provider_traces) + 1,
                 timeout_seconds=max(
                     0.001,
-                    self.budgets.wall_clock_seconds - (self.clock() - started),
+                    self.budgets.wall_clock_seconds - (self.clock() - started) / 1_000_000_000.0,
                 ),
             )
             provider_traces.append(trace)
@@ -401,7 +401,7 @@ class GovernedAgent:
                 terminal_reason = trace.safe_error_code
         timer.record(
             STAGE_RENDERING,
-            (self.clock() - rendering_started) * 1000.0,
+            (self.clock() - rendering_started) / 1_000_000.0,
             rendering_offset,
         )
 
@@ -553,15 +553,17 @@ class GovernedAgent:
             citation_ids=response.citation_ids if response else (),
             usage=response.usage if response else ProviderUsage(input_tokens=0, output_tokens=0),
             duration_ms=(
-                0
+                0.0
                 if self.provider.provider_name == "recorded_fixture"
-                else max(0, int((self.clock() - started) * 1000))
+                else max(0.0, round((self.clock() - started) / 1_000_000.0, 6))
             ),
             safe_error_code=error,
         )
 
-    def _expired(self, started: float) -> bool:
-        return self.clock() - started >= self.budgets.wall_clock_seconds
+    def _expired(self, started: int) -> bool:
+        """``started`` is a ``time.perf_counter_ns`` reading, in nanoseconds."""
+        elapsed_seconds = (self.clock() - started) / 1_000_000_000.0
+        return elapsed_seconds >= self.budgets.wall_clock_seconds
 
     def _provider_label(self) -> Literal["recorded_fixture", "cohere"]:
         return "cohere" if self.provider.provider_name == "cohere" else "recorded_fixture"

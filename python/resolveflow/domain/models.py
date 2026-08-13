@@ -95,7 +95,7 @@ class TraceEvent(FrozenModel):
     event_name: str
     outcome: Literal["ok", "needs_information", "rejected", "timeout", "failed"]
     correlation_id: str
-    duration_ms: int = 0
+    duration_ms: float = 0.0
     versions: dict[str, str] = Field(default_factory=dict)
     trace_id: str | None = None
     span_id: str | None = None

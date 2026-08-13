@@ -21,6 +21,14 @@ type BuildAggregate = {
   wall_clock_ms: Record<string, number> | null;
   provider_call_ms: Record<string, number> | null;
   stage_ms_median: Record<string, number>;
+  stage_ms: Record<string, Record<string, number>>;
+  stage_attribution: {
+    runs: number;
+    attributed_fraction_p50: number;
+    attributed_fraction_min: number;
+    unattributed_ms_p50: number;
+    unattributed_ms_max: number;
+  } | null;
 };
 
 type FamilyOutcome = {
@@ -33,6 +41,7 @@ type FamilyOutcome = {
 };
 
 const byBuild = ab.by_build as Record<string, BuildAggregate>;
+const timing = (ab as { timing?: { clock?: string; clock_resolution_ns?: number; platform?: string } }).timing ?? {};
 const families = ab.attack_family_outcomes as Record<string, FamilyOutcome>;
 const openIssues = ab.open_issues as string[];
 
@@ -102,7 +111,7 @@ const METRIC_ROWS: Array<{
 const STAGES = Array.from(
   new Set(
     BUILDS.flatMap((build) =>
-      Object.keys(byBuild[build]?.stage_ms_median ?? {}),
+      Object.keys(byBuild[build]?.stage_ms ?? {}),
     ),
   ),
 ).sort();
@@ -125,6 +134,42 @@ export default function AbResultsPage() {
         <h2>Read this before any number</h2>
         <p>
           <strong>{ab.provider_caveat}</strong>
+        </p>
+      </section>
+
+      <section className="pageSection">
+        <h2>An earlier published run was voided</h2>
+        <p>
+          <strong>
+            A live Cohere A/B was previously published from this repository and
+            is VOID.
+          </strong>{" "}
+          Its agent token ceiling was the default 4,096 total tokens, sized for
+          an earlier five-document corpus. Against the twenty-document corpus an
+          evidence-pass prompt runs to roughly 3.3k&ndash;5.1k input tokens, and
+          the ceiling counts input plus output, so all 32 of its runs terminated
+          with <code>token_budget_exhausted</code> before any model output was
+          parsed. Citation precision, route accuracy, completion rate and every
+          attack outcome in that run were artifacts of a harness
+          misconfiguration and carried no information about model or control
+          behaviour.
+        </p>
+        <p>
+          Two changes were made in response and both are exercised by the run on
+          this page: the evaluation token ceiling is now 32,768, and
+          <code> assert_budget_fits_corpus</code> refuses to start a run whose
+          ceiling cannot fit the corpus, before a single provider call is spent.
+          Zero runs on this page terminated with{" "}
+          <code>token_budget_exhausted</code>.
+        </p>
+        <p>
+          <strong>
+            No live Cohere run has been performed since that fix.
+          </strong>{" "}
+          The fix is verified against the fixture provider only. Until a live
+          run is published, this project makes no measured claim about model
+          citation behaviour, model routing, model robustness to any attack
+          family, real provider latency, or real token consumption.
         </p>
       </section>
 
@@ -211,16 +256,36 @@ export default function AbResultsPage() {
             ))}
           </tbody>
         </table>
-        <h3>Median per-stage latency (ms)</h3>
+        <h3>Per-stage latency, p50 and p95 (ms)</h3>
+        <p>
+          Clock: <code>{timing.clock ?? "unrecorded"}</code>, advertised
+          resolution {timing.clock_resolution_ns ?? "unrecorded"} ns, on{" "}
+          {timing.platform ?? "unrecorded"}. An earlier run reported 0.0 ms for
+          eleven stages, every value a multiple of 15.625 ms &mdash; the Windows{" "}
+          <code>time.monotonic</code> tick. Those readings meant the clock could
+          not resolve the stage, not that the stage was free. Stage spans are
+          not a partition of the run, so these do not sum to wall time.
+        </p>
         <table>
           <thead>
             <tr>
               <th scope="col">Stage</th>
               {BUILDS.map((build) => (
-                <th key={build} scope="col">
+                <th key={build} scope="col" colSpan={2}>
                   {build}
                 </th>
               ))}
+            </tr>
+            <tr>
+              <th scope="col" />
+              {BUILDS.map((build) => [
+                <th key={`${build}-p50`} scope="col">
+                  p50
+                </th>,
+                <th key={`${build}-p95`} scope="col">
+                  p95
+                </th>,
+              ])}
             </tr>
           </thead>
           <tbody>
@@ -229,11 +294,43 @@ export default function AbResultsPage() {
                 <th scope="row">
                   <code>{stage}</code>
                 </th>
-                {BUILDS.map((build) => (
-                  <td key={build}>
-                    {num(byBuild[build]?.stage_ms_median?.[stage] ?? null)}
-                  </td>
-                ))}
+                {BUILDS.map((build) => [
+                  <td key={`${build}-p50`}>
+                    {num(byBuild[build]?.stage_ms?.[stage]?.p50 ?? null)}
+                  </td>,
+                  <td key={`${build}-p95`}>
+                    {num(byBuild[build]?.stage_ms?.[stage]?.p95 ?? null)}
+                  </td>,
+                ])}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <h3>Unattributed wall time</h3>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Build</th>
+              <th scope="col">Wall time inside a named stage (p50)</th>
+              <th scope="col">Unattributed ms (p50)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {BUILDS.map((build) => (
+              <tr key={build}>
+                <th scope="row">{build}</th>
+                <td>
+                  {pct(
+                    byBuild[build]?.stage_attribution
+                      ?.attributed_fraction_p50 ?? null,
+                  )}
+                </td>
+                <td>
+                  {num(
+                    byBuild[build]?.stage_attribution?.unattributed_ms_p50 ??
+                      null,
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -306,6 +403,23 @@ export default function AbResultsPage() {
             Absence of a successful attack is evidence about these eight
             mechanisms only, and says nothing about mechanisms not in the
             catalog.
+          </li>
+          <li>
+            No live provider run has been executed since the token-budget fix,
+            so nothing on this page is evidence about Cohere models. Every
+            model-dependent number here is a property of the deterministic
+            fixture stub.
+          </li>
+          <li>
+            One repetition per cell. No variance across repeated trials was
+            measured, so no number here has a confidence interval and no
+            difference between the two builds is claimed to be significant.
+          </li>
+          <li>
+            Attack payloads were authored before the guarded build existed. No
+            adaptive attack &mdash; one written with knowledge of these defences
+            &mdash; has been attempted, so &ldquo;nothing got through&rdquo;
+            describes this fixed payload set and not an attacker who adapts.
           </li>
           <li>
             No held-out split, no human review, no cost result, and no

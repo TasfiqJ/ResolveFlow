@@ -273,7 +273,10 @@ def test_non_clearance_roles_forbid_restricted_material() -> None:
 
 
 def test_recorder_accumulates_repeated_stages() -> None:
-    recorder = StageRecorder(clock=iter([0.0, 0.0, 0.010, 0.010, 0.030, 0.030]).__next__)
+    # Nanosecond readings: 10 ms then 20 ms, accumulating to 30 ms.
+    recorder = StageRecorder(
+        clock=iter([0, 0, 10_000_000, 10_000_000, 30_000_000, 30_000_000]).__next__
+    )
     with recorder.stage("tool_execution"):
         pass
     with recorder.stage("tool_execution"):

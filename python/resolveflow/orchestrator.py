@@ -352,7 +352,7 @@ class ResolveOrchestrator:
                 "event_name": name,
                 "outcome": outcome,
                 "correlation_id": run_id,
-                "duration_ms": (max(0, round(measured[stage])) if stage in measured else 0),
+                "duration_ms": (max(0.0, round(measured[stage], 6)) if stage in measured else 0.0),
                 "versions": {"schema": "1.0", "build": build_id},
                 "trace_id": f"trace_{run_id}",
                 "span_id": f"span_{index:03d}",

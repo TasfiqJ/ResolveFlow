@@ -112,7 +112,7 @@ class ToolRegistry:
     def execute(
         self, call: ToolCallRequest, *, timeout_seconds: float
     ) -> tuple[ToolResult, ToolTrace]:
-        started = time.monotonic()
+        started = time.perf_counter_ns()
         arguments_hash = checksum(call.arguments_json)
         model = self._models.get(call.name)
         if model is None:
@@ -268,7 +268,7 @@ class ToolRegistry:
             status=status,
             authorization=authorization,
             arguments_hash=arguments_hash,
-            duration_ms=max(0, int((time.monotonic() - started) * 1000)),
+            duration_ms=max(0.0, round((time.perf_counter_ns() - started) / 1_000_000.0, 6)),
             provenance_ids=provenance_ids,
             safe_error_code=safe_error_code,
         )

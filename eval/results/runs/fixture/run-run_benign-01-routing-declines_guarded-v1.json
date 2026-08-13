@@ -40,7 +40,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:d03cfd5fd07c8cb52069da370202cc3e6fa79835f000275de2635ae7fca2b2b5",
+  "content_hash": "sha256:f2954e2160c2911e7712a8e1dbfce351ec95db26b11ec75902ee0f8f99987816",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -233,7 +233,7 @@
     "successful_count": 0,
     "successful_effects": []
   },
-  "generated_at": "2026-08-12T23:33:24.775433Z",
+  "generated_at": "2026-08-13T12:36:21.426574Z",
   "identity_snapshot": {
     "active_role": "incident_commander",
     "actor_id": "eval_benign-01-routing-declines",
@@ -252,12 +252,12 @@
   "provider_traces": [
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "tool_call",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_01",
-      "request_hash": "sha256:7e79be41a2227b38f09e5a68c6ab4bc6460b764aa006f6f5582ac7c79356e9c8",
+      "request_hash": "sha256:e185ec1cc43b324a0215a682ffd51f09e6bbf98822fbe3a0067168d5e4baaad9",
       "response_hash": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
       "response_id": "fixture-evidence-tool-round",
       "safe_error_code": null,
@@ -277,12 +277,12 @@
         "cite_rollout",
         "cite_cluster"
       ],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_02",
-      "request_hash": "sha256:992df99aecc48cffd9343962001f774906c3ccfec97efd3a03521b1749c6dafc",
+      "request_hash": "sha256:74648387d0ba4c82a6e71f6dfbef13584b0023a4009b4c91cebbdeed2d8c9e6c",
       "response_hash": "sha256:b80de2462deaabfcb3faa774e3bcd8679fcec40d1a51a39572748d9c4183974f",
       "response_id": "fixture-evidence-findings",
       "safe_error_code": null,
@@ -295,12 +295,12 @@
     },
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "structure",
       "provider_call_id": "provider_03",
-      "request_hash": "sha256:6b2ec613ea28ba2f4a94629a2c184ca360a7dda9ca085d8a0141503eaede4763",
+      "request_hash": "sha256:04dc2adc6d0f06e3157642be58d249b2e209406bebbc6fcdd3901dfe0dc702df",
       "response_hash": "sha256:4f34a03637ca76e217e4139761beb4cec080c9220dcbd5395bb21d7cbc09f42a",
       "response_id": "fixture-structure",
       "safe_error_code": null,
@@ -691,7 +691,7 @@
   "run_inputs": {
     "acl": "acl_snapshot_920a451dc09202342ed2616b",
     "authorization_mode": "enforced",
-    "clock": "sha256:98244211b0d7be51c772c9b65f7871687ff4ed7d1f7e4b041bbe0449b6d724ad",
+    "clock": "sha256:49ecfd0a0354e10f760a37b7e599797c2b0e0f50b85db8332a4b556bbc7e4415",
     "connector": "sha256:d07ed1ca1916ee48ca32c73c9ecb246c2231a6e3c04dc516b53fff8a55e3d7c4",
     "corpus": "sha256:7a25506d31885dc174a514e911426ed5589cc71025bc1d10a82d3af24075ecde",
     "feature_flags": "sha256:8f9c664af6d33aa2dd72061521548d925d434eb8bcf2135eac6b3895401fd58d",
@@ -703,105 +703,107 @@
   "schema_version": "1.0",
   "security_events": [],
   "timing": {
-    "clock": "time.monotonic",
+    "clock": "time.perf_counter_ns",
+    "clock_resolution_ns": 1,
     "measured": true,
+    "platform": "Linux 6.8.0-124-generic",
     "provider_call_count": 3,
     "provider_call_ms": 0.0,
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "stages": [
       {
-        "duration_ms": 0.006,
+        "duration_ms": 0.00628,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.009
+        "started_offset_ms": 0.02002
       },
       {
-        "duration_ms": 0.081,
+        "duration_ms": 0.102839,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.02
+        "started_offset_ms": 0.03102
       },
       {
-        "duration_ms": 0.149,
+        "duration_ms": 0.166068,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.121
+        "started_offset_ms": 0.185199
       },
       {
-        "duration_ms": 0.454,
+        "duration_ms": 0.327278,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.274
+        "started_offset_ms": 0.355657
       },
       {
-        "duration_ms": 0.043,
+        "duration_ms": 0.03106,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.731
+        "started_offset_ms": 0.686055
       },
       {
-        "duration_ms": 0.058,
+        "duration_ms": 0.050629,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.776
+        "started_offset_ms": 0.719475
       },
       {
-        "duration_ms": 0.051,
+        "duration_ms": 0.03344,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.837
+        "started_offset_ms": 0.772554
       },
       {
-        "duration_ms": 0.54,
+        "duration_ms": 0.497322,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.891
+        "started_offset_ms": 0.808124
       },
       {
-        "duration_ms": 1.208,
+        "duration_ms": 1.27522,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 4.403
+        "started_offset_ms": 4.21368
       },
       {
-        "duration_ms": 4.24,
+        "duration_ms": 3.17794,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 5.653
+        "started_offset_ms": 5.5182
       },
       {
-        "duration_ms": 0.669,
+        "duration_ms": 0.523189,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 7.441
+        "started_offset_ms": 6.810171
       },
       {
-        "duration_ms": 0.47,
+        "duration_ms": 0.322778,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 9.899
+        "started_offset_ms": 8.70212
       },
       {
-        "duration_ms": 1.429,
+        "duration_ms": 1.202981,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 10.374
+        "started_offset_ms": 9.027758
       },
       {
-        "duration_ms": 0.001,
+        "duration_ms": 0.00123,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 11.892
+        "started_offset_ms": 10.253649
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 11.958
+    "wall_clock_ms": 10.297898
   },
   "tool_traces": [
     {
       "arguments_hash": "sha256:a4a7ed0248784bba94210b398dc94a7bd8eb882b8da5dfc493e32da66b97557e",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_rollout_record",
       "provenance_ids": [
@@ -814,7 +816,7 @@
     {
       "arguments_hash": "sha256:de6ba884c1d691e13bc358ec7b03819b014de9c3f7603bee6b27cc127c5402fd",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
       "name": "query_prior_incident",
       "provenance_ids": [
@@ -830,8 +832,8 @@
       "actor": "resolveflow-service",
       "component": "identity",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:d5edff95e16722f9097134303159504b31b07cc4a03dc41dd3bd00c3349e79ad",
+      "duration_ms": 0.00628,
+      "event_hash": "sha256:f647f9da718a63bcebc85451595d38d8343c431be978b0591942bdace74d89b5",
       "event_id": "evt_001",
       "event_name": "identity.snapshot.captured",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -853,13 +855,13 @@
       "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:ab5a00ce3802d19fe0db8f416dbbe18f0271a34033ced1c4a3358487cb8f6882",
+      "duration_ms": 0.00628,
+      "event_hash": "sha256:94bd44719e2f2ffb654a6c15836daa64b9b5847d63421a29bb3cb4454a3d1223",
       "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:d5edff95e16722f9097134303159504b31b07cc4a03dc41dd3bd00c3349e79ad",
+      "previous_event_hash": "sha256:f647f9da718a63bcebc85451595d38d8343c431be978b0591942bdace74d89b5",
       "safe_detail": {
         "source": "web"
       },
@@ -875,13 +877,13 @@
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:a6cb73e467f2e92e98f67b0693c484fef402a252c5bbc249e17520c22c4f9f05",
+      "duration_ms": 0.102839,
+      "event_hash": "sha256:4bf528945d5122d5404b0b06bdf39119f292722ae1574eab6e2f51e49ef5f3b7",
       "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:ab5a00ce3802d19fe0db8f416dbbe18f0271a34033ced1c4a3358487cb8f6882",
+      "previous_event_hash": "sha256:94bd44719e2f2ffb654a6c15836daa64b9b5847d63421a29bb3cb4454a3d1223",
       "safe_detail": {
         "operations": 4
       },
@@ -897,13 +899,13 @@
       "actor": "resolveflow-service",
       "component": "policy",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:3102c8d823911c72d8e2a0db0f9cbaaba886ce1ac1b08d0098d6ef7c74455c20",
+      "duration_ms": 0.166068,
+      "event_hash": "sha256:d3b9c9c0c11f483065422061cdd2a7496e017d42b6b282b28509fd403b39dc74",
       "event_id": "evt_004",
       "event_name": "retrieval.authorization.applied",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:a6cb73e467f2e92e98f67b0693c484fef402a252c5bbc249e17520c22c4f9f05",
+      "previous_event_hash": "sha256:4bf528945d5122d5404b0b06bdf39119f292722ae1574eab6e2f51e49ef5f3b7",
       "safe_detail": {
         "eligible_count": 18,
         "reason_code": "eligible_by_snapshot"
@@ -920,13 +922,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:f67d172b46176ac9a6962aa2c11cc539cc66595d590505475852e701741768e4",
+      "duration_ms": 0.327278,
+      "event_hash": "sha256:5d1a03c526bfd13b93275b330566db48f261e58c533e7e37f6d13ad6161f49e3",
       "event_id": "evt_005",
       "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:3102c8d823911c72d8e2a0db0f9cbaaba886ce1ac1b08d0098d6ef7c74455c20",
+      "previous_event_hash": "sha256:d3b9c9c0c11f483065422061cdd2a7496e017d42b6b282b28509fd403b39dc74",
       "safe_detail": {
         "authorized": true
       },
@@ -942,13 +944,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:872419d1e8bcd2efeecc1c1df09fcde13cba993d95c42a77032b406ebbe8819b",
+      "duration_ms": 0.050629,
+      "event_hash": "sha256:9c450dade4840021fa80646e7cbc78ae1a2cac4f8489325c7b0776a977e377e0",
       "event_id": "evt_006",
       "event_name": "retrieval.vector.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:f67d172b46176ac9a6962aa2c11cc539cc66595d590505475852e701741768e4",
+      "previous_event_hash": "sha256:5d1a03c526bfd13b93275b330566db48f261e58c533e7e37f6d13ad6161f49e3",
       "safe_detail": {
         "authorized": true
       },
@@ -964,13 +966,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:fdd5b384a09848211cf299cebe8d028403e3d20ef75f08b450d6879dd5c4b195",
+      "duration_ms": 0.03344,
+      "event_hash": "sha256:ad4cda126e51aaeea28492037eb4ad5886d8259e30808330dbf02c90a737bf97",
       "event_id": "evt_007",
       "event_name": "retrieval.fusion.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:872419d1e8bcd2efeecc1c1df09fcde13cba993d95c42a77032b406ebbe8819b",
+      "previous_event_hash": "sha256:9c450dade4840021fa80646e7cbc78ae1a2cac4f8489325c7b0776a977e377e0",
       "safe_detail": {
         "authorized": true
       },
@@ -986,13 +988,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:59876f7503290b04b5d634ff90282d213e1f7d06f089f8202c814dc49b7fc312",
+      "duration_ms": 0.497322,
+      "event_hash": "sha256:3b32a5cef8ffc5a75668e8d6225a875fb27180d336be455773da6969846c08b6",
       "event_id": "evt_008",
       "event_name": "retrieval.rerank.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:fdd5b384a09848211cf299cebe8d028403e3d20ef75f08b450d6879dd5c4b195",
+      "previous_event_hash": "sha256:ad4cda126e51aaeea28492037eb4ad5886d8259e30808330dbf02c90a737bf97",
       "safe_detail": {
         "authorized": true
       },
@@ -1008,13 +1010,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 4,
-      "event_hash": "sha256:aa7f1b8f5d896f2e6069b051c7df1ad24ac750b91bbc546a6e5b54af649d8c65",
+      "duration_ms": 3.17794,
+      "event_hash": "sha256:4b6c623298df653a3ee67382a816988909faaf4fbe604dd4aeeb152264092160",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:59876f7503290b04b5d634ff90282d213e1f7d06f089f8202c814dc49b7fc312",
+      "previous_event_hash": "sha256:3b32a5cef8ffc5a75668e8d6225a875fb27180d336be455773da6969846c08b6",
       "safe_detail": {
         "provider_calls": 3,
         "terminal_reason": "complete"
@@ -1031,13 +1033,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:4332efcf71b171ad6d0ea529812a06cc1c9c6663a84c9994bffdea2800554c1d",
+      "duration_ms": 0.523189,
+      "event_hash": "sha256:7a5f1dd09fa15448375564c732389c68203914e9690d168ca28adff19a1317f6",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:aa7f1b8f5d896f2e6069b051c7df1ad24ac750b91bbc546a6e5b54af649d8c65",
+      "previous_event_hash": "sha256:4b6c623298df653a3ee67382a816988909faaf4fbe604dd4aeeb152264092160",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -1053,13 +1055,13 @@
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:4c5b9bafd9e9a7e640eb95b6e6ffba710d519fc278e6961ca213c3a84a2e88e8",
+      "duration_ms": 1.27522,
+      "event_hash": "sha256:669d5732d813bc364c38faf0d3f048dad8f849c5f9d00d34f42a79ebee67aedd",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:4332efcf71b171ad6d0ea529812a06cc1c9c6663a84c9994bffdea2800554c1d",
+      "previous_event_hash": "sha256:7a5f1dd09fa15448375564c732389c68203914e9690d168ca28adff19a1317f6",
       "safe_detail": {
         "attempted_effects": 0
       },
@@ -1075,13 +1077,13 @@
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:357ada5a8bfcdec610fdf7ae30bfb5fd1053b4e85c3674e30e374ebaf9850740",
+      "duration_ms": 0.322778,
+      "event_hash": "sha256:d6c18ff8df4af7f8c36b4e50b0dc7c1f36f29822ec4e7d78aa80330c9dde86e5",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:4c5b9bafd9e9a7e640eb95b6e6ffba710d519fc278e6961ca213c3a84a2e88e8",
+      "previous_event_hash": "sha256:669d5732d813bc364c38faf0d3f048dad8f849c5f9d00d34f42a79ebee67aedd",
       "safe_detail": {
         "claims": 2,
         "enforcement": "enforced",
@@ -1100,13 +1102,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 1,
-      "event_hash": "sha256:c015b542a06df5ec91e6635a94af157d7dd3248248c3ad20b9e9218f9f9cac61",
+      "duration_ms": 1.202981,
+      "event_hash": "sha256:56f62a8c51ac0fe85efe31308a0d15534dd311bacf41142e0a7dfddee1882817",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:357ada5a8bfcdec610fdf7ae30bfb5fd1053b4e85c3674e30e374ebaf9850740",
+      "previous_event_hash": "sha256:d6c18ff8df4af7f8c36b4e50b0dc7c1f36f29822ec4e7d78aa80330c9dde86e5",
       "safe_detail": {
         "disposition": "resolved"
       },
@@ -1122,13 +1124,13 @@
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_benign-01-routing-declines_guarded-v1",
-      "duration_ms": 0,
-      "event_hash": "sha256:bbf0e49a29ff5fd89ea1a41b5c836ff3e81906ef6c48fc9c3a0a15310c36262e",
+      "duration_ms": 0.00123,
+      "event_hash": "sha256:ec08e2b86bc5962199af9c2da1cdae1b63c4bd10502b65d3239e34684992b69a",
       "event_id": "evt_014",
       "event_name": "proposal.blocked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "rejected",
-      "previous_event_hash": "sha256:c015b542a06df5ec91e6635a94af157d7dd3248248c3ad20b9e9218f9f9cac61",
+      "previous_event_hash": "sha256:56f62a8c51ac0fe85efe31308a0d15534dd311bacf41142e0a7dfddee1882817",
       "safe_detail": {
         "blocked_reason": "evidence_graph_permits_no_proposal",
         "payload_digest": null,
