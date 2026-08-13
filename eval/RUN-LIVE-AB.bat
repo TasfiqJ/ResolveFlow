@@ -25,7 +25,7 @@ echo ==========================================================
 echo.
 
 REM --- stale index.lock ------------------------------------------------------
-REM Claude's file bridge cannot delete files, so a git command run through it
+REM A remote file bridge cannot delete files, so a git command run through one
 REM leaves .git\index.lock behind. That lock blocks every later git write. Only
 REM offer to clear it when no git process is actually running.
 if exist ".git\index.lock" (
@@ -41,7 +41,7 @@ if exist ".git\index.lock" (
         exit /b 1
     )
     echo   Found a leftover .git\index.lock with no git process running.
-    echo   This is almost certainly stale ^(Claude's bridge cannot delete files^).
+    echo   This is almost certainly stale ^(a remote bridge cannot delete files^).
     echo   Removing it only discards an empty lock; no repository data is lost.
     echo.
     set "RMLOCK="
@@ -68,8 +68,7 @@ set "CURRENT="
 for /f "usebackq tokens=*" %%b in (`git rev-parse --abbrev-ref HEAD 2^>nul`) do set "CURRENT=%%b"
 if not defined CURRENT (
     echo   git is not on PATH, or this folder is not a git repository.
-    echo   Install Git for Windows, or tell Claude and it will send a version
-    echo   that does not need git.
+    echo   Install Git for Windows, or check the branch out manually.
     echo.
     pause
     exit /b 1
@@ -77,7 +76,7 @@ if not defined CURRENT (
 echo Current branch: !CURRENT!
 
 REM --- pick up the branch from the bundle ------------------------------------
-REM Claude delivers the branch as a git bundle rather than fetching it into this
+REM The branch arrives as a git bundle rather than being fetched into this
 REM repository directly, because doing that through its file bridge is what
 REM leaves the index.lock above behind. Fetching here runs on Windows, where git
 REM can clean up after itself.
@@ -86,7 +85,7 @@ if exist "measured-evidence-v1.bundle" (
     git fetch -f "measured-evidence-v1.bundle" feat/measured-evidence-v1:refs/bundle/measured-evidence-v1 >nul 2>&1
     if errorlevel 1 (
         echo   Could not read the bundle. Continuing with the branch already in
-        echo   this repository, which may be older than Claude intended.
+        echo   this repository, which may be older than the delivered bundle.
     ) else (
         if /i "!CURRENT!"=="feat/measured-evidence-v1" (
             REM Already on the branch: fast-forward onto the delivered commit.
@@ -131,7 +130,7 @@ if /i not "!CURRENT!"=="feat/measured-evidence-v1" (
     if errorlevel 1 (
         echo.
         echo Branch switch failed. Nothing was run.
-        echo Send the message above to Claude rather than forcing it.
+        echo Resolve the message above rather than forcing the switch.
         echo.
         pause
         exit /b 1
@@ -154,7 +153,7 @@ echo.
 if "!RC!"=="0" (
     echo ==========================================================
     echo   Done. Artifacts are in eval\results\
-    echo   Send eval\results\ab-summary-cohere.json back to Claude.
+    echo   Review eval\results\ab-summary-cohere.json for the measured result.
     echo ==========================================================
 ) else (
     echo ==========================================================
