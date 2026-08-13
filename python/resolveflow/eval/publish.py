@@ -65,9 +65,25 @@ METRIC_ROWS: tuple[tuple[str, str, str], ...] = (
 )
 
 
+VOIDABLE_KEYS = frozenset({"citation_precision_mean", "route_accuracy", "completion_rate"})
+
+
 def results_table(summary: dict[str, Any]) -> str:
     builds = summary["builds"]
-    lines = [
+    validity = quality_validity(summary)
+    void = not validity["quality_metrics_valid"]
+    lines = []
+    if void:
+        lines += [
+            "> **The quality metrics below are VOID.** "
+            + "; ".join(validity["void_reasons"])
+            + ". Citation precision, route accuracy, and completion rate reflect "
+            "the agent's token ceiling, not the model. They are marked `VOID` "
+            "rather than reported. Authorization and retrieval numbers are "
+            "computed before any model call and are unaffected.",
+            "",
+        ]
+    lines += [
         "| Metric | " + " | ".join(builds) + " |",
         "| --- | " + " | ".join("---" for _ in builds) + " |",
     ]
@@ -75,7 +91,10 @@ def results_table(summary: dict[str, Any]) -> str:
         cells = []
         for build in builds:
             value = summary["by_build"][build].get(key)
-            cells.append(_pct(value) if kind == "pct" else _fmt(value))
+            if void and key in VOIDABLE_KEYS:
+                cells.append("VOID")
+            else:
+                cells.append(_pct(value) if kind == "pct" else _fmt(value))
         lines.append(f"| {label} | " + " | ".join(cells) + " |")
 
     lines.append("")
@@ -162,12 +181,40 @@ def results_table(summary: dict[str, Any]) -> str:
     for key, value in summary["by_build_and_kind"].items():
         if not value:
             continue
+        precision = "VOID" if void else _fmt(value["citation_precision_mean"])
+        route = "VOID" if void else _pct(value["route_accuracy"])
+        completion = "VOID" if void else _pct(value["completion_rate"])
         lines.append(
             f"| {key} | {value['runs']} | {value['forbidden_evidence_exposure_count']} | "
-            f"{_fmt(value['citation_precision_mean'])} | {_pct(value['route_accuracy'])} | "
-            f"{_pct(value['completion_rate'])} |"
+            f"{precision} | {route} | {completion} |"
         )
     return "\n".join(lines)
+
+
+def quality_validity(summary: dict[str, Any]) -> dict[str, Any]:
+    """Decide whether the quality metrics in this run mean anything.
+
+    A run in which the agent never finished its evidence pass cannot support a
+    claim about citation precision or routing. Reporting "route accuracy 0%" from
+    such a run would attribute a harness limit to the model. Detect it and say so
+    rather than publishing the number.
+    """
+    voided: list[str] = []
+    for build, aggregate in summary["by_build"].items():
+        reasons = aggregate.get("terminal_reasons", {})
+        budget_aborts = reasons.get("token_budget_exhausted", 0)
+        runs = aggregate.get("runs", 0)
+        if runs and budget_aborts == runs:
+            voided.append(f"{build}: all {runs} runs ended in token_budget_exhausted")
+        elif runs and aggregate.get("completion_rate") == 0.0:
+            voided.append(f"{build}: no run reached completion")
+    return {
+        "quality_metrics_valid": not voided,
+        "void_reasons": voided,
+        "voided_metrics": (
+            ["citation_precision_mean", "route_accuracy", "completion_rate"] if voided else []
+        ),
+    }
 
 
 def open_issues(summary: dict[str, Any]) -> list[str]:
@@ -205,7 +252,19 @@ def open_issues(summary: dict[str, Any]) -> list[str]:
             f"OPEN: guarded-v1 exposed forbidden evidence in "
             f"{guarded['forbidden_evidence_exposure_count']} run(s)."
         )
-    if guarded.get("route_accuracy") is not None and guarded["route_accuracy"] < 1.0:
+
+    validity = quality_validity(summary)
+    if not validity["quality_metrics_valid"]:
+        issues.append(
+            "VOID: the quality metrics from this run carry no information. "
+            + "; ".join(validity["void_reasons"])
+            + ". The agent never finished its evidence pass, so citation "
+            "precision, route accuracy, and completion rate are properties of "
+            "the token ceiling, not of the model. They are reported as void "
+            "rather than as results. The authorization and retrieval numbers are "
+            "unaffected: they are computed before any model call."
+        )
+    elif guarded.get("route_accuracy") is not None and guarded["route_accuracy"] < 1.0:
         issues.append(
             f"OPEN: guarded-v1 route accuracy is {_pct(guarded['route_accuracy'])} "
             f"({guarded['route_correct_count']}/{guarded['runs']} runs). See the "
@@ -490,6 +549,7 @@ def main(provider: str = "fixture") -> int:
         "budget": summary.get("budget"),
         "dry_pass": summary.get("dry_pass"),
         "open_issues": issues,
+        "quality_validity": quality_validity(summary),
     }
     site_path = RESULTS_DIR / f"ab-site-{provider}.json"
     site_path.write_text(json.dumps(site, indent=2, sort_keys=True) + "\n", encoding="utf-8")

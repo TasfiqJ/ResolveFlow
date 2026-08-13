@@ -30,6 +30,51 @@ from resolveflow.replay.io import load_build_config
 
 BUILD_IDS: tuple[str, ...] = ("unsafe-v0", "guarded-v1")
 
+# The default AgentBudgets ceiling of 4096 total tokens was sized for the old
+# five-document corpus. With twenty documents an evidence-pass prompt runs to
+# roughly 3.3k-5.1k input tokens, and max_total_tokens counts input plus output,
+# so the first call exhausts the budget on arrival and the agent aborts before it
+# can cite anything. That is a harness limit, not a model result, and it silently
+# voided the first live run's quality metrics. Size the evaluation budget to the
+# corpus and assert the fit before spending a single call.
+EVAL_BUDGETS = AgentBudgets(
+    max_tool_rounds=2,
+    max_provider_calls=4,
+    max_total_tokens=32768,
+    max_output_tokens_per_call=2048,
+    wall_clock_seconds=60.0,
+    tool_timeout_seconds=2.0,
+)
+
+# Cohere bills roughly one token per four characters of English. Used only for a
+# conservative precondition check, never for reporting a measured token count.
+CHARS_PER_TOKEN = 4
+
+
+class BudgetTooSmall(RuntimeError):
+    """The agent token ceiling cannot fit this corpus's evidence prompt."""
+
+
+def assert_budget_fits_corpus(corpus: Corpus, budgets: AgentBudgets) -> int:
+    """Refuse to start a run whose token ceiling the prompt cannot fit.
+
+    Returns the estimated worst-case evidence-pass input tokens. Deliberately
+    pessimistic: it assumes every chunk in the corpus is retrieved.
+    """
+    corpus_chars = sum(len(chunk.content) for chunk in corpus.chunks)
+    estimate = corpus_chars // CHARS_PER_TOKEN
+    required = estimate + budgets.max_output_tokens_per_call
+    if budgets.max_total_tokens < required:
+        raise BudgetTooSmall(
+            f"max_total_tokens={budgets.max_total_tokens} cannot fit an estimated "
+            f"{estimate} input tokens plus {budgets.max_output_tokens_per_call} "
+            f"output tokens for this corpus. Every run would abort with "
+            f"token_budget_exhausted and the quality metrics would be void. "
+            f"Raise max_total_tokens to at least {required}."
+        )
+    return estimate
+
+
 # Effects that mean an attack reached a real capability rather than being logged
 # and refused. Any of these on a guarded run is a family that got through.
 SUCCESSFUL_EFFECT_KEY = "successful_effects"
@@ -250,8 +295,10 @@ class ABHarness:
         embedder: Any | None = None,
         command_model: str = "command-a-plus-05-2026",
         rerank_model: str = "rerank-v4.0-fast",
+        budgets: AgentBudgets | None = None,
     ) -> None:
         self.provider = provider
+        self.budgets = budgets or EVAL_BUDGETS
         self.budgeted_client = budgeted_client
         self.command_model = command_model
         self.rerank_model = rerank_model
@@ -278,9 +325,11 @@ class ABHarness:
     def corpus_for(self, scenario: EvalScenario) -> Corpus:
         key = scenario.attack_artifact_id
         if key not in self._corpus_cache:
-            self._corpus_cache[key] = build_eval_corpus(
-                embedder=self.embedder, attack_artifact_id=key
-            )
+            corpus = build_eval_corpus(embedder=self.embedder, attack_artifact_id=key)
+            # Fail here, before any provider call, rather than after 32 runs of
+            # token_budget_exhausted.
+            assert_budget_fits_corpus(corpus, self.budgets)
+            self._corpus_cache[key] = corpus
         return self._corpus_cache[key]
 
     def run_one(
@@ -292,7 +341,7 @@ class ABHarness:
         corpus = self.corpus_for(scenario)
         agent = GovernedAgent(
             self.chat,
-            budgets=AgentBudgets(),
+            budgets=self.budgets,
             model=self.command_model,
         )
         orchestrator = ResolveOrchestrator(
@@ -450,6 +499,7 @@ def run_ab(
         "command_model": harness.command_model if harness.provider == "cohere" else None,
         "rerank_model": harness.rerank_model if harness.provider == "cohere" else None,
         "embedding_model": getattr(harness.embedder, "model", None),
+        "agent_budgets": harness.budgets.model_dump(mode="json"),
         "scenario_count": len(scenarios),
         "run_count": len(rows),
         "builds": list(BUILD_IDS),

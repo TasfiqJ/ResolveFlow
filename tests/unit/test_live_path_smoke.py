@@ -55,17 +55,34 @@ class _Message:
 
 
 class _Usage:
+    """Reports token counts derived from the actual payload size.
+
+    The first version of this stub returned a flat 120 input tokens. That is why
+    it failed to catch the budget bug that voided the first live run: the real
+    evidence prompt is 3.3k-5.1k input tokens against a 4096 ceiling, and a stub
+    that under-reports usage cannot exercise a usage ceiling at all. A stub may
+    fake the content of a response; faking its cost defeats the purpose.
+    """
+
+    def __init__(self, input_tokens: int, output_tokens: int) -> None:
+        self._input = input_tokens
+        self._output = output_tokens
+
     def model_dump(self, mode: str = "json") -> dict[str, Any]:
         del mode
-        return {"tokens": {"input_tokens": 120, "output_tokens": 40}}
+        return {"tokens": {"input_tokens": self._input, "output_tokens": self._output}}
+
+
+def _estimate_tokens(payload: Any) -> int:
+    return max(1, len(json.dumps(payload, default=str)) // 4)
 
 
 class _ChatResponse:
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, input_tokens: int = 120) -> None:
         self.id = "chat_stub_1"
         self.message = _Message(text)
         self.finish_reason = "COMPLETE"
-        self.usage = _Usage()
+        self.usage = _Usage(input_tokens, max(1, len(text) // 4))
 
 
 class _RerankResult:
@@ -93,6 +110,7 @@ class _StubCohere:
     def chat(self, **kwargs: Any) -> _ChatResponse:
         self.chat_calls += 1
         self.seen_kwargs.append(kwargs)
+        cost = _estimate_tokens(kwargs)
         if "response_format" in kwargs:
             # Structure pass: the model must return a StructureSelection. Returning
             # a deliberately empty-but-valid selection keeps the renderer honest.
@@ -110,9 +128,10 @@ class _StubCohere:
                         "graph_hash": graph_hash,
                         "needs_review": True,
                     }
-                )
+                ),
+                input_tokens=cost,
             )
-        return _ChatResponse(FINDINGS_JSON)
+        return _ChatResponse(FINDINGS_JSON, input_tokens=cost)
 
     def rerank(self, **kwargs: Any) -> _RerankResponse:
         self.rerank_calls += 1
@@ -231,3 +250,39 @@ def test_dry_pass_cannot_be_skipped_in_live_mode(provider: str) -> None:
     with pytest.raises(SystemExit) as excinfo:
         ab_cli.main(["--provider", provider, "--skip-dry-pass"])
     assert "dry pass cannot be skipped" in str(excinfo.value)
+
+
+def test_configured_budget_actually_fits_a_real_evidence_prompt(tmp_path: Path) -> None:
+    """The regression that voided the first live run.
+
+    Under the old 4096-token ceiling every run aborted with
+    token_budget_exhausted before it could cite anything, and the published
+    quality metrics were all consequences of that, not of the model. Assert that
+    the evaluation budget lets a run actually reach completion.
+    """
+    from resolveflow.eval.ab_runner import EVAL_BUDGETS
+
+    embedder = _prewarmed_cache(tmp_path)
+    client = BudgetedCohereClient(_StubCohere(), max_calls=400, sleep=lambda _: None)
+    harness = ABHarness(provider="cohere", budgeted_client=client, embedder=embedder)
+    result = run_ab(harness=harness, scenarios=(all_scenarios()[0],))
+
+    for row in result["runs"]:
+        assert row["terminal_reason"] != "token_budget_exhausted", (
+            f"{row['scenario_id']}/{row['build_id']} exhausted its token budget; "
+            f"EVAL_BUDGETS.max_total_tokens={EVAL_BUDGETS.max_total_tokens} is too "
+            f"small for this corpus and every quality metric would be void"
+        )
+        assert row["completed"], row["terminal_reason"]
+
+
+def test_old_default_budget_is_refused_before_any_call_is_spent() -> None:
+    from resolveflow.agent.contracts import AgentBudgets
+    from resolveflow.eval.ab_runner import BudgetTooSmall, assert_budget_fits_corpus
+    from resolveflow.eval.corpus import build_eval_corpus
+
+    corpus = build_eval_corpus(
+        embedder=FixtureEmbeddingAdapter(), attack_artifact_id="attack_a1_override_direct"
+    )
+    with pytest.raises(BudgetTooSmall, match="token_budget_exhausted"):
+        assert_budget_fits_corpus(corpus, AgentBudgets())
