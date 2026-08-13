@@ -79,17 +79,36 @@ echo Current branch: !CURRENT!
 REM --- pick up the branch from the bundle ------------------------------------
 REM Claude delivers the branch as a git bundle rather than fetching it into this
 REM repository directly, because doing that through its file bridge is what
-REM leaves the index.lock above behind. Fetching here runs on Windows, where
-REM git can clean up after itself.
+REM leaves the index.lock above behind. Fetching here runs on Windows, where git
+REM can clean up after itself.
 if exist "measured-evidence-v1.bundle" (
-    if /i not "!CURRENT!"=="feat/measured-evidence-v1" (
-        echo Updating feat/measured-evidence-v1 from measured-evidence-v1.bundle ...
-        git fetch -f "measured-evidence-v1.bundle" feat/measured-evidence-v1:feat/measured-evidence-v1
-        if errorlevel 1 (
-            echo.
-            echo   Could not read the bundle. Continuing with the branch already
-            echo   in this repository, which may be older than Claude intended.
-            echo.
+    echo Reading measured-evidence-v1.bundle ...
+    git fetch -f "measured-evidence-v1.bundle" feat/measured-evidence-v1:refs/bundle/measured-evidence-v1 >nul 2>&1
+    if errorlevel 1 (
+        echo   Could not read the bundle. Continuing with the branch already in
+        echo   this repository, which may be older than Claude intended.
+    ) else (
+        if /i "!CURRENT!"=="feat/measured-evidence-v1" (
+            REM Already on the branch: fast-forward onto the delivered commit.
+            REM --ff-only so nothing is ever rewritten or discarded silently.
+            git merge --ff-only refs/bundle/measured-evidence-v1 >nul 2>&1
+            if errorlevel 1 (
+                echo.
+                echo   Could not fast-forward onto the delivered commit. Usually this
+                echo   means generated files from a previous run are modified in your
+                echo   working tree. They are reproducible outputs, so either:
+                echo     git stash
+                echo   or discard them:
+                echo     git checkout -- eval/results
+                echo   then run this again. Nothing was changed.
+                echo.
+                pause
+                exit /b 1
+            )
+            echo   Up to date with the delivered commit.
+        ) else (
+            git branch -f feat/measured-evidence-v1 refs/bundle/measured-evidence-v1 >nul 2>&1
+            echo   Branch updated from the bundle.
         )
     )
 )
