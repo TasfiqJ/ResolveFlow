@@ -76,6 +76,24 @@ if not defined CURRENT (
 )
 echo Current branch: !CURRENT!
 
+REM --- pick up the branch from the bundle ------------------------------------
+REM Claude delivers the branch as a git bundle rather than fetching it into this
+REM repository directly, because doing that through its file bridge is what
+REM leaves the index.lock above behind. Fetching here runs on Windows, where
+REM git can clean up after itself.
+if exist "measured-evidence-v1.bundle" (
+    if /i not "!CURRENT!"=="feat/measured-evidence-v1" (
+        echo Updating feat/measured-evidence-v1 from measured-evidence-v1.bundle ...
+        git fetch -f "measured-evidence-v1.bundle" feat/measured-evidence-v1:feat/measured-evidence-v1
+        if errorlevel 1 (
+            echo.
+            echo   Could not read the bundle. Continuing with the branch already
+            echo   in this repository, which may be older than Claude intended.
+            echo.
+        )
+    )
+)
+
 REM --- branch ----------------------------------------------------------------
 if /i not "!CURRENT!"=="feat/measured-evidence-v1" (
     echo.
