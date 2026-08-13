@@ -37,11 +37,17 @@ const families = ab.attack_family_outcomes as Record<string, FamilyOutcome>;
 const openIssues = ab.open_issues as string[];
 
 const pct = (value: number | null) =>
-  value === null || value === undefined ? "not measured" : `${(value * 100).toFixed(1)}%`;
+  value === null || value === undefined
+    ? "not measured"
+    : `${(value * 100).toFixed(1)}%`;
 const num = (value: number | null | undefined) =>
   value === null || value === undefined ? "not measured" : String(value);
 
-const METRIC_ROWS: Array<{ label: string; key: keyof BuildAggregate; kind: "count" | "pct" }> = [
+const METRIC_ROWS: Array<{
+  label: string;
+  key: keyof BuildAggregate;
+  kind: "count" | "pct";
+}> = [
   { label: "Runs", key: "runs", kind: "count" },
   {
     label: "Forbidden-evidence exposure (cited)",
@@ -53,11 +59,23 @@ const METRIC_ROWS: Array<{ label: string; key: keyof BuildAggregate; kind: "coun
     key: "forbidden_evidence_retrieved_count",
     kind: "count",
   },
-  { label: "Citation precision (mean)", key: "citation_precision_mean", kind: "count" },
-  { label: "Runs producing any citation", key: "runs_with_citations", kind: "count" },
+  {
+    label: "Citation precision (mean)",
+    key: "citation_precision_mean",
+    kind: "count",
+  },
+  {
+    label: "Runs producing any citation",
+    key: "runs_with_citations",
+    kind: "count",
+  },
   { label: "Route accuracy", key: "route_accuracy", kind: "pct" },
   { label: "Completion rate", key: "completion_rate", kind: "pct" },
-  { label: "Runs marked needs_review", key: "needs_review_count", kind: "count" },
+  {
+    label: "Runs marked needs_review",
+    key: "needs_review_count",
+    kind: "count",
+  },
   {
     label: "Runs with a successful forbidden effect",
     key: "successful_forbidden_effect_runs",
@@ -69,12 +87,24 @@ const METRIC_ROWS: Array<{ label: string; key: keyof BuildAggregate; kind: "coun
     kind: "count",
   },
   { label: "External writes", key: "external_write_total", kind: "count" },
-  { label: "Attacks delivered to the model", key: "attacks_delivered_to_model", kind: "count" },
-  { label: "Attacks never exercised", key: "attacks_not_exercised", kind: "count" },
+  {
+    label: "Attacks delivered to the model",
+    key: "attacks_delivered_to_model",
+    kind: "count",
+  },
+  {
+    label: "Attacks never exercised",
+    key: "attacks_not_exercised",
+    kind: "count",
+  },
 ];
 
 const STAGES = Array.from(
-  new Set(BUILDS.flatMap((build) => Object.keys(byBuild[build]?.stage_ms_median ?? {}))),
+  new Set(
+    BUILDS.flatMap((build) =>
+      Object.keys(byBuild[build]?.stage_ms_median ?? {}),
+    ),
+  ),
 ).sort();
 
 export default function AbResultsPage() {
@@ -85,8 +115,8 @@ export default function AbResultsPage() {
         <h1>Guarded vs unguarded, {ab.run_count} runs.</h1>
         <p>
           Every number on this page was read out of{" "}
-          <code>eval/results/ab-summary-{ab.provider}.json</code>, produced by an
-          execution of the harness. Nothing here is projected, expected, or
+          <code>eval/results/ab-summary-{ab.provider}.json</code>, produced by
+          an execution of the harness. Nothing here is projected, expected, or
           illustrative. Where something was not measured, this page says so.
         </p>
       </header>
@@ -114,7 +144,11 @@ export default function AbResultsPage() {
           </li>
           <li>
             Provider calls consumed:{" "}
-            <strong>{ab.budget ? (ab.budget as { total_calls: number }).total_calls : 0}</strong>
+            <strong>
+              {ab.budget
+                ? (ab.budget as { total_calls: number }).total_calls
+                : 0}
+            </strong>
           </li>
         </ul>
       </section>
@@ -139,7 +173,9 @@ export default function AbResultsPage() {
                 {BUILDS.map((build) => {
                   const value = byBuild[build]?.[row.key] as number | null;
                   return (
-                    <td key={build}>{row.kind === "pct" ? pct(value) : num(value)}</td>
+                    <td key={build}>
+                      {row.kind === "pct" ? pct(value) : num(value)}
+                    </td>
                   );
                 })}
               </tr>
@@ -151,9 +187,9 @@ export default function AbResultsPage() {
       <section className="pageSection">
         <h2>Latency</h2>
         <p>
-          End-to-end wall time and provider-call time are separate claims and are
-          never added together. Measured on one machine in one pass; no figure
-          here is a service level objective.
+          End-to-end wall time and provider-call time are separate claims and
+          are never added together. Measured on one machine in one pass; no
+          figure here is a service level objective.
         </p>
         <table>
           <thead>
@@ -194,7 +230,9 @@ export default function AbResultsPage() {
                   <code>{stage}</code>
                 </th>
                 {BUILDS.map((build) => (
-                  <td key={build}>{num(byBuild[build]?.stage_ms_median?.[stage] ?? null)}</td>
+                  <td key={build}>
+                    {num(byBuild[build]?.stage_ms_median?.[stage] ?? null)}
+                  </td>
                 ))}
               </tr>
             ))}
@@ -205,10 +243,10 @@ export default function AbResultsPage() {
       <section className="pageSection">
         <h2>Attack families</h2>
         <p>
-          Four families, two variants each, eight independent artifacts. Variants
-          differ in mechanism, not wording. A variant that never reached the
-          candidate set was never tested and is reported as such rather than
-          counted as a pass.
+          Four families, two variants each, eight independent artifacts.
+          Variants differ in mechanism, not wording. A variant that never
+          reached the candidate set was never tested and is reported as such
+          rather than counted as a pass.
         </p>
         <table>
           <thead>

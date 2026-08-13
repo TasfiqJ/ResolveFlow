@@ -44,7 +44,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:04ccf2a2aebe3e8ed4bcf76a9caa10490637925321ad6f4c21ab7b8a34fcee52",
+  "content_hash": "sha256:497eecf867ae8a1d3547573b6e7df0f4918e2baa54627e342ce57150bb7ed0a9",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -552,7 +552,7 @@
         "rerank_score": 0.26666666666666666,
         "title": "Synthetic rollout records",
         "vector_rank": 4,
-        "vector_score": 0.046373889576016826
+        "vector_score": 0.04637388957601684
       },
       {
         "artifact_id": "artifact_hostile_note",
@@ -597,7 +597,7 @@
         "vector_score": 0.14638501094227996
       }
     ],
-    "checksum": "sha256:11fa1d11944999cb491b13d4843eb94315c9b59a78d2a08e6e227a698faa850e",
+    "checksum": "sha256:7f9bf40d4c38132bf76d4a699a5bb0df71c08c368e579c62f3ab60094a09a0b9",
     "corpus_snapshot_id": "corpus_hero_20260715",
     "eligible_chunk_count": 5,
     "embedding_model": "fixture-token-hash-1.0",
@@ -656,6 +656,101 @@
       "safe_detail": "Untrusted evidence requested a forbidden authority change."
     }
   ],
+  "timing": {
+    "clock": "time.monotonic",
+    "measured": true,
+    "provider_call_count": 3,
+    "provider_call_ms": 0.0,
+    "schema_version": "1.0",
+    "stages": [
+      {
+        "duration_ms": 0.007,
+        "invocations": 1,
+        "stage": "intake",
+        "started_offset_ms": 0.007
+      },
+      {
+        "duration_ms": 0.156,
+        "invocations": 1,
+        "stage": "context_enrichment",
+        "started_offset_ms": 0.02
+      },
+      {
+        "duration_ms": 0.075,
+        "invocations": 1,
+        "stage": "acl_application",
+        "started_offset_ms": 0.207
+      },
+      {
+        "duration_ms": 0.076,
+        "invocations": 1,
+        "stage": "lexical_retrieval",
+        "started_offset_ms": 0.285
+      },
+      {
+        "duration_ms": 0.032,
+        "invocations": 1,
+        "stage": "query_embedding",
+        "started_offset_ms": 0.365
+      },
+      {
+        "duration_ms": 0.024,
+        "invocations": 1,
+        "stage": "vector_retrieval",
+        "started_offset_ms": 0.399
+      },
+      {
+        "duration_ms": 0.025,
+        "invocations": 1,
+        "stage": "fusion",
+        "started_offset_ms": 0.426
+      },
+      {
+        "duration_ms": 0.158,
+        "invocations": 1,
+        "stage": "rerank",
+        "started_offset_ms": 0.454
+      },
+      {
+        "duration_ms": 0.265,
+        "invocations": 1,
+        "stage": "hostile_evidence_scan",
+        "started_offset_ms": 3.118
+      },
+      {
+        "duration_ms": 5.182,
+        "invocations": 1,
+        "stage": "model_evidence_pass",
+        "started_offset_ms": 3.41
+      },
+      {
+        "duration_ms": 0.885,
+        "invocations": 2,
+        "stage": "tool_execution",
+        "started_offset_ms": 5.562
+      },
+      {
+        "duration_ms": 0.83,
+        "invocations": 1,
+        "stage": "verification",
+        "started_offset_ms": 8.598
+      },
+      {
+        "duration_ms": 1.985,
+        "invocations": 1,
+        "stage": "rendering",
+        "started_offset_ms": 9.433
+      },
+      {
+        "duration_ms": 0.129,
+        "invocations": 1,
+        "stage": "action_proposal",
+        "started_offset_ms": 11.455
+      }
+    ],
+    "unit": "milliseconds",
+    "wall_clock_ms": 11.659
+  },
   "tool_traces": [
     {
       "arguments_hash": "sha256:a4a7ed0248784bba94210b398dc94a7bd8eb882b8da5dfc493e32da66b97557e",
@@ -982,13 +1077,14 @@
       "component": "actions",
       "correlation_id": "run_hero_foundation_001",
       "duration_ms": 0,
-      "event_hash": "sha256:335674230c49aa825132ee248105256fe5c67c4ffefc29c3546ed0f4477ff836",
+      "event_hash": "sha256:f9da91f6a4d926694c62f068ec93a9ab084f1067fdcef2750b97dc28ac531087",
       "event_id": "evt_014",
       "event_name": "proposal.created",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
       "previous_event_hash": "sha256:bcf31f3f425b4d174fc71c375ad16d387f3e10371ddff43557b1970f4ca7512c",
       "safe_detail": {
+        "blocked_reason": null,
         "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",
         "state": "pending_approval"
       },

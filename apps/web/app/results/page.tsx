@@ -68,8 +68,8 @@ export default function ResultsPage() {
         <p>
           A separate 32-run A/B across 16 scenarios and both builds, with 20
           corpus documents and four independent attack families. Every figure on
-          that page comes from a committed run artifact, and open issues found by
-          the run are listed there rather than summarised away.
+          that page comes from a committed run artifact, and open issues found
+          by the run are listed there rather than summarised away.
         </p>
         <p>
           <Link href="/results/ab/">Read the measured A/B results</Link>
