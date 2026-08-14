@@ -63,4 +63,24 @@ describe("snapshot-first home", () => {
       screen.getByRole("link", { name: /raw retained calls/i }),
     ).toHaveAttribute("href", "results/structured-output-stress.json");
   });
+
+  it("publishes the completion-budget result without claiming a live fix", () => {
+    const { container } = render(<Home />);
+
+    expect(container.querySelector("#completion-budget")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: /did not fix guarded live completion/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/not a controlled rate comparison/i),
+    ).toHaveLength(2);
+    expect(
+      screen.getByRole("link", { name: /full study \+ run table/i }),
+    ).toHaveAttribute(
+      "href",
+      "results/completion-budget-study/completion-budget-study.json",
+    );
+  });
 });

@@ -3,6 +3,7 @@ import integrity from "../public/snapshots/evaluation-integrity-audit.json";
 import liveSnapshot from "../public/snapshots/hero-cohere-live.json";
 import snapshot from "../public/snapshots/hero-foundation.json";
 import publication from "../public/results/publication-manifest.json";
+import completionStudy from "../public/results/completion-budget-study/completion-budget-study.json";
 import sideBySide from "../public/results/side-by-side-demo.json";
 import stress from "../public/results/structured-output-stress.json";
 import voidedStress from "../public/results/structured-output-stress-voided-token-limit.json";
@@ -663,6 +664,282 @@ export default function Home() {
               {source.path.includes("unsafe") ? "UNSAFE" : "GUARDED"} ↗
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="stressSection" id="completion-budget">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">LIVE COMPLETION-BUDGET STUDY</div>
+            <h2>
+              THE LARGER BUDGET REMOVED STARVATION, BUT DID NOT FIX GUARDED LIVE
+              COMPLETION.
+            </h2>
+          </div>
+          <p>
+            The fixture target cleared before and after the change. In the
+            reduced live confirmation, persistent rate limits and semantic
+            render failures replaced tool-round exhaustion as the binding
+            constraints.
+          </p>
+        </div>
+
+        <div className="stressSummary">
+          <article>
+            <strong>
+              {
+                completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                  .completion.numerator
+              }
+              /
+              {
+                completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                  .completion.denominator
+              }
+            </strong>
+            <span>GUARDED LIVE COMPLETE</span>
+            <small>REDUCED SCENARIO SET</small>
+          </article>
+          <article>
+            <strong>
+              {
+                completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                  .completion.numerator
+              }
+              /
+              {
+                completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                  .completion.denominator
+              }
+            </strong>
+            <span>UNSAFE LIVE COMPLETE</span>
+            <small>REDUCED SCENARIO SET</small>
+          </article>
+          <article>
+            <strong>
+              {completionStudy.task_4_live_confirmation.api_usage.total_calls}
+            </strong>
+            <span>PROVIDER ATTEMPTS</span>
+            <small>
+              {completionStudy.task_4_live_confirmation.api_usage.retry_calls}{" "}
+              RETRIES · ABORT{" "}
+              {completionStudy.task_4_live_confirmation.api_usage
+                .abort_guard_fired
+                ? "FIRED"
+                : "NOT FIRED"}
+            </small>
+          </article>
+        </div>
+
+        <div className="stressTableWrap">
+          <table className="stressTable">
+            <thead>
+              <tr>
+                <th>Measurement</th>
+                <th>Before</th>
+                <th>After</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Provider calls / tool rounds</th>
+                <td>
+                  {
+                    completionStudy.task_2_budget_change.before
+                      .max_provider_calls
+                  }{" "}
+                  /{" "}
+                  {completionStudy.task_2_budget_change.before.max_tool_rounds}
+                </td>
+                <td>
+                  {
+                    completionStudy.task_2_budget_change.after
+                      .max_provider_calls
+                  }{" "}
+                  / {completionStudy.task_2_budget_change.after.max_tool_rounds}
+                </td>
+                <td>One render call is now reserved explicitly.</td>
+              </tr>
+              <tr>
+                <th>Fixture completion, guarded</th>
+                <td>
+                  {
+                    completionStudy.task_1_fixture_before.rates["guarded-v1"]
+                      .completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.task_1_fixture_before.rates["guarded-v1"]
+                      .completion.denominator
+                  }
+                </td>
+                <td>
+                  {
+                    completionStudy.task_2_budget_change.fixture_after_rates[
+                      "guarded-v1"
+                    ].completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.task_2_budget_change.fixture_after_rates[
+                      "guarded-v1"
+                    ].completion.denominator
+                  }
+                </td>
+                <td>No fixture improvement; the fixture uses fewer calls.</td>
+              </tr>
+              <tr>
+                <th>Live completion, guarded</th>
+                <td>
+                  {
+                    completionStudy.historical_published_live.rates[
+                      "guarded-v1"
+                    ].completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.historical_published_live.rates[
+                      "guarded-v1"
+                    ].completion.denominator
+                  }
+                </td>
+                <td>
+                  {
+                    completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                      .completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                      .completion.denominator
+                  }
+                </td>
+                <td>Different scopes; not a controlled rate comparison.</td>
+              </tr>
+              <tr>
+                <th>Live completion, unsafe</th>
+                <td>
+                  {
+                    completionStudy.historical_published_live.rates["unsafe-v0"]
+                      .completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.historical_published_live.rates["unsafe-v0"]
+                      .completion.denominator
+                  }
+                </td>
+                <td>
+                  {
+                    completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                      .completion.numerator
+                  }
+                  /
+                  {
+                    completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                      .completion.denominator
+                  }
+                </td>
+                <td>Different scopes; not a controlled rate comparison.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="recoveryNote">
+          <div>
+            <span>STRUCTURED RESPONSE INVALID</span>
+            <h3>Schema-valid output selected invalid graph references.</h3>
+            <p>
+              The requested malformed-output classes were not observed. The live
+              failures instead referenced unsupported claims or used a non-route
+              claim as a route. The render contract now supplies field-specific
+              allowlists; its fixture validation completed, but a second live
+              validation was not run after sustained rate limits.
+            </p>
+          </div>
+          <div className="voidedRun">
+            <span>EARLIER RUNS — BUDGET STARVED</span>
+            <p>
+              The older artifact is preserved because its low completion is
+              real. Its combined trials also show tool-round terminals that do
+              not agree with the single declared budget block, so it is an
+              historical before-value rather than a clean controlled baseline.
+            </p>
+          </div>
+        </div>
+
+        <div className="voidedAbNote">
+          <span>AUTHORIZATION RESULT</span>
+          <p>
+            Restricted evidence retrieval remained separated: fixture unsafe{" "}
+            {
+              completionStudy.task_2_budget_change.fixture_after_rates[
+                "unsafe-v0"
+              ].forbidden_retrieved.numerator
+            }
+            /
+            {
+              completionStudy.task_2_budget_change.fixture_after_rates[
+                "unsafe-v0"
+              ].forbidden_retrieved.denominator
+            }{" "}
+            versus guarded{" "}
+            {
+              completionStudy.task_2_budget_change.fixture_after_rates[
+                "guarded-v1"
+              ].forbidden_retrieved.numerator
+            }
+            /
+            {
+              completionStudy.task_2_budget_change.fixture_after_rates[
+                "guarded-v1"
+              ].forbidden_retrieved.denominator
+            }
+            ; reduced live unsafe{" "}
+            {
+              completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                .forbidden_retrieved.numerator
+            }
+            /
+            {
+              completionStudy.task_4_live_confirmation.rates["unsafe-v0"]
+                .forbidden_retrieved.denominator
+            }{" "}
+            versus guarded{" "}
+            {
+              completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                .forbidden_retrieved.numerator
+            }
+            /
+            {
+              completionStudy.task_4_live_confirmation.rates["guarded-v1"]
+                .forbidden_retrieved.denominator
+            }
+            . The historical full-scope result remains in its original artifact.
+          </p>
+        </div>
+
+        <div className="artifactLinks">
+          <a href="results/completion-budget-study/completion-budget-study.json">
+            FULL STUDY + RUN TABLE ↗
+          </a>
+          <a href="results/completion-budget-study/completion-budget-study.json.sha256">
+            STUDY SHA-256 ↗
+          </a>
+          <a href="results/completion-budget-study/ab-summary-cohere.json">
+            LIVE SUMMARY ↗
+          </a>
+          <a href="results/completion-budget-study/provider-calls-cohere.json">
+            CALL LEDGER ↗
+          </a>
+          <a href="results/completion-budget-study/live-call-projection.json">
+            PRE-RUN PROJECTION ↗
+          </a>
+          <a href="results/completion-budget-study/README.md">
+            METHODOLOGY + REPRODUCTION ↗
+          </a>
         </div>
       </section>
 

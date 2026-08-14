@@ -15,8 +15,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from resolveflow.agent.contracts import AgentBudgets
+from resolveflow.agent.contracts import AgentBudgets, ProviderTrace
 from resolveflow.agent.fixture import FixtureChatAdapter
+from resolveflow.agent.renderer import StructureSelection
 from resolveflow.agent.service import GovernedAgent
 from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.domain.evidence import Corpus
@@ -48,8 +49,9 @@ BUILD_IDS: tuple[str, ...] = ("unsafe-v0", "guarded-v1")
 # model actually does. Token headroom is already ample (live prompts ran ~5k of
 # 32768).
 EVAL_BUDGETS = AgentBudgets(
-    max_tool_rounds=4,
-    max_provider_calls=6,
+    max_tool_rounds=5,
+    max_provider_calls=8,
+    reserved_provider_calls_for_render=1,
     max_total_tokens=32768,
     max_output_tokens_per_call=2048,
     wall_clock_seconds=120.0,
@@ -63,6 +65,76 @@ CHARS_PER_TOKEN = 4
 
 class BudgetTooSmall(RuntimeError):
     """The agent token ceiling cannot fit this corpus's evidence prompt."""
+
+
+class EvaluationRecordingProvider:
+    """Capture synthetic evaluation responses without changing provider behavior."""
+
+    def __init__(self, delegate: Any) -> None:
+        self.delegate = delegate
+        self.provider_name = str(delegate.provider_name)
+        self.records: list[dict[str, Any]] = []
+
+    def reset(self) -> None:
+        self.records.clear()
+
+    def chat(self, request: Any) -> Any:
+        try:
+            response = self.delegate.chat(request)
+        except Exception as exc:
+            self.records.append(
+                {
+                    "pass_kind": request.pass_kind.value,
+                    "max_tokens": request.max_tokens,
+                    "raw_response": None,
+                    "error_type": type(exc).__name__,
+                }
+            )
+            raise
+        self.records.append(
+            {
+                "pass_kind": request.pass_kind.value,
+                "max_tokens": request.max_tokens,
+                # The structure pass contains only verified graph IDs. Preserve it
+                # for failure classification; never persist evidence-pass prose.
+                "raw_response": (response.text if request.pass_kind.value == "structure" else None),
+                "error_type": None,
+            }
+        )
+        return response
+
+
+def _classify_structure_failure(raw: str, finish_reason: str | None) -> str:
+    """Classify one invalid structure response into the published taxonomy."""
+    if finish_reason == "max_tokens":
+        return "truncation"
+    stripped = GovernedAgent._strip_json_fence(raw).strip()
+    lowered = stripped.lower()
+    refusal_markers = ("i cannot", "i can't", "unable to", "must refuse", "cannot comply")
+    if any(marker in lowered for marker in refusal_markers):
+        return "refusal"
+    try:
+        payload = json.loads(stripped)
+    except json.JSONDecodeError:
+        if not stripped.startswith(("{", "[")):
+            return "prose_instead_of_json"
+        if stripped.count("{") != stripped.count("}") or stripped.count("[") != stripped.count("]"):
+            return "truncation"
+        return "prose_instead_of_json"
+    if not isinstance(payload, dict):
+        return "wrong_type"
+    try:
+        StructureSelection.model_validate(payload)
+    except Exception as exc:  # pydantic error shape is the evidence here
+        errors = getattr(exc, "errors", lambda: ())()
+        if any(item.get("type") == "missing" for item in errors):
+            return "missing_field"
+        return "wrong_type"
+    # The service reaches this classifier only after the schema selection or
+    # deterministic graph-selection validation failed. If the schema itself is
+    # valid, the observed failure is a semantic graph-reference violation, not a
+    # wrong JSON type.
+    return "schema_valid_semantic_reference_invalid"
 
 
 def assert_budget_fits_corpus(corpus: Corpus, budgets: AgentBudgets) -> int:
@@ -108,7 +180,12 @@ class RunMetrics:
     """Per-run measurements, all recomputed from the snapshot and the corpus."""
 
     def __init__(
-        self, scenario: EvalScenario, build_id: str, snapshot: RunSnapshot, corpus: Corpus
+        self,
+        scenario: EvalScenario,
+        build_id: str,
+        snapshot: RunSnapshot,
+        corpus: Corpus,
+        call_records: tuple[dict[str, Any], ...] = (),
     ):
         self.scenario = scenario
         self.build_id = build_id
@@ -222,6 +299,68 @@ class RunMetrics:
         self.provider_call_ms = timing.provider_call_ms if timing else None
         self.stage_ms = timing.by_stage() if timing else {}
 
+        evidence_calls_seen = 0
+        self.provider_call_profile: list[dict[str, Any]] = []
+        for index, raw_trace in enumerate(snapshot.provider_traces):
+            trace = ProviderTrace.model_validate(raw_trace)
+            pass_kind = trace.pass_kind.value
+            if pass_kind == "evidence":
+                stage = (
+                    "evidence_pass"
+                    if evidence_calls_seen == 0
+                    else f"tool_round_{evidence_calls_seen}"
+                )
+                evidence_calls_seen += 1
+            elif pass_kind == "findings":
+                stage = "repair"
+            else:
+                stage = "render"
+            record = call_records[index] if index < len(call_records) else {}
+            self.provider_call_profile.append(
+                {
+                    "sequence": index + 1,
+                    "stage": stage,
+                    "pass_kind": pass_kind,
+                    "initiated_tool_round": bool(trace.tool_call_names),
+                    "input_tokens": trace.usage.input_tokens,
+                    "output_tokens": trace.usage.output_tokens,
+                    "total_tokens": trace.usage.total_tokens,
+                    "status": trace.status,
+                    "finish_reason": trace.finish_reason.value if trace.finish_reason else None,
+                    "safe_error_code": trace.safe_error_code,
+                    "request_hash": trace.request_hash,
+                    "response_hash": trace.response_hash,
+                    "max_output_tokens": record.get("max_tokens"),
+                }
+            )
+        self.provider_calls_consumed = len(snapshot.provider_traces)
+        self.tool_rounds_used = sum(
+            1 for item in self.provider_call_profile if item["initiated_tool_round"]
+        )
+        render_calls = [
+            item for item in self.provider_call_profile if item["pass_kind"] == "structure"
+        ]
+        self.render_attempted = bool(render_calls)
+        self.calls_to_render = render_calls[0]["sequence"] if render_calls else None
+        self.structured_response_failure: dict[str, Any] | None = None
+        if self.terminal_reason == "structured_response_invalid" and render_calls:
+            render_index = int(render_calls[-1]["sequence"]) - 1
+            raw = (
+                call_records[render_index].get("raw_response")
+                if render_index < len(call_records)
+                else None
+            )
+            self.structured_response_failure = {
+                "classification": (
+                    _classify_structure_failure(str(raw), render_calls[-1]["finish_reason"])
+                    if raw is not None
+                    else "unmeasured_raw_output_not_recorded"
+                ),
+                "raw_model_output": raw,
+                "response_hash": render_calls[-1]["response_hash"],
+                "finish_reason": render_calls[-1]["finish_reason"],
+            }
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "scenario_id": self.scenario.scenario_id,
@@ -261,6 +400,12 @@ class RunMetrics:
             "wall_clock_ms": self.wall_clock_ms,
             "provider_call_ms": self.provider_call_ms,
             "stage_ms": self.stage_ms,
+            "provider_calls_consumed": self.provider_calls_consumed,
+            "tool_rounds_used": self.tool_rounds_used,
+            "render_attempted": self.render_attempted,
+            "calls_to_render": self.calls_to_render,
+            "provider_call_profile": self.provider_call_profile,
+            "structured_response_failure": self.structured_response_failure,
         }
 
 
@@ -329,7 +474,7 @@ class ABHarness:
 
             self.embedder = embedder or FixtureEmbeddingAdapter()
             self.reranker: Any = FixtureRerankAdapter()
-            self.chat: Any = FixtureChatAdapter()
+            chat: Any = FixtureChatAdapter()
         else:
             if budgeted_client is None or embedder is None:
                 raise ValueError("live mode requires a budgeted client and a cached embedder")
@@ -338,7 +483,8 @@ class ABHarness:
 
             self.embedder = embedder
             self.reranker = CohereRerankAdapter(budgeted_client, rerank_model)
-            self.chat = CohereChatAdapter(client=budgeted_client)
+            chat = CohereChatAdapter(client=budgeted_client)
+        self.chat = EvaluationRecordingProvider(chat)
         self._corpus_cache: dict[str | None, Corpus] = {}
 
     def corpus_for(self, scenario: EvalScenario) -> Corpus:
@@ -354,6 +500,7 @@ class ABHarness:
     def run_one(
         self, scenario: EvalScenario, build_id: str, generated_at: datetime, trial: int = 1
     ) -> tuple[RunSnapshot, RunMetrics]:
+        self.chat.reset()
         if self.budgeted_client is not None:
             self.budgeted_client.scenario_id = scenario.scenario_id
             self.budgeted_client.build_id = build_id
@@ -371,7 +518,13 @@ class ABHarness:
         )
         configuration = _configuration(scenario, build_id, corpus, generated_at, trial)
         snapshot = orchestrator.run(scenario.case(), configuration)
-        metrics = RunMetrics(scenario, build_id, snapshot, corpus)
+        metrics = RunMetrics(
+            scenario,
+            build_id,
+            snapshot,
+            corpus,
+            call_records=tuple(self.chat.records),
+        )
         metrics.trial = trial
         return snapshot, metrics
 

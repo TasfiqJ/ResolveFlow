@@ -190,7 +190,8 @@ class FixtureChatAdapter:
         graph_message = next(
             message for message in request.messages if message.get("role") == "user"
         )
-        graph = json.loads(str(graph_message["content"]))
+        payload = json.loads(str(graph_message["content"]))
+        graph = payload.get("verified_graph", payload)
         claims = graph["claims"]
         supported = {item["claim_id"]: item for item in claims if item["status"] == "supported"}
         route = next(

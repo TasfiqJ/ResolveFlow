@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import time
 
+import pytest
 from resolveflow.agent.contracts import (
     AgentBudgets,
     ChatRequest,
@@ -135,6 +136,11 @@ def test_provider_and_round_budgets_terminate_endless_tool_loop() -> None:
     assert result.provider_calls <= 3
     assert result.response.needs_review is True
     assert result.response.route is None
+
+
+def test_render_call_reservation_must_leave_evidence_capacity() -> None:
+    with pytest.raises(ValueError, match="leave at least one evidence call"):
+        AgentBudgets(max_provider_calls=2, reserved_provider_calls_for_render=2)
 
 
 def test_provider_timeout_is_visible_and_falls_back() -> None:

@@ -242,6 +242,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | X-21 | Final live Cohere A/B publishes the measured outcome whether favorable or unfavorable, preserves a fixed call cap, voids quality claims when completion is unrepresentative, and retains the pre-model authorization result | `eval/results/ab-summary-cohere.json`, `eval/results/ab-site-cohere.json`, `eval/results/provider-calls-cohere.json`, `eval/results/SHA256SUMS-cohere.md`, and `docs/RESULTS-SUMMARY.md`; `.venv-live\Scripts\python -m pytest tests/unit tests/security -q`; `.venv-live\Scripts\python -m resolveflow.eval.verify_checksums cohere` | post-release final live A/B | PASS (154 tests; 103 checksum rows verified; quality metrics void; forbidden retrieval 32/32 to 0/32) |
 
+| X-22 | Completion-budget follow-up instruments every fixture call, derives the new limits from observed stages, retains unfavorable live results, classifies invalid render output, and deep-links checksummed raw evidence | `eval/results/completion-budget-study/completion-budget-study.json`, adjacent SHA-256 sidecars, and `#completion-budget`; `.venv-live\Scripts\python.exe -m pytest tests/unit tests/security -q`; `pnpm test`; `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm build`; `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm e2e` from `apps/web` | post-release completion follow-up | PASS locally; live completion target not cleared and is explicitly reported |
+
 ## Update rules
 
 1. Change a row to `IN PROGRESS` only in the active milestone.

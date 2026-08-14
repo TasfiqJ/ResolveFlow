@@ -114,7 +114,8 @@ class _StubCohere:
         if "response_format" in kwargs:
             # Structure pass: the model must return a StructureSelection. Returning
             # a deliberately empty-but-valid selection keeps the renderer honest.
-            graph_hash = json.loads(kwargs["messages"][-1]["content"])["graph_hash"]
+            structure_payload = json.loads(kwargs["messages"][-1]["content"])
+            graph_hash = structure_payload["verified_graph"]["graph_hash"]
             return _ChatResponse(
                 json.dumps(
                     {

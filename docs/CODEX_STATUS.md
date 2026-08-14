@@ -334,3 +334,30 @@ Promote only after genuine human-authored truth review, locked held-out evidence
   -100 percentage points with Newcombe hybrid-score 95% [-100, -84.8426] percentage points.
 - The result, limitations, offline detector context, embedding-separation context, artifact
   paths, and SHA-256 values are published in `docs/RESULTS-SUMMARY.md`.
+
+## Completion-budget follow-up
+
+- The recorded provider was instrumented per call and per stage. Every fixture run used one
+  evidence pass, one tool round, and one render call; both builds completed every fixture run
+  before and after the budget change, so the fixture result did not demonstrate an improvement.
+- The evaluation budget changed from six provider calls and four tool rounds to eight provider
+  calls and five tool rounds. One provider call is now an explicit, validated render reserve
+  instead of an implicit subtraction in the service loop.
+- The bounded live confirmation used eleven scenarios after the full projection exceeded the
+  two-hundred-fifty-call planning ceiling. It spent one hundred sixty-one provider attempts:
+  one hundred thirty-five Chat and twenty-six Rerank, including twenty-seven retries. The
+  three-hundred-call abort guard did not fire.
+- Guarded live completion was zero of eleven and unsafe live completion was four of eleven.
+  Tool-round exhaustion disappeared, but persistent provider rate limits and schema-valid
+  semantic graph-reference failures became binding. The requested completion improvement is
+  therefore not claimed.
+- All six invalid renders were valid JSON with valid field types. One unsafe output used a
+  non-route claim as a route; all five guarded outputs referenced unsupported claims, and three
+  also used a non-route claim as a route. The render prompt now provides field-specific ID
+  allowlists. Fixture validation passed; live validation after that prompt change was not
+  completed because rate limiting was already binding.
+- The public page preserves the historical baseline caveat and publishes this result at the
+  stable `#completion-budget` anchor with raw artifacts and SHA-256 sidecars.
+- Python unit/security verification, Ruff, MyPy, web component tests, type checking, lint,
+  formatting, static export, public-bundle scanning, exported-page smoke, and browser deep-link,
+  accessibility, and mobile checks passed locally. No provider call was made during validation.

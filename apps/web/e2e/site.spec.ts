@@ -31,13 +31,21 @@ test("homepage leads to evidence instead of decorative dead ends", async ({
   ).toBeVisible();
 });
 
-test("deep links load the recorded comparison and live stress evidence", async ({
+test("deep links load the demo, completion, and stress evidence", async ({
   page,
 }) => {
   await page.goto(deployedPath("/#side-by-side"));
   await expect(page).toHaveURL(/#side-by-side$/);
   await expect(page.getByText("ADMITTED TO RETRIEVAL")).toBeVisible();
   await expect(page.getByText("REFUSED BEFORE RETRIEVAL")).toBeVisible();
+
+  await page.goto(deployedPath("/#completion-budget"));
+  await expect(page).toHaveURL(/#completion-budget$/);
+  await expect(
+    page.getByRole("heading", {
+      name: /did not fix guarded live completion/i,
+    }),
+  ).toBeVisible();
 
   await page.goto(deployedPath("/#structured-output-stress"));
   await expect(page).toHaveURL(/#structured-output-stress$/);

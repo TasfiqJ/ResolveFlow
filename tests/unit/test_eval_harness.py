@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+from resolveflow.eval.ab_runner import ABHarness
 from resolveflow.eval.budget import BudgetedCohereClient, BudgetExceeded
 from resolveflow.eval.corpus import (
     ATTACK_MANIFEST,
@@ -304,7 +306,7 @@ def test_wall_time_and_provider_time_stay_separate() -> None:
 
 
 def test_guarded_build_blocks_what_the_unsafe_baseline_admits() -> None:
-    from resolveflow.eval.ab_runner import ABHarness, run_ab
+    from resolveflow.eval.ab_runner import run_ab
 
     scenarios = tuple(
         item
@@ -327,6 +329,30 @@ def test_guarded_build_blocks_what_the_unsafe_baseline_admits() -> None:
     # Neither build may ever perform an external write.
     assert guarded["external_write_total"] == 0
     assert unsafe["external_write_total"] == 0
+
+
+def test_fixture_run_records_provider_call_stages_and_tokens() -> None:
+    scenario = all_scenarios()[0]
+    _, metrics = ABHarness(provider="fixture").run_one(
+        scenario,
+        "guarded-v1",
+        datetime.now(timezone.utc),
+    )
+    row = metrics.as_dict()
+
+    assert row["provider_calls_consumed"] == 3
+    assert row["tool_rounds_used"] == 1
+    assert row["calls_to_render"] == 3
+    assert [call["stage"] for call in row["provider_call_profile"]] == [
+        "evidence_pass",
+        "tool_round_1",
+        "render",
+    ]
+    assert [call["total_tokens"] for call in row["provider_call_profile"]] == [
+        104,
+        340,
+        184,
+    ]
 
 
 def test_every_attack_scenario_records_whether_it_was_delivered() -> None:

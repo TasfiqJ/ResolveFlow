@@ -123,10 +123,17 @@ class AgentBudgets(FrozenModel):
     policy_id: Literal["governed-agent-1.0"] = "governed-agent-1.0"
     max_tool_rounds: int = Field(default=2, ge=1, le=8)
     max_provider_calls: int = Field(default=4, ge=2, le=12)
+    reserved_provider_calls_for_render: int = Field(default=1, ge=1, le=2)
     max_total_tokens: int = Field(default=4096, ge=256)
     max_output_tokens_per_call: int = Field(default=1024, ge=64)
     wall_clock_seconds: float = Field(default=30.0, gt=0.0, le=120.0)
     tool_timeout_seconds: float = Field(default=2.0, gt=0.0, le=30.0)
+
+    @model_validator(mode="after")
+    def preserve_evidence_capacity(self) -> AgentBudgets:
+        if self.reserved_provider_calls_for_render >= self.max_provider_calls:
+            raise ValueError("render reservation must leave at least one evidence call")
+        return self
 
 
 class ProviderError(RuntimeError):

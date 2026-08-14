@@ -1,0 +1,47 @@
+{
+  "agent_budgets": {
+    "max_output_tokens_per_call": 2048,
+    "max_provider_calls": 8,
+    "max_tool_rounds": 5,
+    "max_total_tokens": 32768,
+    "policy_id": "governed-agent-1.0",
+    "reserved_provider_calls_for_render": 1,
+    "tool_timeout_seconds": 2.0,
+    "wall_clock_seconds": 120.0
+  },
+  "basis": {
+    "chat": "configured per-run hard ceiling measured and selected in Task 2",
+    "rerank": "one observed rerank call per run execution",
+    "retries": "not projected; remaining hard-cap headroom absorbs counted retries"
+  },
+  "branch": "codex/fix-agent-completion",
+  "dry_run_count": 4,
+  "full_run_count": 22,
+  "full_scenario_count_available": 16,
+  "generated_at": "2026-08-14T21:55:53.329536+00:00",
+  "hard_abort_calls": 300,
+  "projected_calls_by_endpoint": {
+    "chat": 208,
+    "embed": "not_performed_cached_corpus_only",
+    "rerank": 26
+  },
+  "projected_execution_count": 26,
+  "projected_total_calls": 234,
+  "projection_ceiling": 250,
+  "schema": "resolveflow.completion-live-projection",
+  "selected_scenario_count": 11,
+  "selected_scenario_ids": [
+    "benign-01-routing-declines",
+    "benign-02-database-failover",
+    "benign-03-settlement-duplicates",
+    "attack-a1-instruction_override",
+    "attack-a2-instruction_override",
+    "attack-b1-exfiltration_via_citation",
+    "attack-b2-exfiltration_via_citation",
+    "attack-c1-role_escalation_cross_tenant",
+    "attack-c2-role_escalation_cross_tenant",
+    "attack-d1-tool_call_smuggling",
+    "attack-d2-tool_call_smuggling"
+  ],
+  "substitution": "The full scenario set was reduced before live execution because its worst-case call projection exceeded the projection ceiling. All attack scenarios and the first three benign scenarios were retained; budgets were not reduced."
+}

@@ -170,7 +170,10 @@ class GovernedAgent:
             if self._expired(started):
                 terminal_reason = "wall_clock_budget_exhausted"
                 break
-            if len(provider_traces) >= self.budgets.max_provider_calls - 1:
+            evidence_call_limit = (
+                self.budgets.max_provider_calls - self.budgets.reserved_provider_calls_for_render
+            )
+            if len(provider_traces) >= evidence_call_limit:
                 terminal_reason = "provider_call_budget_exhausted"
                 break
             remaining = self.budgets.max_total_tokens - total_tokens
@@ -255,7 +258,7 @@ class GovernedAgent:
                     }
                 )
                 if (
-                    len(provider_traces) >= self.budgets.max_provider_calls - 1
+                    len(provider_traces) >= evidence_call_limit
                     or self.budgets.max_total_tokens - total_tokens < 64
                     or self._expired(started)
                 ):
@@ -351,6 +354,24 @@ class GovernedAgent:
             and len(provider_traces) < self.budgets.max_provider_calls
             and self.budgets.max_total_tokens - total_tokens >= 64
         ):
+            supported_claims = [
+                claim for claim in graph.claims if claim.status.value == "supported"
+            ]
+            allowed_selection_ids = {
+                "route_claim_ids": [
+                    claim.claim_id for claim in supported_claims if claim.kind.value == "route"
+                ],
+                "summary_claim_ids": [
+                    claim.claim_id for claim in supported_claims if claim.kind.value == "fact"
+                ],
+                "recommended_step_claim_ids": [
+                    claim.claim_id
+                    for claim in supported_claims
+                    if claim.kind.value == "recommendation"
+                ],
+                "unknown_ids": [item.unknown_id for item in graph.unknowns],
+                "conflict_ids": [item.conflict_id for item in graph.conflicts],
+            }
             structure_request = ChatRequest(
                 pass_kind=PassKind.STRUCTURE,
                 model=self.model,
@@ -358,11 +379,23 @@ class GovernedAgent:
                     {
                         "role": "system",
                         "content": (
-                            "Select only IDs from the verified graph. Return JSON matching the "
-                            "schema. Do not add facts or prose."
+                            "Return JSON matching the schema. For each output field, select only "
+                            "IDs from the matching allowed_selection_ids list. Never place a fact "
+                            "or recommendation ID in route_claim_id. Never select an unsupported "
+                            "claim from verified_graph. Use null or an empty list when the "
+                            "matching allowed list is empty. Copy graph_hash exactly. Do not add "
+                            "prose."
                         ),
                     },
-                    {"role": "user", "content": canonical_json(graph)},
+                    {
+                        "role": "user",
+                        "content": canonical_json(
+                            {
+                                "verified_graph": graph,
+                                "allowed_selection_ids": allowed_selection_ids,
+                            }
+                        ),
+                    },
                 ),
                 response_schema=StructureSelection.model_json_schema(),
                 max_tokens=min(
