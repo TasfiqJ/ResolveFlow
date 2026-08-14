@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 def test_exploratory_slice_has_separate_conditions_and_no_claim() -> None:
-    fixture = json.loads(Path("data/languages/exploratory-fr-1.0.json").read_text())
+    fixture = json.loads(Path("data/languages/exploratory-fr-1.0.json").read_text(encoding="utf-8"))
     assert fixture["status"] == "EXPLORATORY_UNVALIDATED"
     assert fixture["claim_allowed"] is False
     assert fixture["provenance"]["human_review_status"] == "pending"

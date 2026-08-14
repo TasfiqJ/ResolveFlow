@@ -10,5 +10,5 @@ def test_bundle_file_and_canonical_checksums_reproduce(tmp_path: Path) -> None:
     second, second_checksum = write_bundle(bundle, tmp_path / "second.json")
 
     assert first.read_bytes() == second.read_bytes()
-    assert first_checksum.read_text().split()[0] == second_checksum.read_text().split()[0]
+    assert first_checksum.read_text(encoding="utf-8").split()[0] == second_checksum.read_text(encoding="utf-8").split()[0]
     assert verify_bundle_file(first).checksum == bundle.checksum

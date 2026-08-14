@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def test_multilingual_scope_is_honest() -> None:
-    public_copy = "\n".join(path.read_text() for path in Path("apps/web/app").rglob("*.tsx"))
+    public_copy = "\n".join(path.read_text(encoding="utf-8") for path in Path("apps/web/app").rglob("*.tsx"))
     lowered = public_copy.lower()
     assert "fully multilingual" not in lowered
     assert "validated french" not in lowered
@@ -12,7 +12,7 @@ def test_multilingual_scope_is_honest() -> None:
 
 
 def test_recorded_and_live_labels_are_not_conflated() -> None:
-    public_copy = "\n".join(path.read_text() for path in Path("apps/web/app").rglob("*.tsx"))
+    public_copy = "\n".join(path.read_text(encoding="utf-8") for path in Path("apps/web/app").rglob("*.tsx"))
     assert "RECORDED" in public_copy
     assert "recorded snapshot" in public_copy
     assert "Public live inference is disabled" in public_copy
