@@ -57,7 +57,7 @@ class ProviderCallRecord(FrozenModel):
     build_id: str | None
     attempt: int = Field(ge=1)
     retry_of_sequence: int | None = None
-    status: Literal["ok", "rate_limited", "error"]
+    status: Literal["ok", "rate_limited", "gateway_error", "error"]
     request_hash: str
     response_hash: str | None
     input_tokens: int = Field(default=0, ge=0)
@@ -92,6 +92,30 @@ def _is_rate_limited(exc: BaseException) -> bool:
     if status == 429:
         return True
     return "429" in str(exc) or "rate limit" in str(exc).lower()
+
+
+# Transient server-side failures. Cohere's gateway can return a 502/503/504 or
+# time a request out under load; these are not the caller's fault and are the
+# textbook case for a bounded, counted retry. A live run that aborts on the first
+# one wastes every call it already spent, which is what happened on a Rerank v4
+# 504 after 33 successful calls. Retried the same way as a 429 -- with backoff,
+# and each attempt counted against the budget so the ledger stays honest.
+_GATEWAY_STATUS = frozenset({500, 502, 503, 504})
+
+
+def _is_transient_gateway(exc: BaseException) -> bool:
+    status = getattr(exc, "status_code", None)
+    if status in _GATEWAY_STATUS:
+        return True
+    name = type(exc).__name__.lower()
+    if "timeout" in name or "serviceunavailable" in name or "badgateway" in name:
+        return True
+    text = str(exc).lower()
+    return any(code in text for code in ("502", "503", "504")) or "gateway timeout" in text
+
+
+def _is_retryable(exc: BaseException) -> bool:
+    return _is_rate_limited(exc) or _is_transient_gateway(exc)
 
 
 class BudgetedCohereClient:
@@ -210,12 +234,19 @@ class BudgetedCohereClient:
             except Exception as exc:  # noqa: BLE001 - normalized into a record below
                 duration_ms = (self._clock() - started) * 1000.0
                 rate_limited = _is_rate_limited(exc)
+                retryable = _is_retryable(exc)
+                if rate_limited:
+                    status = "rate_limited"
+                elif retryable:
+                    status = "gateway_error"
+                else:
+                    status = "error"
                 record = self._record(
                     endpoint=endpoint,
                     model=model,
                     attempt=attempt,
                     retry_of=first_sequence,
-                    status="rate_limited" if rate_limited else "error",
+                    status=status,
                     request_hash=request_hash,
                     response_hash=None,
                     input_tokens=0,
@@ -226,7 +257,7 @@ class BudgetedCohereClient:
                 )
                 first_sequence = first_sequence or record.sequence
                 last_error = exc
-                if not rate_limited or attempt == self._max_attempts:
+                if not retryable or attempt == self._max_attempts:
                     raise
                 # Retries are real calls against the trial key and are counted as such.
                 self._sleep(self._backoff_base * (2 ** (attempt - 1)))

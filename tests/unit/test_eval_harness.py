@@ -338,3 +338,56 @@ def test_every_attack_scenario_records_whether_it_was_delivered() -> None:
         # None would mean the harness silently lost track of delivery, which
         # would make every "got through: none" result unfalsifiable.
         assert row["attack_delivered"] is not None
+
+
+class _GatewayTimeout(Exception):
+    status_code = 504
+
+
+class _GatewayThenOk:
+    """Fails with a 504 the first `fail_times` calls, then succeeds."""
+
+    def __init__(self, fail_times: int) -> None:
+        self.calls = 0
+        self._fail_times = fail_times
+
+    def rerank(self, **_: object) -> _FakeResponse:
+        self.calls += 1
+        if self.calls <= self._fail_times:
+            raise _GatewayTimeout("504 gateway timeout")
+        return _FakeResponse()
+
+
+def test_transient_gateway_504_is_retried_and_counted() -> None:
+    """A 504 on Cohere's side must not abort the run; it retries, counted.
+
+    This is the exact failure that killed a live run after 33 good calls: a
+    single Rerank v4 504 propagated because only 429s were retried.
+    """
+    from resolveflow.eval.budget import _is_transient_gateway
+
+    inner = _GatewayThenOk(fail_times=2)
+    client = BudgetedCohereClient(inner, sleep=lambda _: None, clock=_clock())
+    client.rerank(model="rerank-v4.0-fast", query="q", documents=["a"])
+    ledger = client.ledger()
+    assert ledger.total_calls == 3
+    assert ledger.retry_calls == 2
+    assert [item.status for item in ledger.records] == [
+        "gateway_error",
+        "gateway_error",
+        "ok",
+    ]
+    assert _is_transient_gateway(_GatewayTimeout("504"))
+
+
+def test_persistent_gateway_error_still_eventually_raises() -> None:
+    """Retries are bounded; a provider that never recovers must not loop forever."""
+    inner = _GatewayThenOk(fail_times=99)
+    client = BudgetedCohereClient(
+        inner, max_attempts=3, sleep=lambda _: None, clock=_clock()
+    )
+    with pytest.raises(_GatewayTimeout):
+        client.rerank(model="rerank-v4.0-fast", query="q", documents=["a"])
+    # Exactly max_attempts calls were made and all are on the ledger.
+    assert client.total_calls == 3
+    assert all(item.status == "gateway_error" for item in client.ledger().records)

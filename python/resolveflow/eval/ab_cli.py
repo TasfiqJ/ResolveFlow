@@ -55,7 +55,7 @@ def _build_harness(provider: str, max_calls: int) -> tuple[ABHarness, BudgetedCo
         )
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES), max_calls=max_calls)
+    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60), max_calls=max_calls)
     # allow_provider=False: the A/B must not be able to spend an embed call. Any
     # cache miss is a setup error and should stop the run, not quietly bill it.
     embedder = CachedEmbeddingAdapter(CACHE_PATH, client=None, allow_provider=False)
@@ -196,6 +196,26 @@ def main(argv: list[str] | None = None) -> int:
         if client:
             print(f"      {client.summary_line()}")
 
+    def _persist_ledger(reason: str) -> None:
+        # Write the ledger to disk no matter how the run ends. Without this, a
+        # transient provider failure mid-run discards the record of every call
+        # already spent -- real budget gone with no artifact behind it, which
+        # this project's own rules forbid. On a crash this is the only evidence
+        # of what the run cost.
+        if not client:
+            return
+        output_dir.mkdir(parents=True, exist_ok=True)
+        ledger_obj = client.ledger()
+        (output_dir / f"provider-calls-{args.provider}.json").write_text(
+            json.dumps(ledger_obj.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        print(
+            f"[ledger] {reason}: persisted {ledger_obj.total_calls} calls to "
+            f"provider-calls-{args.provider}.json",
+            file=sys.stderr,
+        )
+
     try:
         result = run_ab(
             harness=harness,
@@ -205,8 +225,17 @@ def main(argv: list[str] | None = None) -> int:
             repetitions=repetitions,
         )
     except BudgetExceeded as exc:
+        _persist_ledger("budget exhausted")
         print(f"[abort] {exc}", file=sys.stderr)
         return 3
+    except Exception as exc:  # noqa: BLE001 - preserve the ledger, then re-raise
+        _persist_ledger(f"run failed: {type(exc).__name__}")
+        print(
+            f"[abort] live run failed after {client.total_calls if client else 0} calls: "
+            f"{type(exc).__name__}: {exc}",
+            file=sys.stderr,
+        )
+        raise
 
     ledger = client.ledger().model_dump(mode="json") if client else None
     result["dry_pass"] = dry_report

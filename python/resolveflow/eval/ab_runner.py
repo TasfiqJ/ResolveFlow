@@ -569,12 +569,24 @@ def run_ab(
     # Trials are the outer loop so that a run aborted partway through by the
     # budget cap still holds a complete, balanced repetition rather than a
     # partial one that would bias whichever scenarios happened to run first.
+    # Write each snapshot the moment it is produced, not batched at the end. A
+    # live run that dies partway (a provider timeout, a cap hit) then still leaves
+    # the completed runs on disk as evidence of the calls it spent, instead of
+    # discarding everything it had done.
+    if output_dir is not None:
+        output_dir.mkdir(parents=True, exist_ok=True)
     for trial in range(1, repetitions + 1):
         for scenario in scenarios:
             for build_id in BUILD_IDS:
                 snapshot, metrics = harness.run_one(scenario, build_id, generated_at, trial)
                 snapshots.append(snapshot)
                 rows.append(metrics.as_dict())
+                if output_dir is not None:
+                    (output_dir / f"run-{snapshot.run_id}.json").write_text(
+                        json.dumps(snapshot.model_dump(mode="json"), indent=2, sort_keys=True)
+                        + "\n",
+                        encoding="utf-8",
+                    )
             if on_scenario is not None:
                 on_scenario(scenario, rows)
 
@@ -783,6 +795,9 @@ def run_ab(
 
     if output_dir is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
+        # Snapshots were already written incrementally above; rewrite is harmless
+        # and keeps behaviour identical when run_ab is called without incremental
+        # output (output_dir set only here).
         for snapshot in snapshots:
             path = output_dir / f"run-{snapshot.run_id}.json"
             path.write_text(
