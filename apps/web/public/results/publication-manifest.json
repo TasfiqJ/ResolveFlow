@@ -1,0 +1,48 @@
+{
+  "schema": "resolveflow.publication-manifest",
+  "generated_at": "2026-08-14T21:13:45.604306+00:00",
+  "branch": "codex/demo-cohere-stress",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "clock_source": "time.perf_counter monotonic clock",
+    "python_version": "3.12.13 (main, Aug  7 2026, 02:26:41) [MSC v.1944 64 bit (AMD64)]",
+    "model": "command-a-plus-05-2026",
+    "cohere_sdk_version": "7.0.5",
+    "corpus_path": "data/corpus/hero-corpus-2.0.json",
+    "corpus_sha256": "sha256:26d40cb09e0acfdca2f394284e31a5f37ebe6d471bdb060e24f808356cf12c18",
+    "run_dates": [
+      "2026-08-14T20:49:48.842766+00:00",
+      "2026-08-14T20:53:40.383478+00:00"
+    ]
+  },
+  "api_usage_all_task_runs": {
+    "calls_by_endpoint": {
+      "chat": 109
+    },
+    "input_tokens": 20386,
+    "output_tokens": 31854,
+    "transport_retries": 1,
+    "application_repair_attempts": 28,
+    "abort_guard_fired": false
+  },
+  "reproduction_commands": [
+    "git switch codex/demo-cohere-stress",
+    "powershell -ExecutionPolicy Bypass -File eval/run-structured-output-stress.ps1",
+    ".venv-live\\Scripts\\python.exe eval\\build-publication-artifacts.py",
+    "$env:NEXT_PUBLIC_BASE_PATH='/ResolveFlow'; pnpm --dir apps/web build"
+  ],
+  "artifacts": [
+    {
+      "path": "eval/results/side-by-side-demo.json",
+      "sha256": "sha256:99931ff6b9b1ff50f9f2121c06f2369e6c5244f34ed6fe71f9b055358c63a374"
+    },
+    {
+      "path": "eval/results/structured-output-stress.json",
+      "sha256": "sha256:e623c3188a83373e3bb9ce1135a4ab4ac92c2ddaef5858d875bcd4f972f3e622"
+    },
+    {
+      "path": "eval/results/structured-output-stress-voided-token-limit.json",
+      "sha256": "sha256:baa0da573257873521bc1266dfde498617a9289bf36d496cb1bc7072a4f7b185"
+    }
+  ]
+}

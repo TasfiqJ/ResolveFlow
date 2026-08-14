@@ -47,4 +47,20 @@ describe("snapshot-first home", () => {
       screen.getByText(/from an operator's problem to a release decision/i),
     ).toBeInTheDocument();
   });
+
+  it("publishes deep-linkable demo and structured-output evidence", () => {
+    const { container } = render(<Home />);
+
+    expect(container.querySelector("#side-by-side")).toBeInTheDocument();
+    expect(
+      container.querySelector("#structured-output-stress"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("ADMITTED TO RETRIEVAL")).toBeInTheDocument();
+    expect(screen.getByText("REFUSED BEFORE RETRIEVAL")).toBeInTheDocument();
+    expect(screen.getByText(/earlier a\/b run — voided/i)).toBeInTheDocument();
+    expect(screen.getAllByText("unmeasured").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("link", { name: /raw retained calls/i }),
+    ).toHaveAttribute("href", "results/structured-output-stress.json");
+  });
 });

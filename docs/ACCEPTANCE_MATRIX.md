@@ -10,6 +10,14 @@ This matrix maps every acceptance criterion in Features 1-18 to a future automat
 
 Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE` (reason required).
 
+## Post-release demo and structured-output evidence
+
+| ID | Criterion / pass condition | Planned evidence | Exact command or human item | Status |
+|---|---|---|---|---|
+| PUB-DEMO | A stranger can deep-link to a credential-free paired view that shows the same query/corpus, retrieved and ACL-blocked evidence, citations, verdicts, and the restricted-document difference. | Checksummed side-by-side artifact plus browser test | `NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e` | PASS |
+| PUB-STRESS | The retained Cohere structured-output run covers every requested condition and records per-call hashes, tokens, duration, status, aggregates, retries, and limitations. | `eval/results/structured-output-stress.json` and SHA-256 sidecar | `powershell -ExecutionPolicy Bypass -File eval/run-structured-output-stress.ps1` | PASS |
+| PUB-METHOD | The public sections link raw artifacts and methodology with environment, model, corpus hash, dates, branch, exact reproduction commands, voided-run note, and non-claims. | Publication manifest, methodology, static bundle, browser deep links | `.venv-live\\Scripts\\python.exe eval\\build-publication-artifacts.py` and strict public-bundle scan | PASS |
+
 ## Command conventions
 
 - Python commands run from the repository root in the locked `uv` environment.

@@ -2,11 +2,11 @@
 
 **Last updated:** 2026-08-14
 
-**Current branch:** `main`
+**Current branch:** `codex/demo-cohere-stress`
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** Final live Cohere A/B published; quality metrics void by low completion
+**Active work:** Complete — recorded side-by-side demo and live structured-output stress evidence prepared for publication
 
 ## Current repository facts
 
@@ -304,6 +304,16 @@ container, dependency-audit, live-provider, connector, or human result is claime
 ## Immediate next action
 
 Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.
+
+## Side-by-side demo and structured-output stress publication
+
+- The homepage now has stable `#side-by-side` and `#structured-output-stress` anchors.
+- The recorded comparison runs one synthetic query over one corpus. `unsafe-v0` admits the restricted Refund processing runbook; `guarded-v1` removes it before retrieval. Both columns expose retrieved evidence, ACL exclusions, citations, and the recorded verdict.
+- The public site remains recorded-only. GitHub Pages has no server-side credential boundary, so no Cohere key or live inference control is exposed.
+- The retained live structured-output artifact records every request and response, request/response SHA-256, token count, duration, status, and retry linkage. Every retained condition produced schema-valid JSON. One rate-limit response was retried by the counted transport fallback; the schema-repair path was not exercised, so its success, latency, and token cost remain unmeasured.
+- A first stress execution is retained but voided because its output allowance caused truncation and also constrained the repair call. An earlier A/B quality run remains labeled void because its total-token budget could not fit the estimated input plus required output.
+- Raw artifacts, sidecars, methodology, non-claims, environment details, corpus hash, and reproduction commands are under `eval/results/` and copied byte-for-byte into the public static tree.
+- Web type checking, lint, component tests, static export, browser deep-link/accessibility/mobile checks, Python tests, Ruff, MyPy, snapshot smoke, and strict public-bundle scanning passed. The first browser attempt did not execute because the pinned browser binary was absent; the browser was installed and the full suite then passed.
 
 ## Final live Cohere A/B publication
 

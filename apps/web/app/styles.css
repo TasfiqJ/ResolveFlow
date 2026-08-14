@@ -83,6 +83,327 @@
   --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
 }
 
+/* Deep-linkable evaluation exhibits. */
+.evidenceSection,
+.stressSection {
+  padding: var(--space-14) max(var(--space-6), 5vw);
+  scroll-margin-top: var(--space-10);
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-neutral-100);
+}
+
+.stressSection {
+  background: var(--color-surface);
+}
+
+.sharedQuery {
+  margin: var(--space-8) 0;
+  padding: var(--space-6);
+  border: 1px solid var(--color-accent-300);
+  border-left: var(--space-2) solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-100);
+}
+
+.sharedQuery span,
+.sharedQuery small,
+.restrictedDecision small,
+.verdictCard span,
+.recoveryNote span,
+.voidedAbNote span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.sharedQuery p {
+  max-width: 78ch;
+  margin: var(--space-3) 0;
+  color: var(--color-neutral-900);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.sharedQuery small {
+  overflow-wrap: anywhere;
+  color: var(--color-neutral-600);
+}
+
+.sideBySideGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.evidenceColumn {
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 var(--space-2) var(--space-6) rgb(16 24 40 / 6%);
+}
+
+.evidenceColumn > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  color: white;
+  background: var(--color-neutral-900);
+  font-family: var(--font-mono);
+}
+
+.unsafeColumn > header {
+  background: var(--color-danger-900);
+}
+
+.guardedColumn > header {
+  background: var(--color-accent-2-900);
+}
+
+.restrictedDecision,
+.evidenceList,
+.blockedList,
+.citationList,
+.verdictCard {
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.restrictedDecision {
+  background: var(--color-danger-100);
+}
+
+.guardedColumn .restrictedDecision {
+  background: var(--color-accent-2-100);
+}
+
+.restrictedDecision h3 {
+  margin: var(--space-2) 0;
+  color: var(--color-neutral-900);
+}
+
+.restrictedDecision b {
+  color: var(--color-danger-700);
+  font-family: var(--font-mono);
+}
+
+.guardedColumn .restrictedDecision b {
+  color: var(--color-accent-2-800);
+}
+
+.evidenceList h3,
+.blockedList h3,
+.citationList h3 {
+  margin: 0 0 var(--space-3);
+  font-size: 0.92rem;
+  text-transform: uppercase;
+}
+
+.evidenceList ul,
+.blockedList ul,
+.citationList ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evidenceList li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--color-divider);
+}
+
+.evidenceList code {
+  color: var(--color-neutral-500);
+  font-size: 0.72rem;
+}
+
+.blockedList li {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger-700);
+  background: var(--color-danger-100);
+}
+
+.citationList li {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-left: var(--space-1) solid var(--color-accent-2-600);
+  background: var(--color-accent-2-100);
+}
+
+.citationList li span,
+.blockedList p,
+.citationList p,
+.verdictCard p {
+  color: var(--color-neutral-600);
+  line-height: 1.6;
+}
+
+.verdictCard {
+  border-bottom: 0;
+  background: var(--color-neutral-900);
+  color: white;
+}
+
+.verdictCard strong {
+  display: block;
+  margin: var(--space-2) 0;
+  color: var(--color-accent-2-400);
+  font-size: 1.6rem;
+  text-transform: uppercase;
+}
+
+.verdictCard p {
+  color: var(--color-neutral-300);
+}
+
+.artifactLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.artifactLinks a {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-800);
+  background: var(--color-surface);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.artifactLinks a:hover,
+.artifactLinks a:focus-visible {
+  border-color: var(--color-accent-600);
+  background: var(--color-accent-100);
+}
+
+.stressSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+
+.stressSummary article {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+}
+
+.stressSummary strong {
+  color: var(--color-neutral-900);
+  font-family: var(--font-mono);
+  font-size: 2rem;
+}
+
+.stressSummary span,
+.stressSummary small {
+  font-family: var(--font-mono);
+}
+
+.stressSummary small {
+  color: var(--color-neutral-600);
+}
+
+.stressTableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+
+.stressTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.stressTable th,
+.stressTable td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.stressTable thead th {
+  color: white;
+  background: var(--color-neutral-900);
+  font-family: var(--font-mono);
+}
+
+.stressTable tbody th {
+  color: var(--color-neutral-900);
+}
+
+.stressTable tbody tr:last-child th,
+.stressTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.recoveryNote {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.recoveryNote > div,
+.voidedAbNote {
+  padding: var(--space-6);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+}
+
+.recoveryNote h3 {
+  margin: var(--space-2) 0;
+}
+
+.recoveryNote p,
+.voidedAbNote p {
+  color: var(--color-neutral-600);
+  line-height: 1.65;
+}
+
+.voidedRun,
+.voidedAbNote {
+  border-color: var(--color-warn-300) !important;
+  background: var(--color-warn-100) !important;
+}
+
+.voidedAbNote {
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .sideBySideGrid,
+  .stressSummary,
+  .recoveryNote {
+    grid-template-columns: 1fr;
+  }
+
+  .evidenceList li {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 /* ══════════════════════ Reset + base type ══════════════════════ */
 
 * {

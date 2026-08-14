@@ -2,6 +2,10 @@ import type { CSSProperties } from "react";
 import integrity from "../public/snapshots/evaluation-integrity-audit.json";
 import liveSnapshot from "../public/snapshots/hero-cohere-live.json";
 import snapshot from "../public/snapshots/hero-foundation.json";
+import publication from "../public/results/publication-manifest.json";
+import sideBySide from "../public/results/side-by-side-demo.json";
+import stress from "../public/results/structured-output-stress.json";
+import voidedStress from "../public/results/structured-output-stress-voided-token-limit.json";
 
 const starField = [
   [8, 18, 0],
@@ -148,6 +152,20 @@ const buildScope = [
   "Approval, idempotency, and worker recovery",
   "Replay compiler and hard-first release gate",
   "Static public product, CI, and restore path",
+] as const;
+
+const conditionLabels = {
+  clean_schema: "Clean schema",
+  ambiguous_schema: "Ambiguous schema",
+  injected_evidence: "Injected instructions",
+  missing_requested_field: "Requested field absent",
+} as const;
+
+const unsafeDemo = sideBySide.builds["unsafe-v0"];
+const guardedDemo = sideBySide.builds["guarded-v1"];
+const demoBuilds = [
+  { label: "unsafe-v0", build: unsafeDemo, className: "unsafeColumn" },
+  { label: "guarded-v1", build: guardedDemo, className: "guardedColumn" },
 ] as const;
 
 export default function Home() {
@@ -532,6 +550,243 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="evidenceSection" id="side-by-side">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">RECORDED SIDE-BY-SIDE</div>
+            <h2>
+              THE SAME QUESTION. THE SAME CORPUS. A DIFFERENT TRUST BOUNDARY.
+            </h2>
+          </div>
+          <p>
+            This is a credential-free recorded fixture, not a live public model
+            call. The static site cannot protect a provider key, so no live
+            button is offered.
+          </p>
+        </div>
+
+        <div className="sharedQuery">
+          <span>SHARED INCIDENT QUERY</span>
+          <p>{sideBySide.query}</p>
+          <small>
+            CORPUS {sideBySide.corpus_version} · {sideBySide.corpus_sha256}
+          </small>
+        </div>
+
+        <div className="sideBySideGrid">
+          {demoBuilds.map(({ label, build, className }) => (
+            <article className={`evidenceColumn ${className}`} key={label}>
+              <header>
+                <span>{label}</span>
+                <strong>
+                  {label === "unsafe-v0" ? "ACL BYPASSED" : "ACL ENFORCED"}
+                </strong>
+              </header>
+
+              <div className="restrictedDecision">
+                <small>RESTRICTED DOCUMENT</small>
+                <h3>{sideBySide.restricted_document.title}</h3>
+                <b>
+                  {label === "unsafe-v0"
+                    ? "ADMITTED TO RETRIEVAL"
+                    : "REFUSED BEFORE RETRIEVAL"}
+                </b>
+              </div>
+
+              <div className="evidenceList">
+                <h3>Evidence retrieved</h3>
+                <ul>
+                  {build.retrieved_evidence.map((item) => (
+                    <li key={item.artifact_id}>
+                      <span>{item.title}</span>
+                      <code>{item.content_sha256.slice(0, 18)}…</code>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="blockedList">
+                <h3>Blocked by ACLs</h3>
+                {build.blocked_by_acl.length ? (
+                  <ul>
+                    {build.blocked_by_acl.map((title) => (
+                      <li key={title}>{title}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>None. This build bypassed pre-retrieval authorization.</p>
+                )}
+              </div>
+
+              <div className="citationList">
+                <h3>Citations produced</h3>
+                {build.citations.length ? (
+                  <ul>
+                    {build.citations.map((citation) => (
+                      <li key={citation.citation_id}>
+                        <b>{citation.title}</b>
+                        <span>{citation.excerpt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No citations were produced.</p>
+                )}
+              </div>
+
+              <div className="verdictCard">
+                <span>FINAL VERDICT</span>
+                <strong>{build.final_verdict.status}</strong>
+                <p>{build.final_verdict.summary}</p>
+                <small>
+                  ROUTE: {build.final_verdict.route ?? "UNASSIGNED"}
+                </small>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="artifactLinks">
+          <a href="results/side-by-side-demo.json">RAW DEMO ARTIFACT ↗</a>
+          <a href="results/side-by-side-demo.json.sha256">
+            ARTIFACT SHA-256 ↗
+          </a>
+          {sideBySide.source_traces.map((source) => (
+            <a
+              href={`https://github.com/TasfiqJ/ResolveFlow/blob/codex/demo-cohere-stress/${source.path}`}
+              key={source.path}
+            >
+              SOURCE TRACE ·{" "}
+              {source.path.includes("unsafe") ? "UNSAFE" : "GUARDED"} ↗
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="stressSection" id="structured-output-stress">
+        <div className="sectionHeader">
+          <div>
+            <div className="sectionCode">LIVE COHERE STRESS TEST</div>
+            <h2>STRUCTURED OUTPUT HELD ACROSS EVERY RETAINED CONDITION.</h2>
+          </div>
+          <p>
+            Live Chat calls against {stress.methodology.model}. Synthetic
+            prompts, one API account, one run date, and no Embed or Rerank
+            calls.
+          </p>
+        </div>
+
+        <div className="stressSummary">
+          <article>
+            <strong>{stress.budget.total_calls}</strong>
+            <span>CHAT ATTEMPTS</span>
+            <small>{stress.budget.retry_calls} TRANSPORT RETRY</small>
+          </article>
+          <article>
+            <strong>
+              {stress.budget.input_tokens + stress.budget.output_tokens}
+            </strong>
+            <span>OBSERVED TOKENS</span>
+            <small>
+              {stress.budget.input_tokens} INPUT · {stress.budget.output_tokens}{" "}
+              OUTPUT
+            </small>
+          </article>
+          <article>
+            <strong>{stress.budget.abort_guard_fired ? "YES" : "NO"}</strong>
+            <span>ABORT GUARD FIRED</span>
+            <small>HARD CAP {stress.budget.max_calls} CALLS</small>
+          </article>
+        </div>
+
+        <div className="stressTableWrap">
+          <table className="stressTable">
+            <thead>
+              <tr>
+                <th>Condition</th>
+                <th>Malformed</th>
+                <th>Retry → valid</th>
+                <th>Mean latency</th>
+                <th>Mean output tokens</th>
+                <th>Failure shape</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(stress.conditions).map(([condition, result]) => (
+                <tr key={condition}>
+                  <th>
+                    {conditionLabels[condition as keyof typeof conditionLabels]}
+                  </th>
+                  <td>
+                    {result.malformed_count} / {result.initial_call_count}
+                  </td>
+                  <td>{String(result.retry_to_valid_rate)}</td>
+                  <td>{result.mean_initial_latency_ms} ms</td>
+                  <td>{result.mean_initial_output_tokens}</td>
+                  <td>
+                    {Object.keys(result.failure_modes).length
+                      ? Object.keys(result.failure_modes).join(", ")
+                      : "none observed"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="recoveryNote">
+          <div>
+            <span>DETERMINISTIC RECOVERY</span>
+            <h3>Defined, but not exercised in the retained run.</h3>
+            <p>
+              One schema-constrained repair may receive only the malformed draft
+              and scenario ID—not the original evidence. Because no retained
+              response was malformed, retry-to-valid, repair latency, and repair
+              token cost are unmeasured.
+            </p>
+          </div>
+          <div className="voidedRun">
+            <span>VOIDED TOKEN-BUDGET RUN</span>
+            <p>
+              The first stress execution exhausted its output allowance and was
+              retained as a confounded truncation result. Its repair calls used
+              the same insufficient allowance and did not recover.
+            </p>
+            <small>
+              {voidedStress.budget.total_calls} CALLS · RAW ARTIFACT PRESERVED
+            </small>
+          </div>
+        </div>
+
+        <div className="voidedAbNote">
+          <span>EARLIER A/B RUN — VOIDED</span>
+          <p>
+            An earlier A/B quality run used a total-token budget that could not
+            fit the estimated input plus required output. The harness would
+            abort every run, so its quality metrics were invalid and remain
+            non-claims.
+          </p>
+        </div>
+
+        <div className="artifactLinks">
+          <a href="results/structured-output-stress.json">
+            RAW RETAINED CALLS ↗
+          </a>
+          <a href="results/structured-output-stress.json.sha256">
+            RETAINED SHA-256 ↗
+          </a>
+          <a href="results/structured-output-stress-voided-token-limit.json">
+            RAW VOIDED RUN ↗
+          </a>
+          <a href="results/METHODOLOGY.md">METHODOLOGY ↗</a>
+          <a href="results/publication-manifest.json">
+            ARTIFACT MANIFEST ·{" "}
+            {publication.api_usage_all_task_runs.calls_by_endpoint.chat} TASK
+            CALLS ↗
+          </a>
         </div>
       </section>
 
