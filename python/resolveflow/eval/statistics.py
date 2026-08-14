@@ -89,12 +89,8 @@ def newcombe_difference(
     rate_b = successes_b / trials_b
     difference = rate_b - rate_a
 
-    low = difference - math.sqrt(
-        (rate_b - second["low"]) ** 2 + (first["high"] - rate_a) ** 2
-    )
-    high = difference + math.sqrt(
-        (second["high"] - rate_b) ** 2 + (rate_a - first["low"]) ** 2
-    )
+    low = difference - math.sqrt((rate_b - second["low"]) ** 2 + (first["high"] - rate_a) ** 2)
+    high = difference + math.sqrt((second["high"] - rate_b) ** 2 + (rate_a - first["low"]) ** 2)
     low = max(-1.0, low)
     high = min(1.0, high)
     return {

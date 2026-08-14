@@ -47,9 +47,9 @@ def test_multiple_primary_mutations_are_rejected(tmp_path: Path) -> None:
         load_manifest(_write_variant(tmp_path, duplicate))
 
 
-def test_checksum_mismatch_is_rejected() -> None:
+def test_checksum_mismatch_is_rejected(tmp_path: Path) -> None:
     raw = SOURCE.read_text(encoding="utf-8").replace("role: contractor", "role: incident_commander")
-    path = Path("/tmp/resolveflow-invalid-manifest.yaml")
+    path = tmp_path / "resolveflow-invalid-manifest.yaml"
     path.write_text(raw, encoding="utf-8")
     with pytest.raises(ValueError, match="checksum mismatch"):
         load_manifest(path)

@@ -2,4 +2,5 @@
 out
 playwright-report
 public/snapshots
+public/results
 test-results

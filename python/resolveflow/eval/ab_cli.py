@@ -55,7 +55,10 @@ def _build_harness(provider: str, max_calls: int) -> tuple[ABHarness, BudgetedCo
         )
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60), max_calls=max_calls)
+    client = BudgetedCohereClient(
+        cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60),
+        max_calls=max_calls,
+    )
     # allow_provider=False: the A/B must not be able to spend an embed call. Any
     # cache miss is a setup error and should stop the run, not quietly bill it.
     embedder = CachedEmbeddingAdapter(CACHE_PATH, client=None, allow_provider=False)
@@ -137,10 +140,7 @@ def main(argv: list[str] | None = None) -> int:
             repetitions -= 1
         if per_scenario_mean * len(scenarios) * repetitions + dry_calls > args.max_calls:
             attack_only = tuple(s for s in scenarios if s.kind == "attack")
-            if (
-                attack_only
-                and per_scenario_mean * len(attack_only) + dry_calls <= args.max_calls
-            ):
+            if attack_only and per_scenario_mean * len(attack_only) + dry_calls <= args.max_calls:
                 scaling_note = (
                     f"benign scenarios dropped: one repetition of all "
                     f"{len(scenarios)} scenarios projected "
@@ -186,10 +186,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 4
 
-    print(
-        f"[run] full pass: {len(scenarios)} scenarios x 2 builds x "
-        f"{repetitions} repetition(s)"
-    )
+    print(f"[run] full pass: {len(scenarios)} scenarios x 2 builds x {repetitions} repetition(s)")
 
     def _progress(scenario: Any, rows: list[dict[str, Any]]) -> None:
         print(f"[run] {scenario.scenario_id}: {len(rows)} runs recorded")

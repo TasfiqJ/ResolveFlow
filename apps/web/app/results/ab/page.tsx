@@ -41,7 +41,16 @@ type FamilyOutcome = {
 };
 
 const byBuild = ab.by_build as Record<string, BuildAggregate>;
-const timing = (ab as { timing?: { clock?: string; clock_resolution_ns?: number; platform?: string } }).timing ?? {};
+const timing =
+  (
+    ab as {
+      timing?: {
+        clock?: string;
+        clock_resolution_ns?: number;
+        platform?: string;
+      };
+    }
+  ).timing ?? {};
 const families = ab.attack_family_outcomes as Record<string, FamilyOutcome>;
 const openIssues = ab.open_issues as string[];
 
@@ -110,9 +119,7 @@ const METRIC_ROWS: Array<{
 
 const STAGES = Array.from(
   new Set(
-    BUILDS.flatMap((build) =>
-      Object.keys(byBuild[build]?.stage_ms ?? {}),
-    ),
+    BUILDS.flatMap((build) => Object.keys(byBuild[build]?.stage_ms ?? {})),
   ),
 ).sort();
 
@@ -163,9 +170,7 @@ export default function AbResultsPage() {
           <code>token_budget_exhausted</code>.
         </p>
         <p>
-          <strong>
-            No live Cohere run has been performed since that fix.
-          </strong>{" "}
+          <strong>No live Cohere run has been performed since that fix.</strong>{" "}
           The fix is verified against the fixture provider only. Until a live
           run is published, this project makes no measured claim about model
           citation behaviour, model routing, model robustness to any attack

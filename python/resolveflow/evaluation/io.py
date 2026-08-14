@@ -31,8 +31,9 @@ def load_gate(gate_id: str | None = None) -> ReleaseGateDefinition:
 def write_bundle(bundle: ResultBundle, output: Path) -> tuple[Path, Path]:
     output.parent.mkdir(parents=True, exist_ok=True)
     rendered = json.dumps(bundle.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
-    output.write_text(rendered, encoding="utf-8")
-    digest = hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+    rendered_bytes = rendered.encode("utf-8")
+    output.write_bytes(rendered_bytes)
+    digest = hashlib.sha256(rendered_bytes).hexdigest()
     checksum_path = output.with_suffix(output.suffix + ".sha256")
     checksum_path.write_text(f"{digest}  {output.name}\n", encoding="utf-8")
     return output, checksum_path

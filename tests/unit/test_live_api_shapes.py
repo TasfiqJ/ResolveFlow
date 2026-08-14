@@ -11,7 +11,6 @@ from __future__ import annotations
 import inspect
 
 import pytest
-
 from resolveflow.eval.budget import SDK_MAX_RETRIES
 from resolveflow.retrieval.cohere import CohereRerankAdapter, read_float_embeddings
 
@@ -47,8 +46,17 @@ def test_read_float_embeddings_fails_loudly_when_there_are_none() -> None:
 
 def test_chat_accepts_every_keyword_the_adapter_sends() -> None:
     parameters = set(inspect.signature(cohere.ClientV2.chat).parameters)
-    for name in ("model", "messages", "documents", "tools", "strict_tools", "max_tokens",
-                 "temperature", "seed", "safety_mode"):
+    for name in (
+        "model",
+        "messages",
+        "documents",
+        "tools",
+        "strict_tools",
+        "max_tokens",
+        "temperature",
+        "seed",
+        "safety_mode",
+    ):
         assert name in parameters, f"ClientV2.chat has no parameter {name!r}"
 
 

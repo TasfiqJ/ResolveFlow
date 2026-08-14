@@ -44,7 +44,9 @@ def main() -> int:
 
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60))
+    client = BudgetedCohereClient(
+        cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60)
+    )
     adapter = CachedEmbeddingAdapter(CACHE_PATH, client=client, allow_provider=True)
 
     documents = chunk_texts()

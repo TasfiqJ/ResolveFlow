@@ -15,8 +15,8 @@ import math
 from pathlib import Path
 from typing import Any
 
-from resolveflow.retrieval.cohere import read_float_embeddings
 from resolveflow.domain.hashing import checksum
+from resolveflow.retrieval.cohere import read_float_embeddings
 
 ROOT = Path(__file__).resolve().parents[3]
 CACHE_DIR = ROOT / "data" / "corpus" / "embeddings"

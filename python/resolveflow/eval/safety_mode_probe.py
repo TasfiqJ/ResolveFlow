@@ -32,7 +32,6 @@ import json
 import os
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from resolveflow.eval.budget import SDK_MAX_RETRIES, BudgetedCohereClient
@@ -122,8 +121,10 @@ def probe(client: BudgetedCohereClient, model: str) -> list[dict[str, Any]]:
 
 def main(argv: list[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
-    model = argv[0] if argv else os.environ.get(
-        "RESOLVEFLOW_COHERE_COMMAND_MODEL", "command-a-plus-05-2026"
+    model = (
+        argv[0]
+        if argv
+        else os.environ.get("RESOLVEFLOW_COHERE_COMMAND_MODEL", "command-a-plus-05-2026")
     )
     api_key = os.environ.get("RESOLVEFLOW_COHERE_API_KEY")
     if not api_key:
@@ -131,7 +132,9 @@ def main(argv: list[str] | None = None) -> int:
 
     import cohere
 
-    client = BudgetedCohereClient(cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60), max_calls=40)
+    client = BudgetedCohereClient(
+        cohere.ClientV2(api_key=api_key, max_retries=SDK_MAX_RETRIES, timeout=60), max_calls=40
+    )
     cells = probe(client, model)
 
     accepted = [cell for cell in cells if cell["accepted"]]

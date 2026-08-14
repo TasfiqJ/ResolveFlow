@@ -289,7 +289,8 @@ class GovernedAgent:
                     len(provider_traces) + 1,
                     timeout_seconds=max(
                         0.001,
-                        self.budgets.wall_clock_seconds - (self.clock() - started) / 1_000_000_000.0,
+                        self.budgets.wall_clock_seconds
+                        - (self.clock() - started) / 1_000_000_000.0,
                     ),
                 )
                 provider_traces.append(repair_trace)

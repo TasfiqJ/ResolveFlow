@@ -130,9 +130,7 @@ def results_table(summary: dict[str, Any]) -> str:
     comparison = summary.get("build_comparison")
     if comparison:
         lines.append("")
-        lines.append(
-            f"### {comparison['treatment_build']} minus {comparison['baseline_build']}"
-        )
+        lines.append(f"### {comparison['treatment_build']} minus {comparison['baseline_build']}")
         lines.append("")
         lines.append(
             "Newcombe hybrid-score 95% intervals on the difference in proportions. "
@@ -189,7 +187,7 @@ def results_table(summary: dict[str, Any]) -> str:
             lines.append(
                 f"| {label} | {entry['baseline_p50']} | {entry['treatment_p50']} | "
                 f"{entry['delta_p50']:+} | "
-                f"{('%+.2f%%' % pct) if pct is not None else 'n/a'} |"
+                f"{f'{pct:+.2f}%' if pct is not None else 'n/a'} |"
             )
 
     per_trial = summary.get("per_trial") or {}
@@ -272,12 +270,12 @@ def results_table(summary: dict[str, Any]) -> str:
     lines.append(header)
     lines.append("| --- | " + " | ".join("---" for _ in builds for _ in (0, 1)) + " |")
     for stage in stages:
-        cells: list[str] = []
+        stage_cells: list[str] = []
         for build in builds:
             stats = summary["by_build"][build].get("stage_ms", {}).get(stage)
-            cells.append(_fmt(stats.get("p50")) if stats else "not measured")
-            cells.append(_fmt(stats.get("p95")) if stats else "not measured")
-        lines.append(f"| `{stage}` | " + " | ".join(cells) + " |")
+            stage_cells.append(_fmt(stats.get("p50")) if stats else "not measured")
+            stage_cells.append(_fmt(stats.get("p95")) if stats else "not measured")
+        lines.append(f"| `{stage}` | " + " | ".join(stage_cells) + " |")
 
     lines.append("")
     lines.append("Stage times do not sum to wall clock. Unattributed remainder:")
@@ -365,8 +363,12 @@ def quality_validity(summary: dict[str, Any]) -> dict[str, Any]:
     # ceiling, not because it finished. A run dominated by these cannot support a
     # claim about citation or routing quality -- that would blame a budget on the
     # model. Both the token ceiling and the tool-round ceiling are such limits.
-    budget_reasons = ("token_budget_exhausted", "tool_round_budget_exhausted",
-                      "provider_call_budget_exhausted", "wall_clock_budget_exhausted")
+    budget_reasons = (
+        "token_budget_exhausted",
+        "tool_round_budget_exhausted",
+        "provider_call_budget_exhausted",
+        "wall_clock_budget_exhausted",
+    )
     for build, aggregate in summary["by_build"].items():
         reasons = aggregate.get("terminal_reasons", {})
         runs = aggregate.get("runs", 0)
@@ -611,7 +613,8 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
         "descriptive of each metric alone.",
         "- **Latency**: `time.perf_counter_ns`, accumulated in integer nanoseconds "
         "and reported in milliseconds, per stage, with p50 and p95. The clock name, "
-        "its advertised resolution and the host OS are recorded in the summary artifact under `timing`. "
+        "its advertised resolution and the host OS are recorded in the summary "
+        "artifact under `timing`. "
         "End-to-end wall time and provider-call time are reported as separate "
         "numbers and are never combined; wall time already contains provider time. "
         "Stage spans are not a partition of the run, so stage times do not sum to "
@@ -654,13 +657,16 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
     )
     if embed_manifest.exists():
         embed = json.loads(embed_manifest.read_text(encoding="utf-8"))
+        embed_calls = embed.get(
+            "provider_embed_calls", embed.get("provider_embed_calls_this_run", 0)
+        )
         parts += [
             "",
             "The A/B ledger above excludes the corpus embed pass, which runs once "
             "beforehand and is recorded separately in "
             "`data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json`:",
             "",
-            f"- Embed calls: **{embed.get('provider_embed_calls', embed.get('provider_embed_calls_this_run', 0))}**",
+            f"- Embed calls: **{embed_calls}**",
             f"- Vectors cached: {embed['vector_count']} at dimension "
             f"{embed['dimension']}, model `{embed['model']}`",
             f"- Cache hash: `{embed['cache_hash']}`",
@@ -668,7 +674,7 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
             f"input {embed['input_tokens']}, output {embed['output_tokens']}",
             "",
             f"Total provider calls for the whole evaluation, embed pass included: "
-            f"**{(budget['total_calls'] if budget else 0) + embed.get('provider_embed_calls', embed.get('provider_embed_calls_this_run', 0))}**.",
+            f"**{(budget['total_calls'] if budget else 0) + embed_calls}**.",
         ]
     parts += [
         "",

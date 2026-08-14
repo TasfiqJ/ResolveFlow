@@ -48,7 +48,6 @@ WHAT THIS ESTABLISHES AND WHAT IT DOES NOT
 from __future__ import annotations
 
 import json
-import math
 import random
 from datetime import datetime, timezone
 from typing import Any
@@ -78,7 +77,7 @@ def _document_key(text: str) -> str:
 
 
 def _cosine(a: list[float], b: list[float]) -> float:
-    return sum(x * y for x, y in zip(a, b))
+    return sum(x * y for x, y in zip(a, b, strict=False))
 
 
 def _regex_fires(text: str) -> bool:
@@ -134,7 +133,12 @@ def evaluate() -> dict[str, Any]:
     ]
     # De-duplicate benign chunks that share text, matching the embed pass.
     seen: set[str] = set()
-    benign = [(t, v) for t, v in benign if not (t in seen or seen.add(t))]
+    unique_benign: list[tuple[str, list[float]]] = []
+    for text, vector in benign:
+        if text not in seen:
+            seen.add(text)
+            unique_benign.append((text, vector))
+    benign = unique_benign
 
     attacks: list[tuple[str, str, list[float]]] = []
     seen_a: set[str] = set()
@@ -175,7 +179,9 @@ def evaluate() -> dict[str, Any]:
     regex_missed = 0
     recovered = 0
     evaded_both: list[str] = []
-    for (artifact_id, text, _), score, is_flagged in zip(attacks, attack_scores, flagged):
+    for (artifact_id, text, _), score, is_flagged in zip(
+        attacks, attack_scores, flagged, strict=False
+    ):
         regex = _regex_fires(text)
         if not regex:
             regex_missed += 1
@@ -192,9 +198,7 @@ def evaluate() -> dict[str, Any]:
             }
         )
 
-    union_caught = sum(
-        1 for row in per_attack if row["regex_fired"] or row["embed_v4_flag"]
-    )
+    union_caught = sum(1 for row in per_attack if row["regex_fired"] or row["embed_v4_flag"])
 
     return {
         "schema_version": "1.0",
@@ -207,9 +211,9 @@ def evaluate() -> dict[str, Any]:
             "path": str(CACHE_PATH.relative_to(ROOT)),
             "manifest": str(MANIFEST_PATH.relative_to(ROOT)),
             "cache_hash": json.loads(MANIFEST_PATH.read_text(encoding="utf-8")).get("cache_hash"),
-            "embed_calls_behind_cache": json.loads(
-                MANIFEST_PATH.read_text(encoding="utf-8")
-            ).get("budget_total_calls"),
+            "embed_calls_behind_cache": json.loads(MANIFEST_PATH.read_text(encoding="utf-8")).get(
+                "budget_total_calls"
+            ),
         },
         "n_attack": len(attacks),
         "n_benign": len(benign_vectors),
@@ -266,9 +270,7 @@ def _auc(positive: list[float], negative: list[float]) -> float:
     return wins / (len(positive) * len(negative))
 
 
-def _bootstrap_auc_ci(
-    positive: list[float], negative: list[float]
-) -> dict[str, float | None]:
+def _bootstrap_auc_ci(positive: list[float], negative: list[float]) -> dict[str, Any]:
     if not positive or not negative:
         return {"low": None, "high": None, "replicates": 0}
     rng = random.Random(BOOTSTRAP_SEED)

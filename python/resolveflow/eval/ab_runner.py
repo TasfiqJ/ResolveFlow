@@ -22,8 +22,8 @@ from resolveflow.context.fixture import FixtureContextRepository
 from resolveflow.domain.evidence import Corpus
 from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import RunSnapshot
-from resolveflow.eval.corpus import build_eval_corpus
 from resolveflow.eval.budget import BudgetExceeded
+from resolveflow.eval.corpus import build_eval_corpus
 from resolveflow.eval.scenarios import EvalScenario, all_scenarios
 from resolveflow.eval.statistics import newcombe_difference, wilson_interval
 from resolveflow.orchestrator import ResolveOrchestrator, ResolveRunConfiguration
@@ -113,6 +113,7 @@ class RunMetrics:
         self.scenario = scenario
         self.build_id = build_id
         self.snapshot = snapshot
+        self.trial = 1
 
         authorized = _authorized_chunk_ids(scenario, corpus)
         chunk_text = {item.chunk_id: item.content for item in corpus.chunks}
@@ -463,8 +464,7 @@ def _aggregate(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "citation_authorized": wilson_interval(
                 sum(
-                    row["citation_count"] - len(row["cited_unauthorized_chunk_ids"])
-                    for row in rows
+                    row["citation_count"] - len(row["cited_unauthorized_chunk_ids"]) for row in rows
                 ),
                 sum(row["citation_count"] for row in rows),
             ),
@@ -498,7 +498,7 @@ def _percentile(values: list[float], q: float) -> float | None:
     return round(ordered[index], 6)
 
 
-def _stats(values: list[float]) -> dict[str, float] | None:
+def _stats(values: list[float]) -> dict[str, float | int | None] | None:
     if not values:
         return None
     ordered = sorted(values)
@@ -653,9 +653,7 @@ def build_result(
     for build_id in BUILD_IDS:
         series: list[dict[str, Any]] = []
         for trial in trials_seen:
-            subset = [
-                row for row in rows if row["build_id"] == build_id and row["trial"] == trial
-            ]
+            subset = [row for row in rows if row["build_id"] == build_id and row["trial"] == trial]
             if not subset:
                 continue
             series.append(
@@ -743,9 +741,7 @@ def build_result(
             "baseline_p50": round(base_p50, 6),
             "treatment_p50": round(treat_p50, 6),
             "delta_p50": round(treat_p50 - base_p50, 6),
-            "delta_pct": (
-                round((treat_p50 - base_p50) / base_p50 * 100, 2) if base_p50 else None
-            ),
+            "delta_pct": (round((treat_p50 - base_p50) / base_p50 * 100, 2) if base_p50 else None),
         }
 
     governance_tax = {
@@ -833,9 +829,7 @@ def run_ab(
             trial_snaps: list[RunSnapshot] = []
             for scenario in scenarios:
                 for build_id in BUILD_IDS:
-                    snapshot, metrics = harness.run_one(
-                        scenario, build_id, generated_at, trial
-                    )
+                    snapshot, metrics = harness.run_one(scenario, build_id, generated_at, trial)
                     trial_snaps.append(snapshot)
                     trial_rows.append(metrics.as_dict())
                     if output_dir is not None:
@@ -857,8 +851,7 @@ def run_ab(
         # Not even one full repetition fit under the cap. Re-raise so the caller
         # reports the cap as the finding rather than publishing an empty result.
         raise BudgetExceeded(
-            "call cap was hit before a single repetition completed; "
-            "raise the cap or reduce scope"
+            "call cap was hit before a single repetition completed; raise the cap or reduce scope"
         )
 
     effective_repetitions = completed_trials

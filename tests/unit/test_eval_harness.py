@@ -383,9 +383,7 @@ def test_transient_gateway_504_is_retried_and_counted() -> None:
 def test_persistent_gateway_error_still_eventually_raises() -> None:
     """Retries are bounded; a provider that never recovers must not loop forever."""
     inner = _GatewayThenOk(fail_times=99)
-    client = BudgetedCohereClient(
-        inner, max_attempts=3, sleep=lambda _: None, clock=_clock()
-    )
+    client = BudgetedCohereClient(inner, max_attempts=3, sleep=lambda _: None, clock=_clock())
     with pytest.raises(_GatewayTimeout):
         client.rerank(model="rerank-v4.0-fast", query="q", documents=["a"])
     # Exactly max_attempts calls were made and all are on the ledger.

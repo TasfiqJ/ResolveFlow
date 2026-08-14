@@ -4,6 +4,7 @@ from typing import Any
 
 from resolveflow.eval.budget import BudgetExceeded
 
+
 def read_float_embeddings(response: Any) -> Any:
     """Read float vectors out of an Embed v2 response.
 

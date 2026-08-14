@@ -7,7 +7,6 @@ mid-trial the completed snapshots can be rebuilt into a valid summary offline.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest

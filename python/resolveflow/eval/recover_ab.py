@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -73,7 +72,8 @@ def recover(provider: str, runs_dir: Path) -> dict[str, Any]:
     for path in snapshot_paths:
         data = json.loads(path.read_text(encoding="utf-8"))
         snapshot = RunSnapshot.model_validate(data)
-        scenario = by_id.get(snapshot.scenario_id)
+        scenario_id = snapshot.scenario_id
+        scenario = by_id.get(scenario_id) if scenario_id is not None else None
         if scenario is None:
             skipped_unknown += 1
             continue
