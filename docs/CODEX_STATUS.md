@@ -1,12 +1,12 @@
 # ResolveFlow Replay status
 
-**Last updated:** 2026-08-12
+**Last updated:** 2026-08-14
 
-**Current branch:** `fix/backend-audit`
+**Current branch:** `main`
 
 **Product implementation:** Complete technical preview with credibility-hardened portfolio experience
 
-**Active work:** None; security matrix execution published and browser-verified
+**Active work:** Final live Cohere A/B published; quality metrics void by low completion
 
 ## Current repository facts
 
@@ -304,3 +304,23 @@ container, dependency-audit, live-provider, connector, or human result is claime
 ## Immediate next action
 
 Promote only after genuine human-authored truth review, locked held-out evidence, and the practitioner/language gates documented for `validated_release` are complete.
+
+## Final live Cohere A/B publication
+
+- Zero-call validation passed: 154 unit and security tests (`tests/unit` and
+  `tests/security`; PostgreSQL tests intentionally excluded by the terminal-run instruction).
+- The single final harness invocation was interrupted mid-run by the execution wrapper. It was
+  not rerun. The prescribed recovery retained the two complete trials, dropped the incomplete
+  trial, republished the aggregate, and `resolveflow.eval.verify_checksums cohere` verified all
+  103 manifest rows.
+- The provider ledger records 197 Chat calls and 36 Rerank calls, 233 total against the fixed
+  300-call cap, with no retries.
+- Diagnostic completion was 1/32 (3.125%, Wilson 95% [0.5538%, 15.7443%]) for
+  `guarded-v1` and 4/32 (12.5%, Wilson 95% [4.9701%, 28.0683%]) for `unsafe-v0`.
+  The published `quality_validity` object therefore voids citation precision, route accuracy,
+  and completion rate as quality metrics.
+- The valid A/B result is pre-model authorization: forbidden-evidence retrieval moved from
+  32/32 for `unsafe-v0` to 0/32 for `guarded-v1`, a guarded-minus-unguarded difference of
+  -100 percentage points with Newcombe hybrid-score 95% [-100, -84.8426] percentage points.
+- The result, limitations, offline detector context, embedding-separation context, artifact
+  paths, and SHA-256 values are published in `docs/RESULTS-SUMMARY.md`.

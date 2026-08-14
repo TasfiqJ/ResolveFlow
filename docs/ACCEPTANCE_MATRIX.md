@@ -232,6 +232,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | X-20 | One authorized Cohere hero run is published beside the recorded fixture with live-provider provenance, non-fixture Embed/Rerank models, provider usage, an exact verifier-accepted citation, complete event hash links, synthetic-data labels, disabled external writes, and unchanged NO SHIP limits | `uv run python scripts/verify_public_snapshots.py && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web build && NEXT_PUBLIC_BASE_PATH=/ResolveFlow pnpm --dir apps/web e2e`; GitHub runs `31602018723` and `31602018754`; published-page browser inspection | post-release live trace publication | PASS (bounded integration evidence only; model returned `needs_review`, no live-quality or cost claim) |
 
+| X-21 | Final live Cohere A/B publishes the measured outcome whether favorable or unfavorable, preserves a fixed call cap, voids quality claims when completion is unrepresentative, and retains the pre-model authorization result | `eval/results/ab-summary-cohere.json`, `eval/results/ab-site-cohere.json`, `eval/results/provider-calls-cohere.json`, `eval/results/SHA256SUMS-cohere.md`, and `docs/RESULTS-SUMMARY.md`; `.venv-live\Scripts\python -m pytest tests/unit tests/security -q`; `.venv-live\Scripts\python -m resolveflow.eval.verify_checksums cohere` | post-release final live A/B | PASS (154 tests; 103 checksum rows verified; quality metrics void; forbidden retrieval 32/32 to 0/32) |
+
 ## Update rules
 
 1. Change a row to `IN PROGRESS` only in the active milestone.
