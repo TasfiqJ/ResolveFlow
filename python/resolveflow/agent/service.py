@@ -383,7 +383,9 @@ class GovernedAgent:
             total_tokens += trace.usage.total_tokens
             if structured is not None and total_tokens <= self.budgets.max_total_tokens:
                 try:
-                    selection = StructureSelection.model_validate_json(structured.text)
+                    selection = StructureSelection.model_validate_json(
+                        GovernedAgent._strip_json_fence(structured.text)
+                    )
                     final_response = self.renderer.render(
                         graph, selection, provider=self._provider_label()
                     )
@@ -417,15 +419,27 @@ class GovernedAgent:
         )
 
     @staticmethod
-    def _parse_findings(text: str) -> FirstPassFindings:
+    def _strip_json_fence(text: str) -> str:
+        """Return the JSON body inside a ```/```json markdown fence, if present.
+
+        Frontier models frequently wrap structured output in a markdown fence.
+        A strict json parser then fails on a body that is otherwise perfectly
+        valid. The evidence pass already tolerated this; the structure pass did
+        not, and a live Command A+ run showed structure-pass output finishing
+        cleanly yet being rejected as structured_response_invalid. Strip the
+        fence in both places.
+        """
         candidate = text.strip()
         if candidate.startswith("```") and candidate.endswith("```"):
             opening, separator, fenced = candidate.partition("\n")
-            # Tolerate CRLF line endings and trailing spaces on the info string;
-            # rejecting them burned a whole repair provider call on a well-formed body.
             if not separator or opening.strip().lower() not in {"```", "```json"}:
-                raise ValueError("unsupported findings fence")
+                raise ValueError("unsupported json fence")
             candidate = fenced[:-3].strip()
+        return candidate
+
+    @staticmethod
+    def _parse_findings(text: str) -> FirstPassFindings:
+        candidate = GovernedAgent._strip_json_fence(text)
         payload = json.loads(candidate)
         try:
             return FirstPassFindings.model_validate(payload)

@@ -660,7 +660,7 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
             "beforehand and is recorded separately in "
             "`data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json`:",
             "",
-            f"- Embed calls: **{embed['provider_embed_calls']}**",
+            f"- Embed calls: **{embed.get('provider_embed_calls', embed.get('provider_embed_calls_this_run', 0))}**",
             f"- Vectors cached: {embed['vector_count']} at dimension "
             f"{embed['dimension']}, model `{embed['model']}`",
             f"- Cache hash: `{embed['cache_hash']}`",
@@ -668,7 +668,7 @@ def methodology(summary: dict[str, Any], provider: str) -> str:
             f"input {embed['input_tokens']}, output {embed['output_tokens']}",
             "",
             f"Total provider calls for the whole evaluation, embed pass included: "
-            f"**{(budget['total_calls'] if budget else 0) + embed['provider_embed_calls']}**.",
+            f"**{(budget['total_calls'] if budget else 0) + embed.get('provider_embed_calls', embed.get('provider_embed_calls_this_run', 0))}**.",
         ]
     parts += [
         "",
