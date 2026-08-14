@@ -64,12 +64,12 @@ Write-Host "`n== step 1/4: Embed v4 pass (cached; skipped if already complete) =
 if ($LASTEXITCODE -ne 0) { throw "embed pass failed; no A/B was attempted" }
 
 # --- 2. The A/B -------------------------------------------------------------
-Write-Host "`n== step 2/4: live A/B, 16 scenarios x 2 builds x up to 3 trials ==" -ForegroundColor Cyan
-Write-Host "Repetitions exist so every published rate carries a confidence interval."
+Write-Host "`n== step 2/4: live A/B, 16 scenarios x 2 builds x 1 trial (higher tool-round budget) ==" -ForegroundColor Cyan
+Write-Host "One repetition (n=32 per build) at max_tool_rounds=4 so Command A+ can finish"
 Write-Host "A 2-scenario dry pass measures the real cost first and scales the trial"
 Write-Host "count down to whatever fits under the cap. It never exceeds it."
 Write-Host "This sleeps to respect the per-minute limits and will take several minutes."
-& $vpy -m resolveflow.eval.ab_cli --provider cohere --max-calls 400 --repetitions 3
+& $vpy -m resolveflow.eval.ab_cli --provider cohere --max-calls 300 --repetitions 1
 $abExit = $LASTEXITCODE
 if ($abExit -eq 4) {
     Write-Host "`nABORTED: the dry pass projected more calls than the cap allows." -ForegroundColor Red
