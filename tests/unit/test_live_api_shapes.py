@@ -83,3 +83,54 @@ def test_sdk_retries_are_disabled_so_the_ledger_counts_every_http_request() -> N
     """
     assert SDK_MAX_RETRIES == 0
     assert "max_retries" in inspect.signature(cohere.ClientV2.__init__).parameters
+
+
+def test_live_modules_import_every_name_they_reference() -> None:
+    """A module that uses SDK_MAX_RETRIES but forgets to import it raises
+    NameError only when the live path executes -- after a real key is loaded and
+    calls are about to be spent. Importing the module and checking the name is
+    resolvable catches that at test time instead.
+
+    This is the exact bug that stopped a live run: ab_cli referenced
+    SDK_MAX_RETRIES at its ClientV2 construction line without importing it.
+    """
+    import importlib
+
+    for module_name in (
+        "resolveflow.eval.ab_cli",
+        "resolveflow.eval.embed_corpus",
+        "resolveflow.eval.safety_mode_probe",
+    ):
+        module = importlib.import_module(module_name)
+        source = inspect.getsource(module)
+        if "SDK_MAX_RETRIES" in source:
+            assert hasattr(module, "SDK_MAX_RETRIES"), (
+                f"{module_name} references SDK_MAX_RETRIES but does not import it; "
+                f"the live path would raise NameError after loading the API key"
+            )
+
+
+def test_ab_cli_cohere_harness_construction_resolves_all_names(monkeypatch) -> None:
+    """Drive _build_harness down the cohere branch far enough to execute the
+    ClientV2 construction line, with a fake key and a stub SDK so no network
+    call is made. If any name on that path is unbound, this fails here rather
+    than mid-run."""
+    from resolveflow.eval import ab_cli
+    from resolveflow.eval.embed_corpus import CACHE_PATH
+
+    if not CACHE_PATH.exists():
+        import pytest
+
+        pytest.skip("embedding cache not present in this checkout")
+
+    monkeypatch.setenv("RESOLVEFLOW_COHERE_API_KEY", "test-key-not-used")
+
+    class _StubClientV2:
+        def __init__(self, **kwargs):
+            # The construction line passes max_retries=SDK_MAX_RETRIES; if that
+            # name were unbound the call would never reach here.
+            assert "max_retries" in kwargs
+
+    monkeypatch.setattr(cohere, "ClientV2", _StubClientV2)
+    harness, client = ab_cli._build_harness("cohere", 400)
+    assert client is not None

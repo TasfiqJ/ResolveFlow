@@ -23,7 +23,12 @@ from pathlib import Path
 from typing import Any
 
 from resolveflow.eval.ab_runner import ABHarness, run_ab
-from resolveflow.eval.budget import DEFAULT_MAX_CALLS, BudgetedCohereClient, BudgetExceeded
+from resolveflow.eval.budget import (
+    DEFAULT_MAX_CALLS,
+    SDK_MAX_RETRIES,
+    BudgetedCohereClient,
+    BudgetExceeded,
+)
 from resolveflow.eval.corpus import ATTACK_MANIFEST, BASE_MANIFEST, load_attack_variants
 from resolveflow.eval.embed_corpus import CACHE_PATH
 from resolveflow.eval.embedding_cache import CachedEmbeddingAdapter
