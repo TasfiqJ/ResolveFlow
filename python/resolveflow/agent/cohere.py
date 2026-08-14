@@ -94,7 +94,12 @@ class CohereChatAdapter:
             raw = self.client.chat(**kwargs)
         except (TimeoutError, ConnectionError) as exc:
             raise ProviderTimeoutError("provider_timeout") from exc
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
+            # A budget-cap signal is control flow, not a provider error. Let it
+            # propagate so the harness can stop cleanly at a repetition boundary
+            # instead of mislabelling an exhausted budget as a model failure.
+            if type(exc).__name__ == "BudgetExceeded":
+                raise
             raise ProviderError("provider_error") from exc
         return self._normalize(raw, request.model)
 

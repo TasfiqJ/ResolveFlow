@@ -361,14 +361,29 @@ def quality_validity(summary: dict[str, Any]) -> dict[str, Any]:
     rather than publishing the number.
     """
     voided: list[str] = []
+    # Any terminal reason that means the agent stopped because it hit a harness
+    # ceiling, not because it finished. A run dominated by these cannot support a
+    # claim about citation or routing quality -- that would blame a budget on the
+    # model. Both the token ceiling and the tool-round ceiling are such limits.
+    budget_reasons = ("token_budget_exhausted", "tool_round_budget_exhausted",
+                      "provider_call_budget_exhausted", "wall_clock_budget_exhausted")
     for build, aggregate in summary["by_build"].items():
         reasons = aggregate.get("terminal_reasons", {})
-        budget_aborts = reasons.get("token_budget_exhausted", 0)
         runs = aggregate.get("runs", 0)
+        budget_aborts = sum(reasons.get(name, 0) for name in budget_reasons)
+        completion_rate = aggregate.get("completion_rate") or 0.0
         if runs and budget_aborts == runs:
-            voided.append(f"{build}: all {runs} runs ended in token_budget_exhausted")
-        elif runs and aggregate.get("completion_rate") == 0.0:
+            detail = ", ".join(
+                f"{reasons[name]} {name}" for name in budget_reasons if reasons.get(name)
+            )
+            voided.append(f"{build}: all {runs} runs ended in a budget ceiling ({detail})")
+        elif runs and completion_rate == 0.0:
             voided.append(f"{build}: no run reached completion")
+        elif runs and completion_rate < 0.5:
+            voided.append(
+                f"{build}: only {completion_rate:.0%} of runs completed; quality "
+                f"metrics are not representative"
+            )
     return {
         "quality_metrics_valid": not voided,
         "void_reasons": voided,

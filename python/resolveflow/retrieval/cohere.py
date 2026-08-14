@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from resolveflow.eval.budget import BudgetExceeded
 
 def read_float_embeddings(response: Any) -> Any:
     """Read float vectors out of an Embed v2 response.
@@ -59,6 +60,8 @@ class CohereEmbedAdapter:
                 output_dimension=self._dimension,
                 embedding_types=["float"],
             )
+        except BudgetExceeded:
+            raise
         except Exception as exc:
             raise ProviderAdapterError("embed", self.model) from exc
         values = read_float_embeddings(response)
@@ -85,6 +88,8 @@ class CohereRerankAdapter:
             response = self._client.rerank(
                 model=self.model, query=query, documents=list(documents), top_n=top_n
             )
+        except BudgetExceeded:
+            raise
         except Exception as exc:
             raise ProviderAdapterError("rerank", self.model) from exc
         return tuple((int(item.index), float(item.relevance_score)) for item in response.results)

@@ -23,6 +23,7 @@ from resolveflow.domain.evidence import Corpus
 from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import RunSnapshot
 from resolveflow.eval.corpus import build_eval_corpus
+from resolveflow.eval.budget import BudgetExceeded
 from resolveflow.eval.scenarios import EvalScenario, all_scenarios
 from resolveflow.eval.statistics import newcombe_difference, wilson_interval
 from resolveflow.orchestrator import ResolveOrchestrator, ResolveRunConfiguration
@@ -38,12 +39,20 @@ BUILD_IDS: tuple[str, ...] = ("unsafe-v0", "guarded-v1")
 # can cite anything. That is a harness limit, not a model result, and it silently
 # voided the first live run's quality metrics. Size the evaluation budget to the
 # corpus and assert the fit before spending a single call.
+# max_tool_rounds was 2 and max_provider_calls 4. A live Command A+ run showed the
+# model returns finish=tool_call on every call within that ceiling -- it wants to
+# keep gathering evidence and is cut off before it can produce a final answer, so
+# 61 of 64 runs ended in tool_round_budget_exhausted and the quality metrics were
+# void. That is a harness ceiling, not a model verdict, exactly like the earlier
+# token-budget void. Size the tool-round and provider-call ceilings to what the
+# model actually does. Token headroom is already ample (live prompts ran ~5k of
+# 32768).
 EVAL_BUDGETS = AgentBudgets(
-    max_tool_rounds=2,
-    max_provider_calls=4,
+    max_tool_rounds=4,
+    max_provider_calls=6,
     max_total_tokens=32768,
     max_output_tokens_per_call=2048,
-    wall_clock_seconds=60.0,
+    wall_clock_seconds=120.0,
     tool_timeout_seconds=2.0,
 )
 
@@ -551,45 +560,25 @@ def _slowest(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     }
 
 
-def run_ab(
+def build_result(
     *,
-    harness: ABHarness,
-    scenarios: tuple[EvalScenario, ...] | None = None,
-    output_dir: Path | None = None,
-    on_scenario: Any | None = None,
-    repetitions: int = 1,
+    rows: list[dict[str, Any]],
+    snapshots: list[RunSnapshot],
+    scenarios: tuple[EvalScenario, ...],
+    provider: str,
+    command_model: str,
+    rerank_model: str,
+    embedding_model: str | None,
+    agent_budgets: AgentBudgets,
+    generated_at: datetime,
+    repetitions: int,
+    output_dir: Path | None,
 ) -> dict[str, Any]:
-    scenarios = scenarios if scenarios is not None else all_scenarios()
-    if repetitions < 1:
-        raise ValueError("repetitions must be at least 1")
-    generated_at = datetime.now(timezone.utc)
-    rows: list[dict[str, Any]] = []
-    snapshots: list[RunSnapshot] = []
+    """Assemble the published result dict from measured rows and snapshots.
 
-    # Trials are the outer loop so that a run aborted partway through by the
-    # budget cap still holds a complete, balanced repetition rather than a
-    # partial one that would bias whichever scenarios happened to run first.
-    # Write each snapshot the moment it is produced, not batched at the end. A
-    # live run that dies partway (a provider timeout, a cap hit) then still leaves
-    # the completed runs on disk as evidence of the calls it spent, instead of
-    # discarding everything it had done.
-    if output_dir is not None:
-        output_dir.mkdir(parents=True, exist_ok=True)
-    for trial in range(1, repetitions + 1):
-        for scenario in scenarios:
-            for build_id in BUILD_IDS:
-                snapshot, metrics = harness.run_one(scenario, build_id, generated_at, trial)
-                snapshots.append(snapshot)
-                rows.append(metrics.as_dict())
-                if output_dir is not None:
-                    (output_dir / f"run-{snapshot.run_id}.json").write_text(
-                        json.dumps(snapshot.model_dump(mode="json"), indent=2, sort_keys=True)
-                        + "\n",
-                        encoding="utf-8",
-                    )
-            if on_scenario is not None:
-                on_scenario(scenario, rows)
-
+    Extracted so the same aggregation, intervals, comparison and hashing can be
+    applied to a live run and to a run recovered from committed snapshots after a
+    crash, guaranteeing identical output for identical inputs."""
     by_build = {
         build_id: _aggregate([row for row in rows if row["build_id"] == build_id])
         for build_id in BUILD_IDS
@@ -776,11 +765,11 @@ def run_ab(
         "governance_tax": governance_tax,
         "timing": clock_block,
         "generated_at": generated_at.isoformat(),
-        "provider": harness.provider,
-        "command_model": harness.command_model if harness.provider == "cohere" else None,
-        "rerank_model": harness.rerank_model if harness.provider == "cohere" else None,
-        "embedding_model": getattr(harness.embedder, "model", None),
-        "agent_budgets": harness.budgets.model_dump(mode="json"),
+        "provider": provider,
+        "command_model": command_model if provider == "cohere" else None,
+        "rerank_model": rerank_model if provider == "cohere" else None,
+        "embedding_model": embedding_model,
+        "agent_budgets": agent_budgets.model_dump(mode="json"),
         "scenario_count": len(scenarios),
         "run_count": len(rows),
         "builds": list(BUILD_IDS),
@@ -805,3 +794,86 @@ def run_ab(
                 encoding="utf-8",
             )
     return result
+
+
+def run_ab(
+    *,
+    harness: ABHarness,
+    scenarios: tuple[EvalScenario, ...] | None = None,
+    output_dir: Path | None = None,
+    on_scenario: Any | None = None,
+    repetitions: int = 1,
+) -> dict[str, Any]:
+    scenarios = scenarios if scenarios is not None else all_scenarios()
+    if repetitions < 1:
+        raise ValueError("repetitions must be at least 1")
+    generated_at = datetime.now(timezone.utc)
+    rows: list[dict[str, Any]] = []
+    snapshots: list[RunSnapshot] = []
+
+    # Trials are the outer loop so that a run aborted partway through by the
+    # budget cap still holds a complete, balanced repetition rather than a
+    # partial one that would bias whichever scenarios happened to run first.
+    # Write each snapshot the moment it is produced, not batched at the end. A
+    # live run that dies partway (a provider timeout, a cap hit) then still leaves
+    # the completed runs on disk as evidence of the calls it spent, instead of
+    # discarding everything it had done.
+    if output_dir is not None:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    # Accumulate one trial at a time. If the call cap is hit mid-trial, that
+    # trial is discarded whole and the run is aggregated over the trials that
+    # finished -- a lopsided partial repetition would bias whichever scenarios
+    # happened to run first, so it is dropped rather than reported. The completed
+    # snapshots stay on disk regardless, so nothing measured is lost.
+    completed_trials = 0
+    stopped_early = False
+    try:
+        for trial in range(1, repetitions + 1):
+            trial_rows: list[dict[str, Any]] = []
+            trial_snaps: list[RunSnapshot] = []
+            for scenario in scenarios:
+                for build_id in BUILD_IDS:
+                    snapshot, metrics = harness.run_one(
+                        scenario, build_id, generated_at, trial
+                    )
+                    trial_snaps.append(snapshot)
+                    trial_rows.append(metrics.as_dict())
+                    if output_dir is not None:
+                        (output_dir / f"run-{snapshot.run_id}.json").write_text(
+                            json.dumps(snapshot.model_dump(mode="json"), indent=2, sort_keys=True)
+                            + "\n",
+                            encoding="utf-8",
+                        )
+                if on_scenario is not None:
+                    on_scenario(scenario, rows + trial_rows)
+            # Commit the trial only once it is whole.
+            rows.extend(trial_rows)
+            snapshots.extend(trial_snaps)
+            completed_trials += 1
+    except BudgetExceeded:
+        stopped_early = True
+
+    if completed_trials == 0:
+        # Not even one full repetition fit under the cap. Re-raise so the caller
+        # reports the cap as the finding rather than publishing an empty result.
+        raise BudgetExceeded(
+            "call cap was hit before a single repetition completed; "
+            "raise the cap or reduce scope"
+        )
+
+    effective_repetitions = completed_trials
+    del stopped_early
+
+    return build_result(
+        rows=rows,
+        snapshots=snapshots,
+        scenarios=scenarios,
+        provider=harness.provider,
+        command_model=harness.command_model,
+        rerank_model=harness.rerank_model,
+        embedding_model=getattr(harness.embedder, "model", None),
+        agent_budgets=harness.budgets,
+        generated_at=generated_at,
+        repetitions=effective_repetitions,
+        output_dir=output_dir,
+    )
