@@ -60,16 +60,39 @@ def main() -> int:
         print("cache already complete; no provider call made")
 
     ledger = client.ledger()
+
+    # Provenance must survive a warm-cache re-run. When the cache is already
+    # complete this invocation makes 0 calls, but the vectors on disk were still
+    # produced by real Embed v4 calls in an earlier run. Writing budget_total_calls
+    # = 0 here would erase that and make downstream provenance checks reject real
+    # vectors. Carry forward the highest call count ever recorded for this cache
+    # hash, so the manifest states how many real calls stand behind these vectors,
+    # not merely how many the most recent invocation happened to make.
+    prior_calls = 0
+    prior_input = 0
+    prior_output = 0
+    manifest_path = Path(MANIFEST_PATH)
+    if manifest_path.exists():
+        try:
+            prior = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if prior.get("cache_hash") == adapter.cache_hash():
+                prior_calls = int(prior.get("budget_total_calls", 0) or 0)
+                prior_input = int(prior.get("input_tokens", 0) or 0)
+                prior_output = int(prior.get("output_tokens", 0) or 0)
+        except (json.JSONDecodeError, ValueError):
+            pass
+
     manifest = {
         "schema_version": "1.0",
         "model": adapter.model,
         "dimension": adapter.dimension,
         "vector_count": adapter.cached_vector_count(),
         "cache_hash": adapter.cache_hash(),
-        "provider_embed_calls": calls,
-        "budget_total_calls": ledger.total_calls,
-        "input_tokens": ledger.input_tokens,
-        "output_tokens": ledger.output_tokens,
+        "provider_embed_calls_this_run": calls,
+        # Real calls behind the current cache contents, carried across warm re-runs.
+        "budget_total_calls": max(ledger.total_calls, prior_calls),
+        "input_tokens": max(ledger.input_tokens, prior_input),
+        "output_tokens": max(ledger.output_tokens, prior_output),
         "base_corpus": corpus_profile(BASE_MANIFEST),
         "attack_corpus": corpus_profile(ATTACK_MANIFEST),
     }
