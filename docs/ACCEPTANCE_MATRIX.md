@@ -4,7 +4,7 @@
 
 **Planning date:** 2026-07-21
 
-**Current evidence state:** Milestones 1-7 and the Cohere-native hardening are implemented locally; the new showcase is unpublished, retained live A/B model-quality metrics remain void, held-out locking and human evidence remain planned, and the release remains `NO_SHIP`
+**Current evidence state:** Milestones 1-7 and the Cohere-native hardening are published from `main` as a static technical preview; retained live A/B model-quality metrics remain void, held-out locking and human evidence remain planned, and the release remains `NO_SHIP`
 
 This matrix maps every acceptance criterion in Features 1-18 to a future automated test or explicit human/operational evidence item. A path is a planned contract, not proof that the test exists or passes. Rows become `PASS` only when the cited command has run successfully against the recorded build and the evidence artifact is committed or linked.
 

@@ -4,9 +4,9 @@
 
 **Current branch:** `codex/fix-agent-completion`
 
-**Product implementation:** Technical preview with Cohere-native contract hardening and a local, unpublished showcase
+**Product implementation:** Technical preview with Cohere-native contract hardening and a published static showcase
 
-**Active work:** Locally complete — validation passed and no deployment was performed
+**Active work:** Published from `main` — validation and GitHub Pages deployment passed
 
 ## Current repository facts
 
