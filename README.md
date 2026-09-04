@@ -2,12 +2,12 @@
 
 ResolveFlow Replay is a deployment gate for enterprise agents.
 
-**Deployed preview (older build):**
+**Deployed technical preview:**
 [tasfiqj.github.io/ResolveFlow](https://tasfiqj.github.io/ResolveFlow/)
 
-The deployed link currently serves an earlier technical preview and does not include the new
-`/cohere` showcase in this working tree. The Cohere-focused update has been built and verified
-locally but remains unpublished; no deployment was performed for this change.
+The deployed site now includes the Cohere integration receipt at `/cohere`, the retained live A/B
+at `/results/ab`, and the credibility corrections from the current main branch. It remains a
+snapshot-first technical preview, not a public inference endpoint or production release.
 
 The current local credential-free build demonstrates one clearly labeled synthetic payments
 incident moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level

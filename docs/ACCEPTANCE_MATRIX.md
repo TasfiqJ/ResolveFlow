@@ -246,6 +246,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICA
 
 | X-24 | Cohere-native contracts bind strict output to the verified graph, preserve indexed native citation provenance, independently validate tool-result source integrity, bound tool and Rerank behavior, and present an artifact-derived Cohere showcase without upgrading void quality or release claims | `python -m pytest -q tests/unit tests/contract tests/integration tests/security tests/replay` (450 passed); `python -m ruff check python tests scripts` and format check (210 files); `python -m mypy python scripts` (104 files); `corepack pnpm --dir apps/web test`, typecheck, lint, and format check (10 component tests); Pages-prefixed build (19 pages); `node tests/browser/snapshot-smoke.mjs`; strict public-bundle scan; `python -m resolveflow.eval.verify_checksums cohere` (103/103); `python scripts/verify_public_snapshots.py`; Pages-prefixed Playwright/Axe (15 passed) | post-release Cohere hardening | PASS locally only; no new provider call, external write, PostgreSQL rerun, or deploy; quality metrics remain VOID and release remains `NO_SHIP` |
 
+| X-25 | Main and GitHub Pages publish the current Cohere integration receipt, retained A/B evidence, raw snapshots, and truthful validity limits under the repository base path | main commit `1a5b141`; validation run `33909337919`; Pages run `33909337992`; live HTTP and browser checks of `/ResolveFlow/`, `/ResolveFlow/cohere/`, and `/ResolveFlow/results/ab/` | post-release publication | PASS; static technical preview only, with no new provider or connector call and no upgrade to VOID quality or `NO_SHIP` |
+
 ## Update rules
 
 1. Change a row to `IN PROGRESS` only in the active milestone.

@@ -392,12 +392,17 @@ Promote only after genuine human-authored truth review, locked held-out evidence
 - Current usage normalization accepts one complete Chat token pair or one complete billed-token
   pair without mixing units, and records Embed input tokens and Rerank search units when Cohere
   returns them. Retained historical records are not backfilled with unavailable usage fields.
-- The new `/cohere` showcase and credibility corrections were built and browser-verified locally.
-  They remain unpublished; the existing GitHub Pages link serves an older deployed preview.
+- The new `/cohere` showcase and credibility corrections were built, browser-verified, and
+  published from `main` to GitHub Pages. The live `/cohere` and `/results/ab` routes returned HTTP
+  200 and displayed the expected Cohere receipt, 32-run cohort, and explicit VOID quality status.
 - Strict preflight refreshed the recorded fixture projection so its verifier rules, tool-result
   provenance, hashes, and browser copy match this working tree; the final static export and browser
   suite were rerun afterward.
-- Validation made no new provider call, performed no external write, and did not deploy.
-  PostgreSQL tests were not rerun in this final local pass.
+- Validation and publication made no new provider or connector call. The requested remote changes
+  were the Git push and static GitHub Pages deployment. PostgreSQL tests were not rerun in this
+  final pass.
+- Main commit `1a5b141` passed validation run `33909337919` and Pages run `33909337992`. The first
+  publication run exposed a missing Pages base path in the separate validation workflow; the
+  workflow now supplies `/ResolveFlow`, and its clean rerun passed.
 - Retained Cohere A/B model-quality metrics remain **VOID**, and the release decision remains
   **NO_SHIP**.
