@@ -73,6 +73,7 @@ def main() -> int:
     prior_calls = 0
     prior_input = 0
     prior_output = 0
+    prior_usage_accounting = "legacy_unavailable"
     manifest_path = Path(MANIFEST_PATH)
     if manifest_path.exists():
         try:
@@ -81,11 +82,14 @@ def main() -> int:
                 prior_calls = int(prior.get("budget_total_calls", 0) or 0)
                 prior_input = int(prior.get("input_tokens", 0) or 0)
                 prior_output = int(prior.get("output_tokens", 0) or 0)
+                prior_usage_accounting = str(
+                    prior.get("token_usage_accounting", "legacy_unavailable")
+                )
         except (json.JSONDecodeError, ValueError):
             pass
 
     manifest = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "model": adapter.model,
         "dimension": adapter.dimension,
         "vector_count": adapter.cached_vector_count(),
@@ -93,14 +97,17 @@ def main() -> int:
         "provider_embed_calls_this_run": calls,
         # Real calls behind the current cache contents, carried across warm re-runs.
         "budget_total_calls": max(ledger.total_calls, prior_calls),
+        "token_usage_accounting": (
+            "provider_reported" if ledger.total_calls else prior_usage_accounting
+        ),
         "input_tokens": max(ledger.input_tokens, prior_input),
         "output_tokens": max(ledger.output_tokens, prior_output),
         "base_corpus": corpus_profile(BASE_MANIFEST),
         "attack_corpus": corpus_profile(ATTACK_MANIFEST),
     }
     Path(MANIFEST_PATH).parent.mkdir(parents=True, exist_ok=True)
-    Path(MANIFEST_PATH).write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    Path(MANIFEST_PATH).write_bytes(
+        (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8")
     )
     print(json.dumps(manifest, indent=2, sort_keys=True))
     print(client.summary_line())

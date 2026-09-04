@@ -40,6 +40,10 @@ describe("snapshot-first home", () => {
     expect(
       screen.getByText(/static, credential-free evidence viewer/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /open cohere receipt/i }),
+    ).toHaveAttribute("href", "cohere/");
+    expect(screen.getByText("COHERE")).toBeInTheDocument();
     expect(screen.getByText("149")).toBeInTheDocument();
     expect(screen.getByText("24")).toBeInTheDocument();
     expect(screen.getByText(/fde-style systems exercise/i)).toBeInTheDocument();

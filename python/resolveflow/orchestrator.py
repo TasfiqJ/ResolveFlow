@@ -1,23 +1,33 @@
 from __future__ import annotations
 
 import subprocess
+import time
 from datetime import datetime, timezone
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from resolveflow.actions.models import ActionProposal
 from resolveflow.actions.service import ActionService, fixture_now
+from resolveflow.agent.findings import UnknownDraft
+from resolveflow.agent.renderer import DeterministicRenderer
 from resolveflow.agent.security import score_forbidden_effects
 from resolveflow.agent.service import GovernedAgent, GovernedRunResult
 from resolveflow.context.ports import ContextRepository
 from resolveflow.domain.base import FrozenModel
-from resolveflow.domain.evidence import Corpus, IdentitySnapshot
+from resolveflow.domain.evidence import Corpus, IdentitySnapshot, RetrievalTrace, stable_id
 from resolveflow.domain.hashing import checksum
-from resolveflow.domain.models import ActionBoundary, AuditEvent, CanonicalCase, RunSnapshot
+from resolveflow.domain.models import (
+    ActionBoundary,
+    AuditEvent,
+    CanonicalCase,
+    ContextResult,
+    RunSnapshot,
+)
 from resolveflow.ingestion.fixtures import load_hero_corpus
 from resolveflow.policy.authorization import AuthorizationPolicy, make_identity_snapshot
 from resolveflow.policy.replay import UnsafeReplayAuthorizationPolicy
+from resolveflow.retrieval.cohere import ProviderAdapterError
 from resolveflow.retrieval.engine import HybridRetriever
 from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter, FixtureRerankAdapter
 from resolveflow.retrieval.ports import EmbeddingPort, RerankPort
@@ -38,6 +48,33 @@ from resolveflow.telemetry.stages import (
     RunTiming,
     StageRecorder,
 )
+from resolveflow.verifier.models import EvidenceGraph
+
+
+class ContextEnrichmentError(RuntimeError):
+    def __init__(self, reason_code: str) -> None:
+        super().__init__(reason_code)
+        self.reason_code = reason_code
+
+
+def _context_before_deadline(
+    deadline: float, repository: ContextRepository, case: CanonicalCase
+) -> tuple[ContextResult, ...]:
+    """Invoke only context ports that explicitly accept the remaining deadline."""
+
+    remaining = deadline - time.perf_counter()
+    if remaining <= 0:
+        raise ContextEnrichmentError("wall_clock_budget_exhausted")
+    if not getattr(repository, "supports_deadline", False):
+        raise ContextEnrichmentError("context_deadline_unsupported")
+    try:
+        result = repository.enrich(case, timeout_seconds=remaining)
+    except Exception as exc:
+        raise ContextEnrichmentError("context_enrichment_failed") from exc
+    if time.perf_counter() > deadline:
+        raise ContextEnrichmentError("wall_clock_budget_exhausted")
+    return result
+
 
 # Maps each audit event to the stage whose measured duration it reports. An event
 # with no mapped stage keeps duration_ms=0, which means "not separately measured",
@@ -75,12 +112,26 @@ class ResolveRunConfiguration(FrozenModel):
     connector_state: str = "synthetic_not_dispatched"
     connector_fixture_version: str = "synthetic-jira-1.0"
     feature_flags: dict[str, bool] = Field(default_factory=dict)
+    rerank_model: str | None = None
+    rerank_escalation_reason: str | None = None
     # "deterministic" keeps audit-event durations at zero so recorded-fixture replays
     # stay byte-identical and the hash chain remains reproducible. "measured" writes
     # real monotonic-clock stage durations into the audit events. Measured stage
     # timings are always emitted on RunSnapshot.timing regardless of this setting;
     # the flag only controls whether they enter the hashed audit chain.
     timing_mode: Literal["deterministic", "measured"] = "deterministic"
+
+    @model_validator(mode="after")
+    def validate_rerank_escalation(self) -> ResolveRunConfiguration:
+        reason = self.rerank_escalation_reason
+        if reason is not None and not reason.strip():
+            raise ValueError("rerank escalation reason must be nonblank")
+        if self.rerank_model is not None and self.rerank_model.lower().endswith("-pro"):
+            if reason is None:
+                raise ValueError("every Pro rerank run requires an escalation reason")
+        elif reason is not None:
+            raise ValueError("rerank escalation reason is only valid for a Pro rerank model")
+        return self
 
 
 class ResolveOrchestrator:
@@ -93,12 +144,14 @@ class ResolveOrchestrator:
         *,
         embedding_adapter: EmbeddingPort | None = None,
         rerank_adapter: RerankPort | None = None,
+        pro_rerank_adapter: RerankPort | None = None,
     ) -> None:
         self.context_repository = context_repository
         self.agent = agent
         self.corpus = load_hero_corpus()
         self.embedding_adapter = embedding_adapter or FixtureEmbeddingAdapter()
         self.rerank_adapter = rerank_adapter or FixtureRerankAdapter()
+        self.pro_rerank_adapter = pro_rerank_adapter
         self.latest_proposal: ActionProposal | None = None
 
     @property
@@ -110,6 +163,8 @@ class ResolveOrchestrator:
     def run(
         self, case: CanonicalCase, configuration: ResolveRunConfiguration | None = None
     ) -> RunSnapshot:
+        run_started_ns = self.agent.clock()
+        run_deadline = time.perf_counter() + self.agent.budgets.wall_clock_seconds
         if configuration is None:
             identity = make_identity_snapshot(
                 tenant_id=case.tenant_id,
@@ -136,25 +191,79 @@ class ResolveOrchestrator:
                 if configuration.authorization_mode == "enforced"
                 else UnsafeReplayAuthorizationPolicy()
             )
+            selected_reranker = self._reranker_for(configuration)
             retriever = HybridRetriever(
                 configuration.corpus,
                 policy,
                 self.embedding_adapter,
-                self.rerank_adapter,
+                selected_reranker,
             )
-        with recorder.stage(STAGE_CONTEXT):
-            context = self.context_repository.enrich(case)
-        retrieval = retriever.retrieve(case.raw_text, identity, recorder=recorder)
-        governed = self.agent.resolve(
-            run_id=run_id,
-            case=case,
-            context=context,
-            identity=identity,
-            retrieval=retrieval,
-            corpus=configuration.corpus,
-            verifier_enforcement=configuration.verifier_enforcement,
-            recorder=recorder,
-        )
+        context: tuple[ContextResult, ...] = ()
+        retrieval_provider_call_count = 0
+        retrieval_provider_call_ms = 0.0
+        try:
+            with recorder.stage(STAGE_CONTEXT):
+                context = _context_before_deadline(run_deadline, self.context_repository, case)
+            retrieval = retriever.retrieve(
+                case.raw_text,
+                identity,
+                rerank_model=configuration.rerank_model,
+                escalation_reason=configuration.rerank_escalation_reason,
+                recorder=recorder,
+                deadline=run_deadline,
+            )
+            governed = self.agent.resolve(
+                run_id=run_id,
+                case=case,
+                context=context,
+                identity=identity,
+                retrieval=retrieval,
+                corpus=configuration.corpus,
+                verifier_enforcement=configuration.verifier_enforcement,
+                recorder=recorder,
+                started_at_ns=run_started_ns,
+            )
+            retrieval_provider_call_count = retriever.last_provider_call_count
+            retrieval_provider_call_ms = retriever.last_provider_call_ms
+        except ContextEnrichmentError as exc:
+            failure_code = exc.reason_code
+            retrieval = self._failed_retrieval(
+                case=case,
+                identity=identity,
+                corpus=configuration.corpus,
+                policy=policy,
+                failure_code=failure_code,
+                failure_stage="context",
+                rerank_adapter=selected_reranker,
+                rerank_escalation_reason=configuration.rerank_escalation_reason,
+            )
+            governed = self._failed_governed_run(run_id, failure_code)
+        except ProviderAdapterError as exc:
+            failure_code = (
+                "wall_clock_budget_exhausted"
+                if exc.endpoint == "deadline"
+                else (
+                    "retrieval_deadline_unsupported"
+                    if exc.endpoint == "unbounded_adapter"
+                    else f"retrieval_{exc.endpoint}_provider_error"
+                )
+            )
+            retrieval_provider_call_count = exc.provider_call_count
+            retrieval_provider_call_ms = exc.provider_call_ms
+            failure_stage: Literal["context", "vector", "rerank"] = (
+                "rerank" if exc.failure_stage == "rerank" else "vector"
+            )
+            retrieval = self._failed_retrieval(
+                case=case,
+                identity=identity,
+                corpus=configuration.corpus,
+                policy=policy,
+                failure_code=failure_code,
+                failure_stage=failure_stage,
+                rerank_adapter=selected_reranker,
+                rerank_escalation_reason=configuration.rerank_escalation_reason,
+            )
+            governed = self._failed_governed_run(run_id, failure_code)
         with recorder.stage(STAGE_ACTION):
             proposal = None
             proposal_blocked_reason: str | None = None
@@ -181,8 +290,11 @@ class ResolveOrchestrator:
                 proposal_blocked_reason = "evidence_graph_permits_no_proposal"
         self.latest_proposal = proposal
         timing = recorder.snapshot(
-            provider_call_ms=float(sum(item.duration_ms for item in governed.provider_traces)),
-            provider_call_count=len(governed.provider_traces),
+            provider_call_ms=(
+                float(sum(item.duration_ms for item in governed.provider_traces))
+                + retrieval_provider_call_ms
+            ),
+            provider_call_count=(len(governed.provider_traces) + retrieval_provider_call_count),
         )
         events = self._events(
             run_id,
@@ -196,6 +308,8 @@ class ResolveOrchestrator:
             proposal,
             timing if configuration.timing_mode == "measured" else None,
             proposal_blocked_reason,
+            retrieval.failure_code,
+            retrieval.failure_stage,
         )
         run_inputs = {
             "clock": checksum(configuration.generated_at),
@@ -221,6 +335,7 @@ class ResolveOrchestrator:
             "scenario_id": configuration.scenario_id,
             "commit": _git_sha(),
             "model_policy": configuration.model_policy,
+            "corpus_version": retrieval.corpus_snapshot_id,
             "identity_snapshot": identity,
             "retrieval": retrieval,
             "case": case,
@@ -252,6 +367,87 @@ class ResolveOrchestrator:
             }
         )
 
+    def _reranker_for(self, configuration: ResolveRunConfiguration) -> RerankPort:
+        requested = configuration.rerank_model
+        if requested is None or requested == self.rerank_adapter.model:
+            return self.rerank_adapter
+        if self.pro_rerank_adapter is not None and requested == self.pro_rerank_adapter.model:
+            return self.pro_rerank_adapter
+        raise ValueError("requested rerank model has no configured production adapter")
+
+    def _failed_retrieval(
+        self,
+        *,
+        case: CanonicalCase,
+        identity: IdentitySnapshot,
+        corpus: Corpus,
+        policy: AuthorizationPolicy,
+        failure_code: str,
+        failure_stage: Literal["context", "vector", "rerank"],
+        rerank_adapter: RerankPort,
+        rerank_escalation_reason: str | None,
+    ) -> RetrievalTrace:
+        eligible_ids = policy.eligible_chunk_ids(
+            identity, corpus.versions, corpus.chunks, corpus.acls
+        )
+        acl_snapshot = policy.snapshot(identity, corpus.snapshot.snapshot_id, eligible_ids)
+        body = {
+            "query_checksum": checksum(case.raw_text),
+            "corpus_snapshot_id": corpus.snapshot.snapshot_id,
+            "identity_snapshot_id": identity.snapshot_id,
+            "acl_snapshot_id": acl_snapshot.snapshot_id,
+            "cache_key": policy.cache_key(identity, corpus.snapshot.snapshot_id, case.raw_text),
+            "eligible_chunk_count": len(eligible_ids),
+            "lexical_candidate_ids": (),
+            "vector_candidate_ids": (),
+            "embedding_model": self.embedding_adapter.model,
+            "embedding_source": "unavailable",
+            "rerank_model": rerank_adapter.model,
+            "rerank_escalation_reason": rerank_escalation_reason,
+            "rerank_payload_checksum": None,
+            "candidates": (),
+            "failure_code": failure_code,
+            "failure_stage": failure_stage,
+        }
+        return RetrievalTrace(**body, checksum=checksum(body))
+
+    def _failed_governed_run(self, run_id: str, failure_code: str) -> GovernedRunResult:
+        unknown = UnknownDraft(
+            unknown_id="unknown_retrieval_provider",
+            field="retrieval",
+            text="Evidence retrieval is unavailable; no resolution was attempted.",
+            reason_code=failure_code,
+        )
+        graph_body = {
+            "schema_version": "1.0",
+            "graph_id": stable_id("graph", {"run_id": run_id, "failure": failure_code}),
+            "run_id": run_id,
+            "claims": (),
+            "citations": (),
+            "unknowns": (unknown,),
+            "conflicts": (),
+            "route_candidates": (),
+            "permitted_proposals": (),
+            "model_context_ids": (),
+        }
+        graph = EvidenceGraph(**graph_body, graph_hash=checksum(graph_body))
+        response = DeterministicRenderer().fallback(
+            graph,
+            provider=(
+                "cohere" if self.agent.provider.provider_name == "cohere" else "recorded_fixture"
+            ),
+        )
+        return GovernedRunResult(
+            response=response,
+            evidence_graph=graph,
+            provider_traces=(),
+            tool_traces=(),
+            security_events=(),
+            terminal_reason=failure_code,
+            provider_calls=0,
+            total_tokens=0,
+        )
+
     @staticmethod
     def _events(
         run_id: str,
@@ -265,10 +461,42 @@ class ResolveOrchestrator:
         proposal: ActionProposal | None,
         timing: RunTiming | None = None,
         proposal_blocked_reason: str | None = None,
+        retrieval_failure_code: str | None = None,
+        retrieval_failure_stage: str | None = None,
     ) -> tuple[AuditEvent, ...]:
         at = case.case_time
         measured = timing.by_stage() if timing is not None else {}
-        raw = (
+        retrieval_detail: dict[str, object] = {"authorized": True}
+        if retrieval_failure_code is not None:
+            retrieval_detail["failure_code"] = retrieval_failure_code
+            retrieval_detail["failure_stage"] = retrieval_failure_stage
+
+        stage_order = {"context": 0, "vector": 3, "rerank": 5}
+        failed_order = stage_order.get(retrieval_failure_stage or "", 99)
+
+        def retrieval_event(
+            order: int, completed_name: str, success_detail: dict[str, object]
+        ) -> tuple[str, str, str, dict[str, object]]:
+            if retrieval_failure_code is None or order < failed_order:
+                return "retrieval", completed_name, "ok", success_detail
+            if order == failed_order:
+                return "retrieval", completed_name, "failed", retrieval_detail
+            return (
+                "retrieval",
+                completed_name.removesuffix(".completed") + ".not_attempted",
+                "rejected",
+                {
+                    "reason_code": retrieval_failure_code,
+                    "failure_stage": retrieval_failure_stage,
+                },
+            )
+
+        downstream_not_attempted = retrieval_failure_code is not None
+        not_attempted_detail: dict[str, object] = {
+            "reason_code": retrieval_failure_code,
+            "failure_stage": retrieval_failure_stage,
+        }
+        raw: tuple[tuple[str, str, str, dict[str, object]], ...] = (
             (
                 "identity",
                 "identity.snapshot.captured",
@@ -276,47 +504,103 @@ class ResolveOrchestrator:
                 {"role": identity.active_role, "region": identity.region},
             ),
             ("intake", "case.normalized", "ok", {"source": case.source_system}),
-            ("context", "context.enriched", "needs_information", {"operations": len(context)}),
+            (
+                "context",
+                "context.enriched"
+                if retrieval_failure_stage != "context"
+                else "context.enrichment.failed",
+                (
+                    "needs_information"
+                    if retrieval_failure_stage != "context"
+                    else (
+                        "timeout"
+                        if retrieval_failure_code == "wall_clock_budget_exhausted"
+                        else "failed"
+                    )
+                ),
+                {
+                    "operations": len(context),
+                    **(not_attempted_detail if retrieval_failure_stage == "context" else {}),
+                },
+            ),
             (
                 "policy",
-                "retrieval.authorization.applied",
-                "ok",
-                {"reason_code": "eligible_by_snapshot", "eligible_count": eligible_count},
+                (
+                    "retrieval.authorization.not_attempted"
+                    if retrieval_failure_stage == "context"
+                    else "retrieval.authorization.applied"
+                ),
+                "rejected" if retrieval_failure_stage == "context" else "ok",
+                (
+                    not_attempted_detail
+                    if retrieval_failure_stage == "context"
+                    else {"reason_code": "eligible_by_snapshot", "eligible_count": eligible_count}
+                ),
             ),
-            ("retrieval", "retrieval.lexical.completed", "ok", {"authorized": True}),
-            ("retrieval", "retrieval.vector.completed", "ok", {"authorized": True}),
-            ("retrieval", "retrieval.fusion.completed", "ok", {"authorized": True}),
-            ("retrieval", "retrieval.rerank.completed", "ok", {"authorized": True}),
+            retrieval_event(2, "retrieval.lexical.completed", {"authorized": True}),
+            retrieval_event(3, "retrieval.vector.completed", {"authorized": True}),
+            retrieval_event(4, "retrieval.fusion.completed", {"authorized": True}),
+            retrieval_event(5, "retrieval.rerank.completed", {"authorized": True}),
             (
                 "agent",
-                "model.evidence_pass.completed",
-                "ok" if governed.terminal_reason == "complete" else "failed",
-                {
+                (
+                    "model.evidence_pass.not_attempted"
+                    if downstream_not_attempted
+                    else "model.evidence_pass.completed"
+                ),
+                (
+                    "rejected"
+                    if downstream_not_attempted
+                    else ("ok" if governed.terminal_reason == "complete" else "failed")
+                ),
+                not_attempted_detail
+                if downstream_not_attempted
+                else {
                     "provider_calls": governed.provider_calls,
                     "terminal_reason": governed.terminal_reason,
                 },
             ),
             (
                 "agent",
-                "tools.bounded.completed",
-                "ok",
-                {"tool_calls": len(governed.tool_traces)},
+                "tools.bounded.not_attempted"
+                if downstream_not_attempted
+                else "tools.bounded.completed",
+                "rejected" if downstream_not_attempted else "ok",
+                not_attempted_detail
+                if downstream_not_attempted
+                else {"tool_calls": len(governed.tool_traces)},
             ),
             (
                 "security",
-                "untrusted_evidence.checked",
-                "ok",
-                {"attempted_effects": len(governed.security_events)},
+                (
+                    "untrusted_evidence.not_attempted"
+                    if downstream_not_attempted
+                    else "untrusted_evidence.checked"
+                ),
+                "rejected" if downstream_not_attempted else "ok",
+                not_attempted_detail
+                if downstream_not_attempted
+                else {"attempted_effects": len(governed.security_events)},
             ),
             (
                 "verifier",
                 (
-                    "evidence_graph.verified"
-                    if verifier_enforcement == "enforced"
-                    else "evidence_graph.observed"
+                    "evidence_graph.verification.not_attempted"
+                    if downstream_not_attempted
+                    else (
+                        "evidence_graph.verified"
+                        if verifier_enforcement == "enforced"
+                        else "evidence_graph.observed"
+                    )
                 ),
-                "ok" if not governed.response.needs_review else "needs_information",
-                {
+                (
+                    "rejected"
+                    if downstream_not_attempted
+                    else ("ok" if not governed.response.needs_review else "needs_information")
+                ),
+                not_attempted_detail
+                if downstream_not_attempted
+                else {
                     "claims": len(governed.evidence_graph.claims),
                     "graph_hash": governed.evidence_graph.graph_hash,
                     "route": governed.response.route,
@@ -325,9 +609,19 @@ class ResolveOrchestrator:
             ),
             (
                 "agent",
-                "structured_response.rendered",
-                "ok" if not governed.response.needs_review else "needs_information",
-                {"disposition": governed.response.disposition},
+                (
+                    "structured_response.fallback_rendered"
+                    if downstream_not_attempted
+                    else "structured_response.rendered"
+                ),
+                "needs_information"
+                if downstream_not_attempted or governed.response.needs_review
+                else "ok",
+                (
+                    {**not_attempted_detail, "disposition": governed.response.disposition}
+                    if downstream_not_attempted
+                    else {"disposition": governed.response.disposition}
+                ),
             ),
             (
                 "actions",

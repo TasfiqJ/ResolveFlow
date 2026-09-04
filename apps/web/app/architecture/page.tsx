@@ -2,7 +2,7 @@ const layers = [
   ["Experience", "Static Next.js routes, snapshot viewer, private review UX"],
   [
     "Application",
-    "FastAPI intake, shared Resolve orchestration, approval APIs",
+    "FastAPI intake, shared Resolve orchestration, local approval state-machine APIs; upstream authentication is not wired",
   ],
   [
     "Evidence",
@@ -10,7 +10,7 @@ const layers = [
   ],
   [
     "Effects",
-    "Exact approval digest → durable queue → synthetic/staging-only connector",
+    "Payload-bound approval decision → durable queue → synthetic/staging-only connector",
   ],
 ];
 
@@ -23,7 +23,10 @@ export default function ArchitecturePage() {
         <p>
           Resolve and Replay share one production orchestration path. Replay
           changes frozen inputs and connector behavior, not the controls being
-          evaluated.
+          evaluated. The local approval state machine validates proposal state,
+          the exact payload digest, and declared permissions outside the model,
+          but it does not authenticate the caller. End-to-end approval identity
+          requires a trusted upstream authentication and authorization layer.
         </p>
       </header>
       <section className="architectureFlow" aria-label="System layers">
@@ -44,7 +47,11 @@ export default function ArchitecturePage() {
             <li>Eligibility is materialized before search.</li>
             <li>Retrieved text is data, never authority.</li>
             <li>Verified graph IDs close the second pass.</li>
-            <li>Exact approval is checked outside the model.</li>
+            <li>
+              Proposal state and the exact approval payload are checked outside
+              the model; caller identity and permission headers are trusted
+              inputs until an upstream identity layer is wired.
+            </li>
             <li>Public traces are deterministic redactions.</li>
           </ul>
         </article>

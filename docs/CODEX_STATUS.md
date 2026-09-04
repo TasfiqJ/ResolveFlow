@@ -1,12 +1,12 @@
 # ResolveFlow Replay status
 
-**Last updated:** 2026-08-14
+**Last updated:** 2026-09-04
 
-**Current branch:** `codex/demo-cohere-stress`
+**Current branch:** `codex/fix-agent-completion`
 
-**Product implementation:** Complete technical preview with credibility-hardened portfolio experience
+**Product implementation:** Technical preview with Cohere-native contract hardening and a local, unpublished showcase
 
-**Active work:** Complete — recorded side-by-side demo and live structured-output stress evidence prepared for publication
+**Active work:** Locally complete — validation passed and no deployment was performed
 
 ## Current repository facts
 
@@ -16,7 +16,7 @@
 - FastAPI exposes health/version, canonical case/run, exact action approve/reject, chronological events, redacted/full trace, and deterministic JSON/Markdown export routes.
 - Alembic revision `0001_foundation` owns tenants, cases, agent runs, append-oriented audit rows, and job foundations. Its upgrade/downgrade/upgrade cycle passed against the Compose PostgreSQL service.
 - The normal build and tests require no Cohere key. One separately labeled local live-provider hero run is now retained beside the recorded fixture; no Slack/Jira write, human review, cost claim, held-out evaluation, live-quality claim, or final release verdict occurred.
-- The shared Resolve path now runs a deterministic fixture-backed bounded Command protocol with four typed allowlisted tools, strict local validation, authorization, per-tool timeout, and fixed round/provider-call/token/wall-clock budgets.
+- The shared Resolve path now runs a deterministic fixture-backed bounded Command protocol with four typed allowlisted tools, strict local validation, and authorization. Provider-call, agent-round, and tool-call limits are hard admission caps; `max_total_tokens` is a preflight-sizing and post-response observed-usage threshold, while wall-clock/request timeouts are cooperative per-operation controls checked again after return.
 - Stage 02 adds a checksummed synthetic corpus with six immutable artifact versions/chunks, explicit parser/chunker provenance, effective intervals, data-quality validation, frozen corpus/identity/ACL snapshots, and deterministic re-ingestion.
 - The shared Resolve path now performs authorization before lexical/vector ranking, reciprocal-rank fusion, deduplication, per-artifact diversity limits, deterministic reranking, and candidate-level rank/score/provenance tracing.
 - Alembic revision `0002_evidence_retrieval` owns artifact/version/chunk/ACL/embedding/corpus/identity/retrieval schemas, PostgreSQL generated full-text vectors, and pgvector storage. A real PostgreSQL test proved FTS and vector queries share the materialized eligible relation.
@@ -311,7 +311,7 @@ Promote only after genuine human-authored truth review, locked held-out evidence
 - The recorded comparison runs one synthetic query over one corpus. `unsafe-v0` admits the restricted Refund processing runbook; `guarded-v1` removes it before retrieval. Both columns expose retrieved evidence, ACL exclusions, citations, and the recorded verdict.
 - The public site remains recorded-only. GitHub Pages has no server-side credential boundary, so no Cohere key or live inference control is exposed.
 - The retained live structured-output artifact records every request and response, request/response SHA-256, token count, duration, status, and retry linkage. Every retained condition produced schema-valid JSON. One rate-limit response was retried by the counted transport fallback; the schema-repair path was not exercised, so its success, latency, and token cost remain unmeasured.
-- A first stress execution is retained but voided because its output allowance caused truncation and also constrained the repair call. An earlier A/B quality run remains labeled void because its total-token budget could not fit the estimated input plus required output.
+- A first stress execution is retained but voided because its output allowance caused truncation and also constrained the repair call. An earlier A/B quality run remains labeled void because the preflight sizing check found that its `max_total_tokens` threshold could not fit the estimated input plus required output.
 - Raw artifacts, sidecars, methodology, non-claims, environment details, corpus hash, and reproduction commands are under `eval/results/` and copied byte-for-byte into the public static tree.
 - Web type checking, lint, component tests, static export, browser deep-link/accessibility/mobile checks, Python tests, Ruff, MyPy, snapshot smoke, and strict public-bundle scanning passed. The first browser attempt did not execute because the pinned browser binary was absent; the browser was installed and the full suite then passed.
 
@@ -319,19 +319,23 @@ Promote only after genuine human-authored truth review, locked held-out evidence
 
 - Zero-call validation passed: 154 unit and security tests (`tests/unit` and
   `tests/security`; PostgreSQL tests intentionally excluded by the terminal-run instruction).
-- The single final harness invocation was interrupted mid-run by the execution wrapper. It was
-  not rerun. The prescribed recovery retained the two complete trials, dropped the incomplete
-  trial, republished the aggregate, and `resolveflow.eval.verify_checksums cohere` verified all
-  103 manifest rows.
-- The provider ledger records 197 Chat calls and 36 Rerank calls, 233 total against the fixed
-  300-call cap, with no retries.
-- Diagnostic completion was 1/32 (3.125%, Wilson 95% [0.5538%, 15.7443%]) for
-  `guarded-v1` and 4/32 (12.5%, Wilson 95% [4.9701%, 28.0683%]) for `unsafe-v0`.
+- Offline recovery retained one coherent complete repetition: 32 runs, 16 per build, sharing one
+  execution timestamp. It excluded 63 snapshots from other invocation timestamps rather than
+  combining a mixed cohort, spent zero provider calls, and republished the aggregate.
+- The recovered execution git state is `uncommitted`, and its exact dirty diff was not retained.
+  The publication base commit is recorded separately and is not presented as the execution
+  commit.
+- The provider ledger reconciles to 206 selected-full-pass calls plus 27 required-dry-pass calls:
+  197 Chat calls and 36 Rerank calls, 233 total against the hard 300-call cap, with no retries.
+- Diagnostic completion was 1/16 (6.25%, Wilson 95% [1.1119%, 28.3287%]) for
+  `guarded-v1` and 3/16 (18.75%, Wilson 95% [6.5916%, 43.0089%]) for `unsafe-v0`.
   The published `quality_validity` object therefore voids citation precision, route accuracy,
   and completion rate as quality metrics.
 - The valid A/B result is pre-model authorization: forbidden-evidence retrieval moved from
-  32/32 for `unsafe-v0` to 0/32 for `guarded-v1`, a guarded-minus-unguarded difference of
-  -100 percentage points with Newcombe hybrid-score 95% [-100, -84.8426] percentage points.
+  16/16 for `unsafe-v0` (Wilson 95% [80.6392%, 100%]) to 0/16 for `guarded-v1`
+  (Wilson 95% [0%, 19.3608%]), a guarded-minus-unguarded difference of -100 percentage points
+  with a descriptive Newcombe hybrid-score 95% [-100, -72.6197] interval. This is not an
+  independent-sample inferential claim.
 - The result, limitations, offline detector context, embedding-separation context, artifact
   paths, and SHA-256 values are published in `docs/RESULTS-SUMMARY.md`.
 
@@ -361,3 +365,39 @@ Promote only after genuine human-authored truth review, locked held-out evidence
 - Python unit/security verification, Ruff, MyPy, web component tests, type checking, lint,
   formatting, static export, public-bundle scanning, exported-page smoke, and browser deep-link,
   accessibility, and mobile checks passed locally. No provider call was made during validation.
+
+## 2026-09-04 Cohere-native hardening and local showcase checks
+
+| Command / check | Result |
+| --- | --- |
+| `python -m pytest -q tests/unit tests/contract tests/integration tests/security tests/replay` | PASS, 450 tests; 2 known dependency deprecation warnings |
+| `python -m ruff check python tests scripts` | PASS |
+| `python -m ruff format --check python tests scripts` | PASS, 210 files format-clean |
+| `python -m mypy python scripts` | PASS, 104 source files |
+| `corepack pnpm --dir apps/web test` | PASS, 10 component tests |
+| `corepack pnpm --dir apps/web typecheck`, `lint`, and `format:check` | PASS |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow corepack pnpm --dir apps/web build` | PASS, 19 static pages |
+| `node tests/browser/snapshot-smoke.mjs` | PASS |
+| `python scripts/scan_public_build.py --path apps/web/out --strict` | PASS, strict public-bundle scan |
+| `python -m resolveflow.eval.verify_checksums cohere` | PASS, 103/103 checksum rows |
+| `python scripts/verify_public_snapshots.py` | PASS, public snapshot integrity |
+| `python scripts/check_release_profile.py --file docs/HUMAN_SIGNOFF.json` | PASS, `technical_preview` |
+| `python scripts/preflight.py --strict` | PASS; refreshed the deterministic fixture snapshot through the shared path without a provider call |
+| `NEXT_PUBLIC_BASE_PATH=/ResolveFlow corepack pnpm --dir apps/web e2e` | PASS, 15 Playwright/Axe tests |
+
+- Cohere-native contracts now cover strict graph-bound structured output, provider citation
+  block indexes and types, remaining-time propagation with post-return overrun checks,
+  independently recomputed tool-result source integrity, fail-closed untrusted tool evidence,
+  and explicit Rerank request/model validation.
+- Current usage normalization accepts one complete Chat token pair or one complete billed-token
+  pair without mixing units, and records Embed input tokens and Rerank search units when Cohere
+  returns them. Retained historical records are not backfilled with unavailable usage fields.
+- The new `/cohere` showcase and credibility corrections were built and browser-verified locally.
+  They remain unpublished; the existing GitHub Pages link serves an older deployed preview.
+- Strict preflight refreshed the recorded fixture projection so its verifier rules, tool-result
+  provenance, hashes, and browser copy match this working tree; the final static export and browser
+  suite were rerun afterward.
+- Validation made no new provider call, performed no external write, and did not deploy.
+  PostgreSQL tests were not rerun in this final local pass.
+- Retained Cohere A/B model-quality metrics remain **VOID**, and the release decision remains
+  **NO_SHIP**.

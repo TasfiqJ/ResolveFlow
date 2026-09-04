@@ -4,14 +4,14 @@ These hashes cover every Markdown document and embedded image asset in this pack
 
 | SHA-256 | Relative path |
 |---|---|
-| `ab34b0d49c05552383742c727954693f1b9a4341d1e2dea853124fb9678fa710` | `00_ResolveFlow_Replay_Project_Overview_and_Feature_Catalog.md` |
+| `de17cb7eed50a41448d0a94d2381224d73da6cd741e03b830c6a5ef387414ec4` | `00_ResolveFlow_Replay_Project_Overview_and_Feature_Catalog.md` |
 | `561e6ad7e7b86c048b3ee865696ef8384606d68bc5603366c104b93c5be0a94d` | `01_Feature_01_Slack_style_intake_and_real_Slack_sandbox.md` |
 | `a315dcc1da44aad1ea3c61c353b4e8d95eeb7bcbed4f80d81da9bb773b05bdc7` | `02_Feature_02_deterministic_context_enrichment.md` |
 | `1e9b8a529ad26991c34984d113520a11f5434e18779fe675677f0df446d5cb8b` | `03_Feature_03_corpus_ingestion_versioning_and_effective_time.md` |
 | `ff7703e7e9a6786c2bc5fc14a0bf243b4c9143f8c0acfe77b2feea8a4e353a3d` | `04_Feature_04_pre_retrieval_authorization_and_role_switch.md` |
 | `6e257e1e50c0b59d8167b21646fb19813bebdb89efcd51a572cf46337a5a7f56` | `05_Feature_05_hybrid_retrieval_with_Embed_v4.md` |
 | `90002478dc99dd5f9b3406e60d62da04af007423e1afe7c9362e2b1b848dc2fa` | `06_Feature_06_Rerank_v4_Fast_Pro_decision_policy.md` |
-| `43e6116c973b8ff50d599a7a523c9bd0b37755f19e9c9b3e708dad94e5a19b35` | `07_Feature_07_bounded_Command_A_agent_loop.md` |
+| `045baff393bae1fc44cae87f3e7836a8bf1ec5001cf0b1b3b58a8d6bcdc7a4f0` | `07_Feature_07_bounded_Command_A_agent_loop.md` |
 | `2f30472a30891837042eb2810fca7ca9f65e003ab1db47a799310906e95ad5af` | `08_Feature_08_evidence_graph_and_two_pass_structured_response.md` |
 | `120ceeb290bb4f4dfcd17284c96cb4a0f1c5bb290ef5c244b30e4c6561462467` | `09_Feature_09_claim_level_citation_and_freshness_verifier.md` |
 | `e195dbc851a50aa3f22f73dfd306107a6c3a56d01b484c8e80269bac32dac8eb` | `10_Feature_10_indirect_prompt_injection_defense.md` |

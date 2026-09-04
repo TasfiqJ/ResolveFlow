@@ -49,7 +49,11 @@ def build_orchestrator(
             raise ValueError("live Cohere composition requires an API key")
         import cohere
 
-        cohere_client = cohere.ClientV2(api_key=settings.cohere_api_key)
+        cohere_client = cohere.ClientV2(
+            api_key=settings.cohere_api_key,
+            max_retries=0,
+            timeout=30,
+        )
 
     return ResolveOrchestrator(
         FixtureContextRepository(),
@@ -68,5 +72,9 @@ def build_orchestrator(
         rerank_adapter=CohereRerankAdapter(
             cohere_client,
             settings.cohere_rerank_fast_model,
+        ),
+        pro_rerank_adapter=CohereRerankAdapter(
+            cohere_client,
+            settings.cohere_rerank_pro_model,
         ),
     )

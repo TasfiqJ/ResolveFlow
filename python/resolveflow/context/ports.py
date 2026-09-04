@@ -6,4 +6,8 @@ from resolveflow.domain.models import CanonicalCase, ContextResult
 
 
 class ContextRepository(Protocol):
-    def enrich(self, case: CanonicalCase) -> tuple[ContextResult, ...]: ...
+    supports_deadline: bool
+
+    def enrich(
+        self, case: CanonicalCase, *, timeout_seconds: float | None = None
+    ) -> tuple[ContextResult, ...]: ...

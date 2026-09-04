@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-from resolveflow.eval.ab_runner import ABHarness
+from resolveflow.agent.fixture import FixtureChatAdapter
+from resolveflow.eval.ab_runner import ABHarness, EvaluationRecordingProvider
 from resolveflow.eval.budget import BudgetedCohereClient, BudgetExceeded
 from resolveflow.eval.corpus import (
     ATTACK_MANIFEST,
@@ -19,6 +20,8 @@ from resolveflow.ingestion.fixtures import ROOT, corpus_profile
 from resolveflow.retrieval.fixture import FixtureEmbeddingAdapter
 from resolveflow.telemetry.stages import StageRecorder
 
+from tests.agent_helpers import run_governed
+
 # --------------------------------------------------------------------------
 # Budget accounting
 # --------------------------------------------------------------------------
@@ -28,6 +31,7 @@ class _FakeResponse:
     def __init__(self) -> None:
         self.id = "resp_1"
         self.usage = {"tokens": {"input_tokens": 11, "output_tokens": 7}}
+        self.meta = {"billed_units": {"input_tokens": 11, "search_units": 1}}
 
 
 class _RateLimited(Exception):
@@ -54,6 +58,24 @@ class _FakeClient:
         return _FakeResponse()
 
 
+class _BoundedRecordingDelegate:
+    provider_name = "cohere"
+
+    def __init__(self) -> None:
+        self.timeouts: list[float] = []
+
+    def chat_with_timeout(self, request: object, *, timeout_seconds: float) -> _FakeResponse:
+        self.timeouts.append(timeout_seconds)
+        return _FakeResponse()
+
+    def chat(self, request: object) -> _FakeResponse:
+        raise AssertionError("bounded wrapper must not fall back to unbounded chat")
+
+
+class _CohereShapedFixture(FixtureChatAdapter):
+    provider_name = "cohere"
+
+
 def _clock() -> object:
     state = {"t": 0.0}
 
@@ -76,6 +98,103 @@ def test_budget_counts_every_call_and_tokens() -> None:
     assert ledger.retry_calls == 0
 
 
+def test_budget_accounts_embed_tokens_and_rerank_search_units_from_sdk_meta() -> None:
+    class _MetaClient:
+        def embed(self, **_: object) -> object:
+            return type(
+                "EmbedResponse",
+                (),
+                {
+                    "embeddings": type("Vectors", (), {"float": [[1.0, 0.0]]})(),
+                    "meta": {"billed_units": {"input_tokens": 41}},
+                },
+            )()
+
+        def rerank(self, **_: object) -> object:
+            return type(
+                "RerankResponse",
+                (),
+                {"results": [], "meta": {"billed_units": {"search_units": 3}}},
+            )()
+
+    client = BudgetedCohereClient(_MetaClient(), sleep=lambda _: None, clock=_clock())
+    client.embed(model="embed-v4.0", texts=["one"])
+    client.rerank(model="rerank-v4.0-fast", query="q", documents=["one"])
+
+    ledger = client.ledger()
+    assert ledger.input_tokens == 41
+    assert ledger.output_tokens == 0
+    assert ledger.search_units == 3
+    assert ledger.records[0].input_tokens == 41
+    assert ledger.records[1].search_units == 3
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "response", "message"),
+    [
+        (
+            "embed",
+            type("EmbedResponse", (), {"embeddings": type("Vectors", (), {"float": []})()})(),
+            "embed response omitted required billed usage",
+        ),
+        (
+            "rerank",
+            type("RerankResponse", (), {"results": [], "meta": {"billed_units": {}}})(),
+            "rerank response omitted required search_units",
+        ),
+    ],
+)
+def test_non_chat_calls_without_endpoint_usage_are_counted_and_fail_closed(
+    endpoint: str, response: object, message: str
+) -> None:
+    class _MissingMetaClient:
+        def embed(self, **_: object) -> object:
+            return response
+
+        def rerank(self, **_: object) -> object:
+            return response
+
+    client = BudgetedCohereClient(_MissingMetaClient(), sleep=lambda _: None, clock=_clock())
+
+    with pytest.raises(ValueError, match=message):
+        getattr(client, endpoint)(model="m")
+
+    assert client.total_calls == 1
+    record = client.ledger().records[0]
+    assert record.endpoint == endpoint
+    assert record.status == "error"
+    assert record.response_hash is None
+
+
+def test_evaluation_recorder_forwards_provider_deadline_and_records_once() -> None:
+    delegate = _BoundedRecordingDelegate()
+    provider = EvaluationRecordingProvider(delegate)
+    request = type(
+        "Request",
+        (),
+        {"pass_kind": type("PassKindValue", (), {"value": "evidence"})(), "max_tokens": 64},
+    )()
+
+    response = provider.chat_with_timeout(request, timeout_seconds=2.5)
+
+    assert response.id == "resp_1"
+    assert delegate.timeouts == [2.5]
+    assert len(provider.records) == 1
+    assert provider.records[0]["error_type"] is None
+
+
+def test_governed_evaluation_wrapper_keeps_live_provider_timeout_contract() -> None:
+    provider = EvaluationRecordingProvider(_CohereShapedFixture())
+
+    result = run_governed(provider)
+
+    assert provider.records
+    assert result.provider_calls > 0
+    assert all(
+        trace.safe_error_code != "provider_timeout_unsupported" for trace in result.provider_traces
+    )
+
+
 def test_budget_raises_before_exceeding_the_cap() -> None:
     client = BudgetedCohereClient(_FakeClient(), max_calls=2, sleep=lambda _: None, clock=_clock())
     client.chat(model="m", messages=[])
@@ -95,6 +214,29 @@ def test_rate_limit_retries_are_counted_against_the_budget() -> None:
     assert ledger.total_calls == 3
     assert ledger.retry_calls == 2
     assert [item.status for item in ledger.records] == ["rate_limited", "rate_limited", "ok"]
+
+
+def test_bounded_chat_retry_cannot_outlive_its_single_request_deadline() -> None:
+    inner = _FakeClient(fail_times=99)
+    sleeps: list[float] = []
+    client = BudgetedCohereClient(
+        inner,
+        max_attempts=4,
+        backoff_base_seconds=5.0,
+        sleep=sleeps.append,
+        clock=_clock(),
+    )
+
+    with pytest.raises(TimeoutError, match="deadline exhausted before retry"):
+        client.chat(
+            model="m",
+            messages=[],
+            request_options={"timeout_in_seconds": 2, "max_retries": 0},
+        )
+
+    assert inner.calls == 1
+    assert sleeps == []
+    assert client.total_calls == 1
 
 
 def test_throttle_sleeps_rather_than_exceeding_the_per_minute_limit() -> None:
@@ -148,6 +290,48 @@ def test_call_records_carry_no_request_or_response_body() -> None:
     assert record.response_hash is not None
 
 
+@pytest.mark.parametrize(
+    "usage",
+    [None, {"tokens": {"input_tokens": 3}}, {"tokens": {"output_tokens": 2}}],
+)
+def test_missing_or_partial_chat_usage_is_counted_and_fails_closed(usage: object) -> None:
+    class _MissingUsageClient:
+        def chat(self, **_: object) -> object:
+            return type("Response", (), {"id": "spent-call", "usage": usage})()
+
+    client = BudgetedCohereClient(_MissingUsageClient(), sleep=lambda _: None, clock=_clock())
+
+    with pytest.raises(ValueError, match="token usage"):
+        client.chat(model="m", messages=[])
+
+    assert client.total_calls == 1
+    assert client.ledger().records[0].status == "error"
+    assert client.ledger().records[0].response_hash is None
+
+
+@pytest.mark.parametrize(
+    "usage",
+    [
+        {"tokens": {"input_tokens": -1.0, "output_tokens": 2.0}},
+        {"tokens": {"input_tokens": 1.5, "output_tokens": 2.0}},
+        {"tokens": {"input_tokens": float("nan"), "output_tokens": 2.0}},
+    ],
+)
+def test_inexact_chat_usage_is_counted_and_fails_closed(usage: object) -> None:
+    class _InvalidUsageClient:
+        def chat(self, **_: object) -> object:
+            return type("Response", (), {"id": "spent-call", "usage": usage})()
+
+    client = BudgetedCohereClient(_InvalidUsageClient(), sleep=lambda _: None, clock=_clock())
+
+    with pytest.raises(ValueError, match="token usage"):
+        client.chat(model="m", messages=[])
+
+    assert client.total_calls == 1
+    assert client.ledger().records[0].status == "error"
+    assert client.ledger().records[0].response_hash is None
+
+
 # --------------------------------------------------------------------------
 # Embedding cache
 # --------------------------------------------------------------------------
@@ -182,9 +366,53 @@ def test_cache_roundtrip_normalizes_and_reloads(tmp_path: Path) -> None:
     assert vector == pytest.approx((0.6, 0.8))  # unit-normalized
     adapter.save()
 
-    reloaded = CachedEmbeddingAdapter(path, client=None, allow_provider=False)
+    reloaded = CachedEmbeddingAdapter(path, client=None, dimension=2, allow_provider=False)
     assert reloaded.cached_vector_count() == 3
     assert reloaded.embed_query("q") == pytest.approx((0.6, 0.8))
+
+
+@pytest.mark.parametrize(
+    "vector",
+    [[0.0, 0.0], [float("nan"), 1.0], [1.0], [True, 1.0]],
+)
+def test_embedding_cache_rejects_invalid_provider_vectors(
+    tmp_path: Path, vector: list[object]
+) -> None:
+    class _Embed:
+        def embed(self, **_: object) -> object:
+            return type(
+                "Response",
+                (),
+                {"embeddings": type("Vectors", (), {"float": [vector]})()},
+            )()
+
+    adapter = CachedEmbeddingAdapter(
+        tmp_path / "cache.json", client=_Embed(), dimension=2, allow_provider=True
+    )
+    with pytest.raises(ValueError, match="embedding vector"):
+        adapter.embed_query("q")
+
+    assert adapter.cached_vector_count() == 0
+
+
+def test_embedding_cache_applies_a_provider_batch_atomically(tmp_path: Path) -> None:
+    class _Embed:
+        def embed(self, **_: object) -> object:
+            return type(
+                "Response",
+                (),
+                {"embeddings": type("Vectors", (), {"float": [[1.0, 0.0], [0.0, 0.0]]})()},
+            )()
+
+    adapter = CachedEmbeddingAdapter(
+        tmp_path / "cache.json", client=_Embed(), dimension=2, allow_provider=True
+    )
+
+    with pytest.raises(ValueError, match="finite non-zero norm"):
+        adapter.embed_documents(("valid-first", "invalid-second"))
+
+    assert adapter.cached_vector_count() == 0
+    assert adapter.dirty is False
 
 
 # --------------------------------------------------------------------------

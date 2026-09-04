@@ -14,6 +14,7 @@ from resolveflow.actions.models import (
     PermissionResult,
     RejectionCommand,
 )
+from resolveflow.agent.findings import ClaimKind
 from resolveflow.domain.evidence import stable_id
 from resolveflow.domain.hashing import checksum
 from resolveflow.domain.models import FinalResponse
@@ -67,7 +68,10 @@ class ActionService:
         claims = {claim.claim_id: claim for claim in graph.claims}
         supporting = tuple(claims.get(claim_id) for claim_id in permitted.supporting_claim_ids)
         if not supporting or any(
-            claim is None or claim.status.value != "supported" or not claim.action_supporting
+            claim is None
+            or claim.kind is not ClaimKind.ACTION
+            or claim.status.value != "supported"
+            or not claim.action_supporting
             for claim in supporting
         ):
             raise ValueError("proposal support must contain only verified action claims")

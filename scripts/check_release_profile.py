@@ -13,6 +13,8 @@ def _require(condition: bool, message: str) -> None:
 
 def validate_release_profile(payload: dict[str, Any]) -> str:
     profile = payload.get("release_profile")
+    if not isinstance(profile, str):
+        raise ValueError("release_profile must be validated_release or technical_preview")
     _require(
         profile in {"validated_release", "technical_preview"},
         "release_profile must be validated_release or technical_preview",

@@ -193,12 +193,34 @@ class RetrievalTrace(FrozenModel):
     lexical_candidate_ids: tuple[str, ...]
     vector_candidate_ids: tuple[str, ...]
     embedding_model: str
-    embedding_source: Literal["stored_snapshot", "computed_authorized_candidates"]
+    embedding_source: Literal["stored_snapshot", "computed_authorized_candidates", "unavailable"]
     rerank_model: str
     rerank_escalation_reason: str | None
-    rerank_payload_checksum: str
+    rerank_payload_checksum: str | None
     candidates: tuple[RetrievalCandidate, ...]
+    # `exclude_if` preserves byte/hash compatibility for recorded v1 traces,
+    # while new failed retrievals carry an explicit safe terminal code.
+    failure_code: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    failure_stage: Literal["context", "vector", "rerank"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     checksum: str
+
+    @model_validator(mode="after")
+    def failure_trace_is_explicitly_non_evidence(self) -> RetrievalTrace:
+        if self.failure_code is None:
+            if self.failure_stage is not None or self.rerank_payload_checksum is None:
+                raise ValueError("successful retrieval requires a rerank payload checksum")
+            if self.embedding_source == "unavailable":
+                raise ValueError("successful retrieval cannot claim unavailable embeddings")
+        else:
+            if self.failure_stage is None:
+                raise ValueError("failed retrieval requires a failure stage")
+            if self.rerank_payload_checksum is not None or self.candidates:
+                raise ValueError("failed retrieval cannot claim a rerank payload or candidates")
+            if self.embedding_source != "unavailable":
+                raise ValueError("failed retrieval must label embedding source unavailable")
+        return self
 
 
 class RetrievalMetricObservation(FrozenModel):

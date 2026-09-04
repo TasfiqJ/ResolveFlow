@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import model_validator
 
@@ -27,6 +27,53 @@ class StructureSelection(FrozenModel):
         if self.disposition != "resolved" and not self.needs_review:
             raise ValueError("non-resolved responses require review")
         return self
+
+    @classmethod
+    def schema_for_graph(cls, graph: EvidenceGraph) -> dict[str, Any]:
+        """Bind Cohere's structure schema to IDs that survived verification."""
+        schema = cls.model_json_schema()
+        properties: dict[str, Any] = schema["properties"]
+        supported = tuple(
+            claim for claim in graph.claims if claim.status is SupportStatus.SUPPORTED
+        )
+        route_ids = tuple(claim.claim_id for claim in supported if claim.kind.value == "route")
+
+        properties["schema_version"] = {"type": "string", "const": "1.0"}
+        properties["graph_hash"] = {"type": "string", "const": graph.graph_hash}
+        properties["route_claim_id"] = (
+            {
+                "anyOf": [
+                    {"type": "string", "enum": list(route_ids)},
+                    {"type": "null"},
+                ]
+            }
+            if route_ids
+            else {"type": "null", "const": None}
+        )
+
+        id_lists = {
+            "summary_claim_ids": tuple(
+                claim.claim_id for claim in supported if claim.kind.value == "fact"
+            ),
+            "recommended_step_claim_ids": tuple(
+                claim.claim_id for claim in supported if claim.kind.value == "recommendation"
+            ),
+            "unknown_ids": tuple(item.unknown_id for item in graph.unknowns),
+            "conflict_ids": tuple(item.conflict_id for item in graph.conflicts),
+        }
+        for field_name, allowed_ids in id_lists.items():
+            properties[field_name] = (
+                {
+                    "type": "array",
+                    "items": {"type": "string", "enum": list(allowed_ids)},
+                }
+                if allowed_ids
+                # Cohere documents scalar const support, not array const. Empty
+                # sets stay typed here and are closed by the prompt plus the
+                # deterministic validator below.
+                else {"type": "array", "items": {"type": "string"}}
+            )
+        return schema
 
 
 class DeterministicRenderer:
@@ -95,6 +142,14 @@ class DeterministicRenderer:
     def validate_selection(graph: EvidenceGraph, selection: StructureSelection) -> None:
         if selection.graph_hash != graph.graph_hash:
             raise ValueError("structure graph hash mismatch")
+        id_fields = (
+            selection.summary_claim_ids,
+            selection.recommended_step_claim_ids,
+            selection.unknown_ids,
+            selection.conflict_ids,
+        )
+        if any(len(values) != len(set(values)) for values in id_fields):
+            raise ValueError("structure selection cannot contain duplicate IDs")
         claims = {item.claim_id: item for item in graph.claims}
         requested_claims = set(selection.summary_claim_ids) | set(
             selection.recommended_step_claim_ids
@@ -107,10 +162,25 @@ class DeterministicRenderer:
             raise ValueError("structure selected a claim that is not fully verified")
         if selection.route_claim_id and claims[selection.route_claim_id].kind.value != "route":
             raise ValueError("route field must select a route claim")
-        if not set(selection.unknown_ids).issubset({item.unknown_id for item in graph.unknowns}):
-            raise ValueError("structure selected an unknown unknown")
-        if not set(selection.conflict_ids).issubset({item.conflict_id for item in graph.conflicts}):
-            raise ValueError("structure selected an unknown conflict")
+        if any(claims[item].kind.value != "fact" for item in selection.summary_claim_ids):
+            raise ValueError("summary field must select only fact claims")
+        if any(
+            claims[item].kind.value != "recommendation"
+            for item in selection.recommended_step_claim_ids
+        ):
+            raise ValueError("recommended-step field must select only recommendation claims")
+        expected_unknowns = {item.unknown_id for item in graph.unknowns}
+        if set(selection.unknown_ids) != expected_unknowns:
+            raise ValueError("structure must preserve every verified unknown exactly once")
+        expected_conflicts = {item.conflict_id for item in graph.conflicts}
+        if set(selection.conflict_ids) != expected_conflicts:
+            raise ValueError("structure must preserve every verified conflict exactly once")
+        if selection.disposition == "resolved" and selection.route_claim_id is None:
+            raise ValueError("resolved structure requires a verified route claim")
+        if selection.disposition == "resolved" and selection.conflict_ids:
+            raise ValueError("conflicted structure cannot be resolved")
+        if selection.disposition == "abstained" and selection.route_claim_id is not None:
+            raise ValueError("abstained structure cannot select a route")
 
     def fallback(
         self,

@@ -100,6 +100,24 @@ def main(argv: list[str] | None = None) -> int:
     # and the checksum manifest then listed fixture files as live artifacts.
     runs_dir = output_dir / "runs" / args.provider
 
+    def _persist_ledger(reason: str) -> None:
+        # Persist every spent attempt, including a failure during the mandatory
+        # dry pass. Otherwise the budget can be consumed without an audit trail.
+        if not client:
+            return
+        output_dir.mkdir(parents=True, exist_ok=True)
+        ledger_obj = client.ledger()
+        (output_dir / f"provider-calls-{args.provider}.json").write_bytes(
+            (
+                json.dumps(ledger_obj.model_dump(mode="json"), indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+        )
+        print(
+            f"[ledger] {reason}: persisted {ledger_obj.total_calls} calls to "
+            f"provider-calls-{args.provider}.json",
+            file=sys.stderr,
+        )
+
     repetitions = max(1, args.repetitions)
     dry_report: dict[str, Any] | None = None
     if not args.skip_dry_pass:
@@ -122,36 +140,25 @@ def main(argv: list[str] | None = None) -> int:
         try:
             run_ab(harness=harness, scenarios=dry_scenarios, output_dir=None, on_scenario=_after)
         except BudgetExceeded as exc:
+            _persist_ledger("dry pass budget exhausted")
             print(f"[abort] {exc}", file=sys.stderr)
             return 3
+        except Exception as exc:  # noqa: BLE001 - persist evidence, then re-raise
+            _persist_ledger(f"dry pass failed: {type(exc).__name__}")
+            raise
 
         dry_calls = sum(item["calls"] for item in per_scenario)
         per_scenario_mean = dry_calls / len(dry_scenarios) if dry_scenarios else 0.0
 
-        # Auto-scaling. Take the highest repetition count whose projection fits
-        # under the cap. If even one repetition does not fit, drop the benign
-        # scenarios and keep the attacks -- and record the substitution, because
-        # a run that silently changed its own scope is not reproducible.
+        # Take the highest repetition count whose projection fits under the cap.
+        # Never change the scenario population: a security-only substitution
+        # would make the run incomparable and erase the utility control group.
         requested_repetitions = max(1, args.repetitions)
         scaling_note: str | None = None
         while repetitions > 1 and (
             per_scenario_mean * len(scenarios) * repetitions + dry_calls > args.max_calls
         ):
             repetitions -= 1
-        if per_scenario_mean * len(scenarios) * repetitions + dry_calls > args.max_calls:
-            attack_only = tuple(s for s in scenarios if s.kind == "attack")
-            if attack_only and per_scenario_mean * len(attack_only) + dry_calls <= args.max_calls:
-                scaling_note = (
-                    f"benign scenarios dropped: one repetition of all "
-                    f"{len(scenarios)} scenarios projected "
-                    f"{per_scenario_mean * len(scenarios) + dry_calls:.0f} calls "
-                    f"against a {args.max_calls} cap. Ran {len(attack_only)} attack "
-                    f"scenarios only. Benign utility was NOT measured in this run, so "
-                    f"no utility claim can be made from it."
-                )
-                scenarios = attack_only
-                repetitions = 1
-                print(f"[auto-scale] {scaling_note}")
         if repetitions != requested_repetitions and scaling_note is None:
             scaling_note = (
                 f"repetitions reduced from {requested_repetitions} to {repetitions} "
@@ -181,8 +188,8 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             output_dir.mkdir(parents=True, exist_ok=True)
-            (output_dir / "dry-pass-abort.json").write_text(
-                json.dumps(dry_report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            (output_dir / "dry-pass-abort.json").write_bytes(
+                (json.dumps(dry_report, indent=2, sort_keys=True) + "\n").encode("utf-8")
             )
             return 4
 
@@ -192,26 +199,6 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[run] {scenario.scenario_id}: {len(rows)} runs recorded")
         if client:
             print(f"      {client.summary_line()}")
-
-    def _persist_ledger(reason: str) -> None:
-        # Write the ledger to disk no matter how the run ends. Without this, a
-        # transient provider failure mid-run discards the record of every call
-        # already spent -- real budget gone with no artifact behind it, which
-        # this project's own rules forbid. On a crash this is the only evidence
-        # of what the run cost.
-        if not client:
-            return
-        output_dir.mkdir(parents=True, exist_ok=True)
-        ledger_obj = client.ledger()
-        (output_dir / f"provider-calls-{args.provider}.json").write_text(
-            json.dumps(ledger_obj.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
-        print(
-            f"[ledger] {reason}: persisted {ledger_obj.total_calls} calls to "
-            f"provider-calls-{args.provider}.json",
-            file=sys.stderr,
-        )
 
     try:
         result = run_ab(
@@ -254,13 +241,13 @@ def main(argv: list[str] | None = None) -> int:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = output_dir / f"ab-summary-{args.provider}.json"
-    summary_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary_path.write_bytes((json.dumps(result, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     print(f"[run] wrote {summary_path}")
     if client:
         print(client.summary_line())
         ledger_path = output_dir / f"provider-calls-{args.provider}.json"
-        ledger_path.write_text(
-            json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        ledger_path.write_bytes(
+            (json.dumps(ledger, indent=2, sort_keys=True) + "\n").encode("utf-8")
         )
         print(f"[run] wrote {ledger_path}")
     print(f"[run] total provider calls consumed: {client.total_calls if client else 0}")

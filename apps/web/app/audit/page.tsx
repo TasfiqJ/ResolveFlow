@@ -1,5 +1,14 @@
 import Link from "next/link";
+import ab from "../../public/snapshots/ab-site-current.json";
 import integrity from "../../public/snapshots/evaluation-integrity-audit.json";
+
+const abBuilds = ab.builds as string[];
+const abByBuild = ab.by_build as Record<string, { runs: number }>;
+const abQuality = ab.quality_validity as { quality_metrics_valid: boolean };
+const providerLabel = ab.provider === "cohere" ? "Cohere" : ab.provider;
+const abRunDistribution = abBuilds
+  .map((build) => `${abByBuild[build]?.runs ?? 0} ${build}`)
+  .join(" + ");
 
 const findings = [
   {
@@ -32,6 +41,11 @@ const findings = [
       "Run provenance is now derived from the active provider, and audit-chain verification recomputes event hashes instead of trusting stored pointers.",
     status: "BRIDGED",
   },
+  {
+    concern: "The public audit said no live Cohere evidence existed",
+    response: `The scorecard now derives its claim from the retained snapshot: ${ab.run_count} live ${providerLabel} runs (${abRunDistribution}). Its pre-retrieval authorization evidence is retained, while model-dependent quality metrics remain ${abQuality.quality_metrics_valid ? "valid" : "VOID"}.`,
+    status: "CORRECTED",
+  },
 ] as const;
 
 const openGates = [
@@ -41,8 +55,9 @@ const openGates = [
         `Security matrix execution: ${integrity.security_matrix_failure_count} failing cells remain open`,
       ]
     : []),
+  "Trusted upstream authentication and authorization are not wired: the local API accepts caller-supplied actor and permission headers, so approval identity is not yet an end-to-end security boundary",
   "Action hard gates are not exercised by the published role-downgrade Replay",
-  "No live Cohere run or provider latency, quality, usage, or cost evidence",
+  `${ab.run_count} live ${providerLabel} A/B runs exist, but their model-dependent quality metrics are ${abQuality.quality_metrics_valid ? "valid" : "VOID"}; no cost claim is published`,
   "No practitioner review: 0 reviewers and 0 reviewed cases",
   "No locked held-out dataset or final production release verdict",
   "No real Slack workspace event or Jira development-site write",
@@ -106,7 +121,7 @@ export default function AuditPage() {
       <section className="panel">
         <h2>Audit the audit</h2>
         <p>
-          The repository keeps the complete limitation register, acceptance
+          The repository keeps the maintained limitation register, acceptance
           matrix, decision log, and release checks in version control.
         </p>
         <div className="linkRow">

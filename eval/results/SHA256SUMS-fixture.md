@@ -2,13 +2,11 @@
 
 | Artifact | SHA-256 | Bytes |
 | --- | --- | --- |
-| `data/corpus/embeddings/embed-v4.0-eval-corpus.json` | `dae6128ccfaa7efe8aefd09f6404cf3b92a00c068d7a6f4da48782cd8eeb9ff6` | 1099644 |
-| `data/corpus/embeddings/embed-v4.0-eval-corpus.manifest.json` | `aab4b1987c00f0df6c4a821072da93c68d952a8ccbdde86db532f17d73db6bde` | 1546 |
 | `data/corpus/hero-corpus-2.0.json` | `26d40cb09e0acfdca2f394284e31a5f37ebe6d471bdb060e24f808356cf12c18` | 16138 |
 | `data/security/attack-corpus-1.0.json` | `5385c7406b182b0cfba27508bbad6c91b0838903f84640fdbc982b31f2df7b62` | 7938 |
 | `data/security/attack-families-1.0.yaml` | `1ad188ce82f80c63dedb5597632f88ce087bda11edbd11b6b1b8e0bf469afe00` | 7025 |
-| `eval/results/ab-site-fixture.json` | `50cb9c1ee94c0f477a19d81b1b11ac2d3ff6395e4f18d0aa82cac8affdc103ca` | 65030 |
-| `eval/results/ab-summary-fixture.json` | `9b8ffb6cc5dc7584409a1ce6d17d6a9e3bf8bcab713f315e6134ede16fee0e79` | 130910 |
+| `eval/results/ab-site-fixture.json` | `1b7b32994969db59b441dfdea53e67f29ad78e0058e8f1cf08d26ed95df594ec` | 68057 |
+| `eval/results/ab-summary-fixture.json` | `ab465ed7f2ec9c0f0d51d84823b11c4735603a4622c8941e85f30f416aaef55b` | 199301 |
 | `eval/results/runs/fixture/run-run_attack-a1-instruction_override_guarded-v1.json` | `bd0f0496a63d0d47cc5a13af5dfe7a1966b2dea7f2603b03c97d7f938dfaac64` | 47025 |
 | `eval/results/runs/fixture/run-run_attack-a1-instruction_override_unsafe-v0.json` | `1dc28973746a4242327b330b36745b055dfaa69d5f1c52a9d3252a40979b32c8` | 47027 |
 | `eval/results/runs/fixture/run-run_attack-a2-instruction_override_guarded-v1.json` | `01ac8d61e4593b630abede9ecbf8e79e8ea4e20b551bbd04d252ec85cbf0448b` | 46629 |

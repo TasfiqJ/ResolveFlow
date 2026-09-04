@@ -35,6 +35,7 @@ def test_live_composition_wires_chat_embedding_and_rerank_to_one_path() -> None:
         cohere_command_model="command-configured",
         cohere_embed_model="embed-configured",
         cohere_rerank_fast_model="rerank-v4.0-fast",
+        cohere_rerank_pro_model="rerank-v4.0-pro",
     )
 
     orchestrator = build_orchestrator(settings, cohere_client=client)
@@ -46,6 +47,8 @@ def test_live_composition_wires_chat_embedding_and_rerank_to_one_path() -> None:
     assert orchestrator.embedding_adapter.model == "embed-configured"
     assert isinstance(orchestrator.rerank_adapter, CohereRerankAdapter)
     assert orchestrator.rerank_adapter.model == "rerank-v4.0-fast"
+    assert isinstance(orchestrator.pro_rerank_adapter, CohereRerankAdapter)
+    assert orchestrator.pro_rerank_adapter.model == "rerank-v4.0-pro"
     assert orchestrator.provenance == "live_provider"
 
 

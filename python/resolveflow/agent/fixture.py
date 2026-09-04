@@ -7,6 +7,7 @@ from resolveflow.agent.contracts import (
     ChatResponse,
     FinishReason,
     PassKind,
+    ProviderTimeoutError,
     ProviderUsage,
     ToolCallRequest,
 )
@@ -34,6 +35,12 @@ class FixtureChatAdapter:
     """
 
     provider_name = "recorded_fixture"
+
+    def chat_with_timeout(self, request: ChatRequest, *, timeout_seconds: float) -> ChatResponse:
+        if timeout_seconds <= 0:
+            raise ProviderTimeoutError("provider_timeout")
+        # Local deterministic work has no network request or background worker.
+        return self.chat(request)
 
     def chat(self, request: ChatRequest) -> ChatResponse:
         if request.pass_kind is PassKind.STRUCTURE:

@@ -1,5 +1,16 @@
 # Technical-preview release checklist
 
+**Scope:** This checklist records the previously deployed technical-preview
+checkpoint. It does not claim that the 2026-09-04 Cohere-focused working-tree
+revision is deployed. That revision is locally built and verified but remains
+unpublished; the hosted Pages URL currently serves the older preview.
+
+Before any future publication, claim review must preserve hard provider-call,
+agent-round, and tool-call caps while describing `max_total_tokens` as a
+preflight/post-response observed-usage soft stop and request/wall-clock timeout
+as cooperative per-operation handling. Neither control is a hard billing or
+total-runtime ceiling without new provider/runtime evidence.
+
 ## Release profile
 
 - [x] Operator explicitly authorized the technical preview.
@@ -20,9 +31,9 @@
 - [x] PostgreSQL migration upgrade, downgrade, re-upgrade, and database tests pass.
 - [x] Release documentation, license, source notes, limitations, rollback, and postmortem are complete.
 - [x] Isolated clean clone restores the Pages build and checksummed snapshot experience.
-- [x] Local `main` and `origin/main` match after the release push.
+- [x] Local `main` and `origin/main` matched at that prior release checkpoint.
 
-## Publication
+## Prior publication checkpoint
 
 - [x] GitHub Pages workflow completes successfully.
 - [x] The public URL returns the technical-preview homepage.

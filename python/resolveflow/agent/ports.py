@@ -9,3 +9,7 @@ class ChatProviderPort(Protocol):
     provider_name: str
 
     def chat(self, request: ChatRequest) -> ChatResponse: ...
+
+    def chat_with_timeout(
+        self, request: ChatRequest, *, timeout_seconds: float
+    ) -> ChatResponse: ...

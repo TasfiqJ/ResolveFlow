@@ -141,7 +141,9 @@ class RunSnapshot(FrozenModel):
     scenario_id: str | None = None
     commit: str
     model_policy: str
-    corpus_version: Literal["hero-corpus-1.0"] = "hero-corpus-1.0"
+    # Kept as a string so recorded legacy snapshots remain readable. New
+    # snapshots bind this field to the actual retrieval corpus snapshot ID.
+    corpus_version: str = Field(min_length=1)
     identity_snapshot: IdentitySnapshot
     retrieval: RetrievalTrace
     case: CanonicalCase

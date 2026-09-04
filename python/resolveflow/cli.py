@@ -35,11 +35,12 @@ def _write_snapshot() -> Path:
     content_path = PUBLISHED / f"hero-foundation-{content_hash}.json"
     latest_path = PUBLISHED / "hero-foundation.json"
     rendered = json.dumps(snapshot, indent=2, sort_keys=True) + "\n"
-    content_path.write_text(rendered, encoding="utf-8")
-    latest_path.write_text(rendered, encoding="utf-8")
+    rendered_bytes = rendered.encode("utf-8")
+    content_path.write_bytes(rendered_bytes)
+    latest_path.write_bytes(rendered_bytes)
     web_path = ROOT / "apps" / "web" / "public" / "snapshots" / "hero-foundation.json"
     web_path.parent.mkdir(parents=True, exist_ok=True)
-    web_path.write_text(rendered, encoding="utf-8")
+    web_path.write_bytes(rendered_bytes)
     return latest_path
 
 
@@ -86,11 +87,12 @@ def _write_live_snapshot() -> Path:
     PUBLISHED.mkdir(parents=True, exist_ok=True)
     content_path = PUBLISHED / f"hero-cohere-live-{content_hash}.json"
     latest_path = PUBLISHED / "hero-cohere-live.json"
-    content_path.write_text(rendered, encoding="utf-8")
-    latest_path.write_text(rendered, encoding="utf-8")
+    rendered_bytes = rendered.encode("utf-8")
+    content_path.write_bytes(rendered_bytes)
+    latest_path.write_bytes(rendered_bytes)
     web_path = ROOT / "apps" / "web" / "public" / "snapshots" / "hero-cohere-live.json"
     web_path.parent.mkdir(parents=True, exist_ok=True)
-    web_path.write_text(rendered, encoding="utf-8")
+    web_path.write_bytes(rendered_bytes)
     return latest_path
 
 

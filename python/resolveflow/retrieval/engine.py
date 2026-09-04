@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import time
+from typing import Any
 
 from resolveflow.domain.evidence import (
     Corpus,
@@ -9,7 +11,9 @@ from resolveflow.domain.evidence import (
     RetrievalTrace,
 )
 from resolveflow.domain.hashing import checksum
+from resolveflow.eval.budget import BudgetExceeded
 from resolveflow.policy.authorization import AuthorizationPolicy
+from resolveflow.retrieval.cohere import ProviderAdapterError
 from resolveflow.retrieval.fixture import tokens
 from resolveflow.retrieval.ports import EmbeddingPort, RerankPort
 from resolveflow.telemetry.stages import (
@@ -25,7 +29,23 @@ from resolveflow.telemetry.stages import (
 
 
 def _cosine(left: tuple[float, ...], right: tuple[float, ...]) -> float:
-    return sum(a * b for a, b in zip(left, right, strict=True))
+    if len(left) != len(right):
+        raise ValueError("embedding vectors must have equal dimensions")
+    if any(not math.isfinite(value) for value in (*left, *right)):
+        raise ValueError("embedding vectors must contain only finite coordinates")
+    left_norm = math.hypot(*left)
+    right_norm = math.hypot(*right)
+    if (
+        not math.isfinite(left_norm)
+        or not math.isfinite(right_norm)
+        or left_norm <= 0.0
+        or right_norm <= 0.0
+    ):
+        raise ValueError("embedding vectors must have a finite non-zero norm")
+    similarity = sum((a / left_norm) * (b / right_norm) for a, b in zip(left, right, strict=True))
+    if not math.isfinite(similarity):
+        raise ValueError("cosine similarity must be finite")
+    return similarity
 
 
 class HybridRetriever:
@@ -51,6 +71,8 @@ class HybridRetriever:
         self._document_embedding_cache: dict[
             tuple[str, str, tuple[str, ...]], dict[str, tuple[float, ...]]
         ] = {}
+        self.last_provider_call_count = 0
+        self.last_provider_call_ms = 0.0
 
     def retrieve(
         self,
@@ -60,10 +82,100 @@ class HybridRetriever:
         rerank_model: str | None = None,
         escalation_reason: str | None = None,
         recorder: StageRecorder | None = None,
+        deadline: float | None = None,
     ) -> RetrievalTrace:
-        if rerank_model is not None and "pro" in rerank_model and not escalation_reason:
+        actual_rerank_model = self.reranker.model
+        if rerank_model is not None and rerank_model != actual_rerank_model:
+            raise ValueError(
+                "requested rerank model does not match the configured rerank adapter model"
+            )
+        if actual_rerank_model.lower().endswith("-pro") and not (
+            escalation_reason and escalation_reason.strip()
+        ):
             raise ValueError("every Pro rerank call requires an escalation reason")
         timer = recorder if recorder is not None else NullStageRecorder()
+        self.last_provider_call_count = 0
+        self.last_provider_call_ms = 0.0
+
+        def bounded_call(adapter: object, method_name: str, *args: object) -> Any:
+            failure_stage = "rerank" if method_name == "rerank" else "vector"
+            provider_endpoint = "rerank" if method_name == "rerank" else "embed"
+            model = str(getattr(adapter, "model", "unknown"))
+            remaining = None if deadline is None else deadline - time.perf_counter()
+            if remaining is not None and remaining <= 0:
+                raise ProviderAdapterError(
+                    "deadline",
+                    model,
+                    failure_stage=failure_stage,
+                    provider_call_count=self.last_provider_call_count,
+                    provider_call_ms=self.last_provider_call_ms,
+                )
+            method = getattr(adapter, method_name)
+            provider_backed = bool(getattr(adapter, "provider_backed", False))
+            minimum_timeout = float(getattr(adapter, "minimum_timeout_seconds", 0.0))
+            if remaining is not None and remaining < minimum_timeout:
+                raise ProviderAdapterError(
+                    "deadline",
+                    model,
+                    failure_stage=failure_stage,
+                    provider_call_count=self.last_provider_call_count,
+                    provider_call_ms=self.last_provider_call_ms,
+                )
+            started = time.perf_counter()
+
+            try:
+                if remaining is not None:
+                    if not getattr(adapter, "supports_deadline", False):
+                        raise ProviderAdapterError(
+                            "unbounded_adapter",
+                            model,
+                            failure_stage=failure_stage,
+                            provider_call_count=self.last_provider_call_count,
+                            provider_call_ms=self.last_provider_call_ms,
+                        )
+                    result = method(*args, timeout_seconds=remaining)
+                else:
+                    result = method(*args)
+            except BudgetExceeded:
+                raise
+            except ProviderAdapterError as exc:
+                if exc.endpoint in {"deadline", "unbounded_adapter"}:
+                    raise
+                elapsed_ms = max(0.0, (time.perf_counter() - started) * 1000.0)
+                exc.failure_stage = failure_stage
+                exc.provider_call_count += self.last_provider_call_count + (
+                    1 if provider_backed else 0
+                )
+                exc.provider_call_ms += self.last_provider_call_ms + (
+                    elapsed_ms if provider_backed else 0.0
+                )
+                raise
+            except Exception as exc:
+                elapsed_ms = max(0.0, (time.perf_counter() - started) * 1000.0)
+                raise ProviderAdapterError(
+                    provider_endpoint,
+                    model,
+                    failure_stage=failure_stage,
+                    provider_call_count=self.last_provider_call_count
+                    + (1 if provider_backed else 0),
+                    provider_call_ms=self.last_provider_call_ms
+                    + (elapsed_ms if provider_backed else 0.0),
+                ) from exc
+
+            elapsed_ms = max(0.0, (time.perf_counter() - started) * 1000.0)
+            if provider_backed:
+                self.last_provider_call_count += 1
+                self.last_provider_call_ms += elapsed_ms
+            if deadline is not None and time.perf_counter() > deadline:
+                raise ProviderAdapterError(
+                    "deadline",
+                    model,
+                    failure_stage=failure_stage,
+                    provider_call_count=self.last_provider_call_count,
+                    provider_call_ms=self.last_provider_call_ms,
+                )
+            return result
+
         cache_key = self.policy.cache_key(identity, self.corpus.snapshot.snapshot_id, query)
         if cache_key in self._cache:
             # A cache hit is a real observation, but it is not a measurement of the
@@ -96,7 +208,7 @@ class HybridRetriever:
             ]
 
         with timer.stage(STAGE_QUERY_EMBEDDING):
-            query_vector = self.embedder.embed_query(query)
+            query_vector = bounded_call(self.embedder, "embed_query", query)
 
         with timer.stage(STAGE_VECTOR):
             stored_embeddings = {
@@ -116,8 +228,10 @@ class HybridRetriever:
                 )
                 embedding_by_chunk = self._document_embedding_cache.get(embedding_cache_key, {})
                 if not embedding_by_chunk:
-                    vectors = self.embedder.embed_documents(
-                        tuple(chunk.content for chunk in eligible_chunks)
+                    vectors = bounded_call(
+                        self.embedder,
+                        "embed_documents",
+                        tuple(chunk.content for chunk in eligible_chunks),
                     )
                     embedding_by_chunk = {
                         chunk.chunk_id: vector
@@ -180,7 +294,11 @@ class HybridRetriever:
             # A provider rerank with an empty document list and top_n=0 is rejected by the
             # API and surfaces as a run-ending ProviderAdapterError. An identity with no
             # eligible chunks must abstain cleanly, not fail the run.
-            reranked = self.reranker.rerank(query, documents, len(documents)) if documents else ()
+            reranked = (
+                bounded_call(self.reranker, "rerank", query, documents, len(documents))
+                if documents
+                else ()
+            )
         rerank_by_id = {
             selected_ids[input_index]: (rank, score)
             for rank, (input_index, score) in enumerate(reranked, 1)
@@ -234,7 +352,7 @@ class HybridRetriever:
             "vector_candidate_ids": tuple(item.chunk_id for item, _ in vector),
             "embedding_model": self.embedder.model,
             "embedding_source": embedding_source,
-            "rerank_model": rerank_model or self.reranker.model,
+            "rerank_model": actual_rerank_model,
             "rerank_escalation_reason": escalation_reason,
             "rerank_payload_checksum": checksum(payload_body),
             "candidates": tuple(candidates),

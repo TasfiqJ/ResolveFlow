@@ -17,6 +17,7 @@ class FixtureEmbeddingAdapter:
 
     model = "fixture-token-hash-1.0"
     dimension = 32
+    supports_deadline = True
 
     def _embed(self, text: str) -> tuple[float, ...]:
         vector = [0.0] * self.dimension
@@ -28,10 +29,14 @@ class FixtureEmbeddingAdapter:
         norm = math.sqrt(sum(value * value for value in vector)) or 1.0
         return tuple(value / norm for value in vector)
 
-    def embed_documents(self, texts: tuple[str, ...]) -> tuple[tuple[float, ...], ...]:
+    def embed_documents(
+        self, texts: tuple[str, ...], *, timeout_seconds: float | None = None
+    ) -> tuple[tuple[float, ...], ...]:
+        del timeout_seconds
         return tuple(self._embed(text) for text in texts)
 
-    def embed_query(self, text: str) -> tuple[float, ...]:
+    def embed_query(self, text: str, *, timeout_seconds: float | None = None) -> tuple[float, ...]:
+        del timeout_seconds
         return self._embed(text)
 
 
@@ -39,10 +44,17 @@ class FixtureRerankAdapter:
     """Stable term-overlap reranker; it never represents a Cohere measurement."""
 
     model = "fixture-overlap-rerank-1.0"
+    supports_deadline = True
 
     def rerank(
-        self, query: str, documents: tuple[str, ...], top_n: int
+        self,
+        query: str,
+        documents: tuple[str, ...],
+        top_n: int,
+        *,
+        timeout_seconds: float | None = None,
     ) -> tuple[tuple[int, float], ...]:
+        del timeout_seconds
         query_counts = Counter(tokens(query))
         scored: list[tuple[int, float]] = []
         for index, document in enumerate(documents):

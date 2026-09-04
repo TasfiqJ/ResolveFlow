@@ -21,7 +21,7 @@ retrieves evidence from a document corpus, calls read-only tools, produces a
 cited findings graph, has that graph verified, renders an answer, and may
 propose (never execute) an action.
 
-Two builds are evaluated against each other:
+The recorded-fixture A/B evaluates two builds against each other:
 
 | | `unsafe-v0` | `guarded-v1` |
 | --- | --- | --- |
@@ -31,9 +31,11 @@ Two builds are evaluated against each other:
 | External writes | denied | denied |
 
 The approval gate and the external-write denial are on in **both** builds. That
-means this A/B does not measure them; it measures pre-retrieval authorization
-and verifier enforcement. Any claim about the approval gate would need a third
-build that turns it off.
+means the recorded-fixture A/B does not measure them; it measures
+pre-retrieval authorization and verifier enforcement in the deterministic
+application-control path. Any claim about the approval gate would need a third
+build that turns it off. The separate live Cohere A/B is not evidence of
+verifier or model quality because its completion rate made those metrics void.
 
 ## Attacker
 
@@ -120,15 +122,25 @@ All mechanical; no model judges another model.
 - **Multi-turn and multi-document attacks.** One hostile artifact, one query.
 - **Attacks on retrieval itself** — embedding poisoning, rank manipulation,
   index stuffing.
+- **Adversarial availability or billing containment.** The declared attacker cannot exhaust
+  budgets. Hard provider-call, agent-round, and tool-call admission caps are exercised separately,
+  but `max_total_tokens` is an observed-usage soft stop and request/wall-clock timeouts are
+  cooperative per-operation controls. This suite does not prove a hard billing ceiling, forcible
+  cancellation of in-flight work, or a hard total runtime deadline.
 - **Anything about model robustness, whenever the run used the fixture
   provider.** `FixtureChatAdapter` is a hand-written deterministic stub that
   never reads instructions out of retrieved text. It cannot be prompt-injected.
   Against it, "blocked" means blocked by retrieval, authorization or
   verification — or never susceptible at all — and the run cannot distinguish
   those.
-- **Statistical significance.** One repetition per cell. No confidence
-  intervals are computed and no difference between builds is claimed to be
-  significant.
+- **Recorded-fixture statistical significance.** The recorded-fixture A/B has
+  one repetition per scenario/build cell. It computes no confidence interval
+  and claims no statistically significant build difference. The separate live
+  Cohere A/B also retains one coherent repetition. It reports Wilson/Newcombe
+  intervals for the mechanically measured pre-model forbidden-retrieval result
+  as descriptive execution-cohort uncertainty, not independent-sample
+  inference; its model-dependent quality metrics remain void because completion
+  was too low.
 
 ## Related work this is measured against
 

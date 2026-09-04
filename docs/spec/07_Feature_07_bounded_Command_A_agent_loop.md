@@ -8,7 +8,7 @@
 |------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | **Master-plan source** | Section 9.7, pages 33.                                                                                                   |
 | **Primary phase**      | Week 1 basic cited read path; Week 3 bounded tool loop                                                                   |
-| **Core rule**          | Tools are typed and allowlisted. The model cannot write directly, expand tool scope, or exceed fixed rounds/time/budget. |
+| **Core rule**          | Tools are typed and allowlisted. The model cannot write directly or expand tool scope; hard count caps and checked token/time controls stop subsequent work. |
 | **Status**             | Required for v1 unless the master plan explicitly permits the feature to be removed under its cut-order conditions.      |
 
 | **SOURCE INTEGRITY** | This document is derived from the 87-page ResolveFlow Replay Final Master Plan. Current external product and API facts were rechecked against official sources on 15 July 2026. Design decisions and project gates remain explicitly labeled; no unmeasured result is presented as fact. |
@@ -27,7 +27,7 @@
 | API or interface surface | POST /v1/cases/{id}/runs; GET /v1/runs/{id}; SSE run events                                                                                                       |
 | Related features         | Feature 2, Feature 5, Feature 6, Feature 8, Feature 9, Feature 10, Feature 11                                                                                     |
 | Implementation phase     | Week 1 basic cited read path; Week 3 bounded tool loop                                                                                                            |
-| Non-negotiable control   | Tools are typed and allowlisted. The model cannot write directly, expand tool scope, or exceed fixed rounds/time/budget.                                          |
+| Non-negotiable control   | Tools are typed and allowlisted. The model cannot write directly or expand tool scope; hard count caps and checked token/time controls stop subsequent work.   |
 
 ### No-guesswork rules
 
@@ -44,7 +44,7 @@
 
 - Tool calls are validated, authorized, timed, and logged.
 
-- The loop has maximum rounds, total wall-clock, and provider-call budgets.
+- The loop has hard maximum provider-call, agent-round, and tool-call counts, plus observed-token and cooperative wall-clock controls.
 
 - Retrieved instructions are treated as data.
 
@@ -61,9 +61,9 @@
 >
 > **2.** Validate and authorize each returned tool call locally.
 >
-> **3.** Execute read or inert-proposal tools with independent timeouts and normalized results.
+> **3.** Execute read or inert-proposal tools with deadline-aware per-operation timeouts and normalized results.
 >
-> **4.** Append tool results and repeat only within the fixed round/time/token budget.
+> **4.** Append tool results and repeat only while hard count caps and the checked token/time controls permit another step.
 >
 > **5.** Persist provider responses, citations, usage, and observable decisions, then hand the draft to the verifier.
 
@@ -75,7 +75,7 @@
 | Persistent evidence            | agent_runs, run_steps, tool_calls, claims, citations                                                                     |
 | External/public interface      | POST /v1/cases/{id}/runs; GET /v1/runs/{id}; SSE run events                                                              |
 | Dependencies                   | Feature 2, Feature 5, Feature 6, Feature 8, Feature 9, Feature 10, Feature 11                                            |
-| Security/reliability invariant | Tools are typed and allowlisted. The model cannot write directly, expand tool scope, or exceed fixed rounds/time/budget. |
+| Security/reliability invariant | Tools are typed and allowlisted. The model cannot write directly or expand tool scope; hard count caps and checked token/time controls stop subsequent work. |
 
 ### 4.1 State and audit obligations
 
@@ -106,7 +106,7 @@
 
 ## 6 Failure-safe behavior and security review
 
-- Tools are typed and allowlisted. The model cannot write directly, expand tool scope, or exceed fixed rounds/time/budget.
+- Tools are typed and allowlisted. The model cannot write directly or expand tool scope. Hard provider-call, agent-round, and tool-call caps are enforced before dispatch; token/time overruns terminate subsequent work at explicit checked boundaries.
 
 - A provider, connector, schema, policy, verification, or persistence failure must become an explicit state; it must not silently broaden access, invent evidence, mark an action complete, or hide the failed run from metrics.
 
@@ -135,7 +135,7 @@ The trace shows tool name, validated inputs, duration, result status, and eviden
 | Unit           | Tool schemas, local validation, authorization, budget termination, failure objects.        |
 | Contract       | Tool call, citation, finish reason, usage, throttling, malformed output, timeout fixtures. |
 | Security       | Unknown tool, extra fields, arbitrary URL/SQL/Jira/shell attempts rejected.                |
-| Fault          | Provider/tool timeout terminates visibly and never dispatches an action.                   |
+| Fault          | Provider/tool timeout or post-return overrun terminates visibly and never dispatches an action. |
 
 ### 8.1 Acceptance criteria
 
@@ -143,7 +143,7 @@ The trace shows tool name, validated inputs, duration, result status, and eviden
 |----------------------|------------------------------------------------------------|-----------------------------------------------|
 | Tool schema validity | 100% of accepted calls conform locally.                    | Invalid calls count as failures.              |
 | Tool authorization   | Zero unauthorized execution attempts reach adapters.       | NO SHIP if any write or data access succeeds. |
-| Bounded execution    | Every run terminates within configured rounds and timeout. | Operational gate failure.                     |
+| Bounded execution    | Hard count caps stop new work; cooperative token/time overruns become explicit terminal states at checked boundaries. | Operational gate failure. |
 | Direct writes        | Zero model-triggered Jira writes.                          | Immediate NO SHIP.                            |
 | Unknown handling     | Missing decisive evidence yields abstention or review.     | Quality gate.                                 |
 
@@ -159,6 +159,13 @@ The trace shows tool name, validated inputs, duration, result status, and eviden
 ## 10 Implementation-time facts that must not be guessed
 
 - Final time/token limits are measured in staging and encoded in model policy.
+
+- Current enforcement is intentionally asymmetric: provider-call, agent-round, and tool-call
+  counts are hard pre-dispatch caps. `max_total_tokens` uses preflight sizing and post-response
+  observed usage to stop the next Chat call, so it is not a hard token or billing ceiling.
+  Remaining time is passed to deadline-aware operations and checked after return; without a
+  terminable isolation boundary, that is cooperative per-operation handling rather than a
+  guaranteed hard total deadline.
 
 - Provider strict-tool compatibility is rechecked before enablement.
 

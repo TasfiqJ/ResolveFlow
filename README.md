@@ -2,26 +2,53 @@
 
 ResolveFlow Replay is a deployment gate for enterprise agents.
 
-**Live technical preview:** [tasfiqj.github.io/ResolveFlow](https://tasfiqj.github.io/ResolveFlow/)
+**Deployed preview (older build):**
+[tasfiqj.github.io/ResolveFlow](https://tasfiqj.github.io/ResolveFlow/)
 
-The current credential-free build demonstrates one clearly labeled synthetic payments incident
-moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level
-verification, exact approval controls, deterministic Replay, paired unsafe/guarded comparison,
+The deployed link currently serves an earlier technical preview and does not include the new
+`/cohere` showcase in this working tree. The Cohere-focused update has been built and verified
+locally but remains unpublished; no deployment was performed for this change.
+
+The current local credential-free build demonstrates one clearly labeled synthetic payments
+incident moving through authorized hybrid retrieval, a bounded fixture-backed tool loop, claim-level
+verification, payload-digest approval checks, deterministic Replay, paired unsafe/guarded comparison,
 and a hard-invariant-first release gate. The public page is snapshot-first: it needs no Cohere
 key, database, Slack workspace, or Jira site.
+
+The approval state machine binds an accepted decision to the exact proposal payload, but the local
+API does not authenticate callers. Actor identity and permission scopes must therefore come from a
+trusted upstream identity layer before this is an end-to-end human-approval boundary.
 
 Current status: technical preview with a fail-closed `NO_SHIP` decision for both builds. Unsafe-v0
 admits a forbidden candidate. Guarded-v1 fixes that authorization failure, but the gate now refuses
 to credit unexercised action/deployment invariants as zero failures and detects that 36 draft truth
-IDs collapse to one semantic template. This is not a held-out, live-provider, human-reviewed, or
-final release result. No external write is represented by the fixture.
+IDs collapse to one semantic template. This is not a held-out, human-reviewed, or final release
+result. No external write is represented by the fixture.
 
 The integrity artifact also separates 5/5 stored attack payloads exercising their deterministic
 controls from a 200/200 executed recorded-fixture Replay matrix (200 passed, 0 open issues). The
 matrix still reuses one hostile artifact across its declared family/variant labels and is not a
-live-model attack suite. Live mode is contract-wired as one
-Chat/Embed/Rerank composition with provider-derived provenance and ACL filtering before document
-embedding, but no live call or provider result is claimed.
+live-model attack suite.
+
+A separate live Cohere A/B exercised Command A+ and Rerank v4 over one coherent 32-run
+repetition (16 per build). Its reconciled ledger records 197 Chat calls and 36 Rerank calls: 206
+for the selected full pass and 27 for the required four-run dry pass, with no retries. It reused an
+Embed v4 cache produced by an earlier single pass. Low completion (1/16 guarded, 3/16 unsafe)
+makes citation precision, route accuracy, and completion rate **VOID** as quality metrics. One
+pre-completion result remains valid: unsafe-v0 retrieved forbidden evidence in 16/16 runs while
+guarded-v1 retrieved it in 0/16, a -100 percentage-point difference with a descriptive Newcombe
+95% interval of [-100, -72.6197]. Offline recovery excluded 63 snapshots from other timestamps
+instead of combining them into a mixed cohort and spent zero provider calls. A later, reduced
+11-scenario completion-budget follow-up consumed 161 attempts, including 27 retries, and did not
+improve guarded completion (0/11). These are narrow synthetic-run findings, not a cost, general
+robustness, independent-sample inference, or release claim. See `docs/RESULTS-SUMMARY.md`.
+
+The provider-call, agent-round, and tool-call limits are hard admission caps. By contrast,
+`max_total_tokens` combines preflight sizing with a post-response check of observed usage: it can
+stop the next call, but it cannot prevent one in-flight response from crossing the threshold and
+is not a billing ceiling. Remaining time is passed into deadline-aware operations and checked
+again after they return, so the wall-clock/request timeout is cooperative and per operation, not
+a guaranteed hard end-to-end deadline or proof that remote processing stopped.
 
 ## Snapshot quick start
 
@@ -36,8 +63,9 @@ pnpm --dir apps/web dev
 Open `http://localhost:3000`. The UI says **Recorded run** and **Slack-style simulation** so
 its provenance is unambiguous.
 
-The static route set includes `/demo`, `/replay`, the published run trace, `/results`,
-`/architecture`, `/methodology`, `/about`, `/audit`, and a private/static `/review` workflow.
+The static route set includes `/demo`, `/replay`, the Cohere integration receipt at `/cohere`,
+the published run trace, `/results`, `/architecture`, `/methodology`, `/about`, `/audit`, and a
+private/static `/review` workflow.
 Public live mode is disabled; a complete recorded fallback remains available without an API.
 
 ## Full local development
@@ -126,9 +154,10 @@ Cohere, Slack, Jira, or a paid service.
 - Release profile: `docs/HUMAN_SIGNOFF.json`
 - Release checklist and limits: `docs/RELEASE_CHECKLIST.md`, `docs/KNOWN_LIMITATIONS.md`
 
-Synthetic data is not customer evidence. The cited result is a deterministic recorded fixture,
-not a live model result. Human review, provider performance, cost, integration success, held-out
-performance, and a final release verdict have not been measured.
+Synthetic data is not customer evidence. The paired product Replay is a deterministic recorded
+fixture; the separate live Cohere A/B supports only the explicitly bounded result above. Human
+review, cost, real-integration success, held-out performance, and a final release verdict have not
+been measured.
 
 ## License
 

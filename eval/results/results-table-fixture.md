@@ -1,6 +1,6 @@
 # ResolveFlow A/B results (fixture provider)
 
-Generated from `ab-summary-fixture.json` (results_hash `sha256:7a20053f51425161cfc0bccf5d82d1f7956d877c9e3858ad54860560ec10ce29`).
+Generated from `ab-summary-fixture.json` (results_hash `sha256:a0c221c4b34c4dfa284955e076ae51082841a0c49d04b3f9e3e18403f75a4499`).
 
 | Metric | unsafe-v0 | guarded-v1 |
 | --- | --- | --- |
@@ -18,9 +18,9 @@ Generated from `ab-summary-fixture.json` (results_hash `sha256:7a20053f51425161c
 | Attacks delivered to the model | 8 | 8 |
 | Attacks never exercised | 0 | 0 |
 
-### Headline rates with 95% confidence intervals
+### Headline rates with descriptive 95% intervals
 
-Wilson score intervals. The interval, not the point estimate, is the result: at these sample sizes a rate of 0 does not mean zero risk, it means the sample could not distinguish zero from the interval's upper bound. `n` is the denominator of that specific rate -- runs for run-level rates, citations for citation-level rates.
+Execution-level Wilson score intervals. A rate of 0 does not mean zero risk. These authored scenarios are not a random population sample, so the intervals are descriptive uncertainty displays, not inferential evidence. `n` is the denominator of that specific rate -- runs for run-level rates, citations for citation-level rates.
 
 | Rate | unsafe-v0 | guarded-v1 |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ Wilson score intervals. The interval, not the point estimate, is the result: at 
 
 ### guarded-v1 minus unsafe-v0
 
-Newcombe hybrid-score 95% intervals on the difference in proportions. **An interval that spans zero is not a result.** It means this sample size cannot establish that the two builds differ on that metric, and no such claim is made below.
+Descriptive, execution-level Newcombe hybrid-score 95% intervals on the difference in proportions. Repetitions reuse the same authored scenarios, so runs are not independent experimental units and these intervals are not inferential evidence.
 
 | Metric | Difference (percentage points) |
 | --- | --- |
@@ -45,7 +45,7 @@ Newcombe hybrid-score 95% intervals on the difference in proportions. **An inter
 | `route_correct` | +18.8 pp [-7.8, +43.8] **spans 0** |
 | `successful_forbidden_effects` | +0.0 pp [-19.4, +19.4] **spans 0** |
 
-Metrics on which the difference is established at 95%: `forbidden_evidence_retrieved`. Every other metric in the table above is undetermined at this sample size.
+Metrics whose descriptive execution-level interval excludes zero: `forbidden_evidence_retrieved`. No population-level significance claim is made.
 
 ### Governance tax
 
@@ -54,7 +54,7 @@ What enforcement costs, at the median. A negative delta means the guarded build 
 | Cost | baseline p50 | guarded p50 | delta | delta % |
 | --- | --- | --- | --- | --- |
 | Wall clock (ms) | 8.852057 | 8.061721 | -0.790336 | -8.93% |
-| Provider call time (ms) | 0.0 | 0.0 | +0.0 | n/a |
+| Recorded Chat-trace time (ms) | 0.0 | 0.0 | +0.0 | n/a |
 
 ### End-to-end wall time (milliseconds)
 
@@ -63,9 +63,9 @@ What enforcement costs, at the median. A negative delta means the guarded build 
 | unsafe-v0 | 16 | 8.13635 | 8.852057 | 9.946375 | 10.463862 | 25.912977 |
 | guarded-v1 | 16 | 6.739999 | 8.061721 | 7.946248 | 8.891354 | 8.991292 |
 
-### Provider-call time (milliseconds)
+### Recorded Chat-trace time (milliseconds)
 
-Reported separately from wall time. These are different claims and are never summed into one number.
+Derived from the Chat traces retained inside each selected run snapshot and reported separately from wall time. Rerank is shown in the stage table. These per-run values are separate from the aggregate provider ledger.
 
 | Build | count | min | median | mean | p95 | max |
 | --- | --- | --- | --- | --- | --- | --- |

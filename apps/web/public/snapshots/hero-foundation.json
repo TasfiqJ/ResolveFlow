@@ -44,7 +44,7 @@
     "tenant_id": "tenant_heliopay_synthetic"
   },
   "commit": "uncommitted",
-  "content_hash": "sha256:497eecf867ae8a1d3547573b6e7df0f4918e2baa54627e342ce57150bb7ed0a9",
+  "content_hash": "sha256:004ad0779200554686dc1253d53be3e155ba496f8997cda02d91b373903eb498",
   "context": [
     {
       "as_of": "2026-07-15T14:22:00Z",
@@ -99,7 +99,7 @@
       "status": "ok"
     }
   ],
-  "corpus_version": "hero-corpus-1.0",
+  "corpus_version": "corpus_hero_20260715",
   "evidence_graph": {
     "citations": [
       {
@@ -125,7 +125,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "3",
         "version_valid": true
@@ -153,7 +155,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "3",
         "version_valid": true
@@ -181,7 +185,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "1",
         "version_valid": true
@@ -209,7 +215,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "1",
         "version_valid": true
@@ -286,14 +294,16 @@
       }
     ],
     "conflicts": [],
-    "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb",
+    "graph_hash": "sha256:34039c56cdc9464363c3be515d029ed0aff9463e56b6dfb2f0c0d2f51176168a",
     "graph_id": "graph_21dc76ae23258e1cdd5e7864",
     "model_context_ids": [
       "chunk_0524753b4cceeb05ca10c304",
       "chunk_8f8d6cb79d42cc14c81be641",
       "chunk_b437c375d60b941755f9d4c4",
       "chunk_d8459e7ba25af446fa017fc6",
-      "chunk_fa74355377c31db063b1cc05"
+      "chunk_fa74355377c31db063b1cc05",
+      "tool-result:tool_incident_001",
+      "tool-result:tool_rollout_001"
     ],
     "permitted_proposals": [
       {
@@ -346,12 +356,13 @@
   "provider_traces": [
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "citations": [],
+      "duration_ms": 0.0,
       "finish_reason": "tool_call",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_01",
-      "request_hash": "sha256:7d53b87f8f8c757697ef74a079ca722766b1afe8bcb1f790f5cbc3f79e31efc2",
+      "request_hash": "sha256:cffc7db7814c1f2c1b8020d6cbff0402691e7d8f3e08654ce884082595c1137a",
       "response_hash": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
       "response_id": "fixture-evidence-tool-round",
       "safe_error_code": null,
@@ -371,12 +382,13 @@
         "cite_rollout",
         "cite_cluster"
       ],
-      "duration_ms": 0,
+      "citations": [],
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "evidence",
       "provider_call_id": "provider_02",
-      "request_hash": "sha256:3b97a168e2b94843359dfacad3dfe9775e0002f0e425eb567e79063b43525086",
+      "request_hash": "sha256:5f7000d6e0fef27d6298e90e82acc7cd468f7e93b081c3763e96f7a7425a20a0",
       "response_hash": "sha256:f52b4d2f80078a8bc475ed4d30d30075b9e15f069769e22d582aefdacc9216b6",
       "response_id": "fixture-evidence-findings",
       "safe_error_code": null,
@@ -389,13 +401,14 @@
     },
     {
       "citation_ids": [],
-      "duration_ms": 0,
+      "citations": [],
+      "duration_ms": 0.0,
       "finish_reason": "complete",
       "model": "command-a-plus-05-2026",
       "pass_kind": "structure",
       "provider_call_id": "provider_03",
-      "request_hash": "sha256:478040f5d71694f08d5012df6eb4a52fbbd14e7a77b883d467ab8645a8192cd6",
-      "response_hash": "sha256:2a2049afa51cabfe534570d9916aac31fa67cb6b2c6e4d8309e1b703da8714ce",
+      "request_hash": "sha256:3f917ed1dc199cb7ce6ea03110056f106d17e06e05b51cb073aec1256e6bfe29",
+      "response_hash": "sha256:4a32a19d04cede5e76542d8411d38b62da9d8fd1da5521203e0541350fdf4c06",
       "response_id": "fixture-structure",
       "safe_error_code": null,
       "status": "ok",
@@ -422,7 +435,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "3"
       },
@@ -440,7 +455,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "3"
       },
@@ -458,7 +475,9 @@
           "citation_fresh",
           "citation_in_context",
           "citation_span_exact",
-          "citation_supports_claim"
+          "citation_supports_claim",
+          "claim_action_kind_invariant",
+          "source_kind_retrieval_chunk"
         ],
         "version": "1"
       }
@@ -470,7 +489,7 @@
     ],
     "conflicts": [],
     "disposition": "resolved",
-    "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb",
+    "graph_hash": "sha256:34039c56cdc9464363c3be515d029ed0aff9463e56b6dfb2f0c0d2f51176168a",
     "needs_review": false,
     "provider": "recorded_fixture",
     "recommended_steps": [
@@ -510,7 +529,7 @@
         "rerank_score": 0.3333333333333333,
         "title": "Payments rollback runbook",
         "vector_rank": 5,
-        "vector_score": -0.08489527199560176
+        "vector_score": -0.0848952719956018
       },
       {
         "artifact_id": "artifact_prior_incident_1042",
@@ -531,7 +550,7 @@
         "rerank_score": 0.26666666666666666,
         "title": "Prior incident 1042",
         "vector_rank": 1,
-        "vector_score": 0.1878672873255448
+        "vector_score": 0.18786728732554486
       },
       {
         "artifact_id": "artifact_rollout_records",
@@ -552,7 +571,7 @@
         "rerank_score": 0.26666666666666666,
         "title": "Synthetic rollout records",
         "vector_rank": 4,
-        "vector_score": 0.04637388957601684
+        "vector_score": 0.04637388957601683
       },
       {
         "artifact_id": "artifact_hostile_note",
@@ -573,7 +592,7 @@
         "rerank_score": 0.26666666666666666,
         "title": "Untrusted operator note",
         "vector_rank": 3,
-        "vector_score": 0.14142135623730948
+        "vector_score": 0.14142135623730953
       },
       {
         "artifact_id": "artifact_restricted_legal",
@@ -597,7 +616,7 @@
         "vector_score": 0.14638501094227996
       }
     ],
-    "checksum": "sha256:7f9bf40d4c38132bf76d4a699a5bb0df71c08c368e579c62f3ab60094a09a0b9",
+    "checksum": "sha256:129a72c35ff182f077615fa10a2910b792f95bb233af55b8bfe0fcea4a095847",
     "corpus_snapshot_id": "corpus_hero_20260715",
     "eligible_chunk_count": 5,
     "embedding_model": "fixture-token-hash-1.0",
@@ -657,124 +676,140 @@
     }
   ],
   "timing": {
-    "clock": "time.monotonic",
+    "clock": "time.perf_counter_ns",
+    "clock_resolution_ns": 100,
     "measured": true,
+    "platform": "Windows 11",
     "provider_call_count": 3,
     "provider_call_ms": 0.0,
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "stages": [
       {
-        "duration_ms": 0.007,
+        "duration_ms": 0.0045,
         "invocations": 1,
         "stage": "intake",
-        "started_offset_ms": 0.007
+        "started_offset_ms": 0.0043
       },
       {
-        "duration_ms": 0.156,
+        "duration_ms": 0.084,
         "invocations": 1,
         "stage": "context_enrichment",
-        "started_offset_ms": 0.02
+        "started_offset_ms": 0.0133
       },
       {
-        "duration_ms": 0.075,
+        "duration_ms": 0.0502,
         "invocations": 1,
         "stage": "acl_application",
-        "started_offset_ms": 0.207
+        "started_offset_ms": 0.1182
       },
       {
-        "duration_ms": 0.076,
+        "duration_ms": 0.0472,
         "invocations": 1,
         "stage": "lexical_retrieval",
-        "started_offset_ms": 0.285
+        "started_offset_ms": 0.1715
       },
       {
-        "duration_ms": 0.032,
+        "duration_ms": 0.0345,
         "invocations": 1,
         "stage": "query_embedding",
-        "started_offset_ms": 0.365
+        "started_offset_ms": 0.2212
       },
       {
-        "duration_ms": 0.024,
+        "duration_ms": 0.051,
         "invocations": 1,
         "stage": "vector_retrieval",
-        "started_offset_ms": 0.399
+        "started_offset_ms": 0.2583
       },
       {
-        "duration_ms": 0.025,
+        "duration_ms": 0.0173,
         "invocations": 1,
         "stage": "fusion",
-        "started_offset_ms": 0.426
+        "started_offset_ms": 0.3121
       },
       {
-        "duration_ms": 0.158,
+        "duration_ms": 0.1028,
         "invocations": 1,
         "stage": "rerank",
-        "started_offset_ms": 0.454
+        "started_offset_ms": 0.3316
       },
       {
-        "duration_ms": 0.265,
+        "duration_ms": 0.1639,
         "invocations": 1,
         "stage": "hostile_evidence_scan",
-        "started_offset_ms": 3.118
+        "started_offset_ms": 1.8211
       },
       {
-        "duration_ms": 5.182,
+        "duration_ms": 4.0522,
         "invocations": 1,
         "stage": "model_evidence_pass",
-        "started_offset_ms": 3.41
+        "started_offset_ms": 2.0007
       },
       {
-        "duration_ms": 0.885,
+        "duration_ms": 2.0255,
         "invocations": 2,
         "stage": "tool_execution",
-        "started_offset_ms": 5.562
+        "started_offset_ms": 2.783
       },
       {
-        "duration_ms": 0.83,
+        "duration_ms": 0.4433,
         "invocations": 1,
         "stage": "verification",
-        "started_offset_ms": 8.598
+        "started_offset_ms": 6.0579
       },
       {
-        "duration_ms": 1.985,
+        "duration_ms": 0.8793,
         "invocations": 1,
         "stage": "rendering",
-        "started_offset_ms": 9.433
+        "started_offset_ms": 6.504
       },
       {
-        "duration_ms": 0.129,
+        "duration_ms": 0.0794,
         "invocations": 1,
         "stage": "action_proposal",
-        "started_offset_ms": 11.455
+        "started_offset_ms": 7.4073
       }
     ],
     "unit": "milliseconds",
-    "wall_clock_ms": 11.659
+    "wall_clock_ms": 7.5359
   },
   "tool_traces": [
     {
       "arguments_hash": "sha256:a4a7ed0248784bba94210b398dc94a7bd8eb882b8da5dfc493e32da66b97557e",
+      "authority": "read_only",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
+      "freshness": "run_context",
       "name": "query_rollout_record",
       "provenance_ids": [
         "rollout-row-20260715"
       ],
       "safe_error_code": null,
+      "source_as_of": "2026-07-15T14:22:00Z",
+      "source_checksum": "sha256:49a519ce6436267ba514ccbdaa134fe47006045050f27474a7c853714f879922",
+      "source_operation": "get_rollouts",
+      "source_status": "ok",
+      "source_version": "context-result/1.0",
       "status": "ok",
       "tool_call_id": "tool_rollout_001"
     },
     {
       "arguments_hash": "sha256:de6ba884c1d691e13bc358ec7b03819b014de9c3f7603bee6b27cc127c5402fd",
+      "authority": "read_only",
       "authorization": "allowed",
-      "duration_ms": 0,
+      "duration_ms": 0.0,
       "external_write": false,
+      "freshness": "run_context",
       "name": "query_prior_incident",
       "provenance_ids": [
         "incident-row-1042"
       ],
       "safe_error_code": null,
+      "source_as_of": "2026-07-15T14:22:00Z",
+      "source_checksum": "sha256:f0a9a925fc2fdb6f82987e0fb93a8ca378f4c94a944ef95c490e8e39b84b5a49",
+      "source_operation": "get_open_incidents",
+      "source_status": "ok",
+      "source_version": "context-result/1.0",
       "status": "ok",
       "tool_call_id": "tool_incident_001"
     }
@@ -784,8 +819,8 @@
       "actor": "resolveflow-service",
       "component": "identity",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:91bdae420c211c6578e03c2a3b42f39b0e4f6babb0bac3bea79077c8270bb25b",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:8860316df4e69ef7108975a5c9458ebe82765eb1946fda6415db343b0d82c8e1",
       "event_id": "evt_001",
       "event_name": "identity.snapshot.captured",
       "occurred_at": "2026-07-15T14:22:00Z",
@@ -807,13 +842,13 @@
       "actor": "resolveflow-service",
       "component": "intake",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:e44255ee3516464207e60f565e83b19d2b2e3db746db91ac1a94394532f4b36d",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:14bbd2b30a68fc5908357f745d95cd982a22223b2f9949769ac0c499a6c84471",
       "event_id": "evt_002",
       "event_name": "case.normalized",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:91bdae420c211c6578e03c2a3b42f39b0e4f6babb0bac3bea79077c8270bb25b",
+      "previous_event_hash": "sha256:8860316df4e69ef7108975a5c9458ebe82765eb1946fda6415db343b0d82c8e1",
       "safe_detail": {
         "source": "web"
       },
@@ -829,13 +864,13 @@
       "actor": "resolveflow-service",
       "component": "context",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:adc30e9e8f21f4825b23edfd51fa0fc7fbb97a5ebe8ef5e560fc530543bda498",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:7e78f262f006b53137fb7f9cccf004b8e6c47a0f630f7af64c70150d7211fc1c",
       "event_id": "evt_003",
       "event_name": "context.enriched",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "needs_information",
-      "previous_event_hash": "sha256:e44255ee3516464207e60f565e83b19d2b2e3db746db91ac1a94394532f4b36d",
+      "previous_event_hash": "sha256:14bbd2b30a68fc5908357f745d95cd982a22223b2f9949769ac0c499a6c84471",
       "safe_detail": {
         "operations": 4
       },
@@ -851,13 +886,13 @@
       "actor": "resolveflow-service",
       "component": "policy",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:969dd6883f2f9c6278b86632b87c058603d4bc3b79b342e1d700c637637bed28",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:b37707d9d23d834dbb8d4603f110c5f77e8400cbd5d14110d342e589ea2ff21b",
       "event_id": "evt_004",
       "event_name": "retrieval.authorization.applied",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:adc30e9e8f21f4825b23edfd51fa0fc7fbb97a5ebe8ef5e560fc530543bda498",
+      "previous_event_hash": "sha256:7e78f262f006b53137fb7f9cccf004b8e6c47a0f630f7af64c70150d7211fc1c",
       "safe_detail": {
         "eligible_count": 5,
         "reason_code": "eligible_by_snapshot"
@@ -874,13 +909,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:a2e570749be3dba7842ef4cd56e70d0bb4c42d8d7dc2f817f6f48c86a61f93c8",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:df85f28080303094194a5f19e54060c5d24d2c5d3d344e288384301b41396be3",
       "event_id": "evt_005",
       "event_name": "retrieval.lexical.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:969dd6883f2f9c6278b86632b87c058603d4bc3b79b342e1d700c637637bed28",
+      "previous_event_hash": "sha256:b37707d9d23d834dbb8d4603f110c5f77e8400cbd5d14110d342e589ea2ff21b",
       "safe_detail": {
         "authorized": true
       },
@@ -896,13 +931,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:33a0193c1e5150814d52d7d7dd96746323c043446fd02dd5e22287a83a8fa321",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:dc62ec9815fb68a6398814826d1d2962b78b78f95977be1467d67a13876c623b",
       "event_id": "evt_006",
       "event_name": "retrieval.vector.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:a2e570749be3dba7842ef4cd56e70d0bb4c42d8d7dc2f817f6f48c86a61f93c8",
+      "previous_event_hash": "sha256:df85f28080303094194a5f19e54060c5d24d2c5d3d344e288384301b41396be3",
       "safe_detail": {
         "authorized": true
       },
@@ -918,13 +953,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:41c16f1c97f57595324a27039fa0eebf23ff2b3443931be8180c3245061ec1b7",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:9f0c08062d8b71cdecc90084d60af975895d3c0ba636fc44f109e1f6bc2cc023",
       "event_id": "evt_007",
       "event_name": "retrieval.fusion.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:33a0193c1e5150814d52d7d7dd96746323c043446fd02dd5e22287a83a8fa321",
+      "previous_event_hash": "sha256:dc62ec9815fb68a6398814826d1d2962b78b78f95977be1467d67a13876c623b",
       "safe_detail": {
         "authorized": true
       },
@@ -940,13 +975,13 @@
       "actor": "resolveflow-service",
       "component": "retrieval",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:0ee5b8f3508d08926d3b0e0bec49e21c78b4deee89926dd25fb78cd03853630b",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:baba88688ec1bd9e5316c2a7ca70ec12513928fa1c30fe67c7dde1068cb09890",
       "event_id": "evt_008",
       "event_name": "retrieval.rerank.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:41c16f1c97f57595324a27039fa0eebf23ff2b3443931be8180c3245061ec1b7",
+      "previous_event_hash": "sha256:9f0c08062d8b71cdecc90084d60af975895d3c0ba636fc44f109e1f6bc2cc023",
       "safe_detail": {
         "authorized": true
       },
@@ -962,13 +997,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:e26e760358d317e8eaef8f90f21ed4ae0170f91f980612bc9c3b8541319449b2",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:9b7c9392313ac2d3b6f409001916f965cfeaa0bf050f877df2d6ca42353dc4fe",
       "event_id": "evt_009",
       "event_name": "model.evidence_pass.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:0ee5b8f3508d08926d3b0e0bec49e21c78b4deee89926dd25fb78cd03853630b",
+      "previous_event_hash": "sha256:baba88688ec1bd9e5316c2a7ca70ec12513928fa1c30fe67c7dde1068cb09890",
       "safe_detail": {
         "provider_calls": 3,
         "terminal_reason": "complete"
@@ -985,13 +1020,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:7c4ebff943a9ece3bae7554703e6dd45380282246e63231bea96320a081b2a62",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:fdfbd88067526c1818a585ec30fc52f1d7d20d4b3857e873298aa6a10755c59e",
       "event_id": "evt_010",
       "event_name": "tools.bounded.completed",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:e26e760358d317e8eaef8f90f21ed4ae0170f91f980612bc9c3b8541319449b2",
+      "previous_event_hash": "sha256:9b7c9392313ac2d3b6f409001916f965cfeaa0bf050f877df2d6ca42353dc4fe",
       "safe_detail": {
         "tool_calls": 2
       },
@@ -1007,13 +1042,13 @@
       "actor": "resolveflow-service",
       "component": "security",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:bdb468f23837721718249adb904b6cbfde7e4fdf95f17e678456ca42ec6d751b",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:ecc20f7d4e4fcbe852cf3f809625f7d7f79cef2c0cac2382b5841c6f082d344c",
       "event_id": "evt_011",
       "event_name": "untrusted_evidence.checked",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:7c4ebff943a9ece3bae7554703e6dd45380282246e63231bea96320a081b2a62",
+      "previous_event_hash": "sha256:fdfbd88067526c1818a585ec30fc52f1d7d20d4b3857e873298aa6a10755c59e",
       "safe_detail": {
         "attempted_effects": 2
       },
@@ -1029,17 +1064,17 @@
       "actor": "resolveflow-service",
       "component": "verifier",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:dbfa83c705def861720486e7ef63c4862502138138164d4d14f0180ac139293b",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:f24cb6963bf9edfd9dfdf88c284a6deaa36405a056d748d9113e578631937856",
       "event_id": "evt_012",
       "event_name": "evidence_graph.verified",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:bdb468f23837721718249adb904b6cbfde7e4fdf95f17e678456ca42ec6d751b",
+      "previous_event_hash": "sha256:ecc20f7d4e4fcbe852cf3f809625f7d7f79cef2c0cac2382b5841c6f082d344c",
       "safe_detail": {
         "claims": 4,
         "enforcement": "enforced",
-        "graph_hash": "sha256:ad1bac6d73be3fe4adff9b71ab64a5d74d22d5e3186e113c632d0cc55ddeb3bb",
+        "graph_hash": "sha256:34039c56cdc9464363c3be515d029ed0aff9463e56b6dfb2f0c0d2f51176168a",
         "route": "Payments Platform"
       },
       "sequence": 12,
@@ -1054,13 +1089,13 @@
       "actor": "resolveflow-service",
       "component": "agent",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:bcf31f3f425b4d174fc71c375ad16d387f3e10371ddff43557b1970f4ca7512c",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:e4dc70904a0c3fad709a26855c4d68ebdc7d0248d9c6cac397c8571816f93a58",
       "event_id": "evt_013",
       "event_name": "structured_response.rendered",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:dbfa83c705def861720486e7ef63c4862502138138164d4d14f0180ac139293b",
+      "previous_event_hash": "sha256:f24cb6963bf9edfd9dfdf88c284a6deaa36405a056d748d9113e578631937856",
       "safe_detail": {
         "disposition": "resolved"
       },
@@ -1076,13 +1111,13 @@
       "actor": "resolveflow-service",
       "component": "actions",
       "correlation_id": "run_hero_foundation_001",
-      "duration_ms": 0,
-      "event_hash": "sha256:f9da91f6a4d926694c62f068ec93a9ab084f1067fdcef2750b97dc28ac531087",
+      "duration_ms": 0.0,
+      "event_hash": "sha256:66fe4258761ba29051fc8a447744fab40c2e6b37ff96ea04d75596ee507d4977",
       "event_id": "evt_014",
       "event_name": "proposal.created",
       "occurred_at": "2026-07-15T14:22:00Z",
       "outcome": "ok",
-      "previous_event_hash": "sha256:bcf31f3f425b4d174fc71c375ad16d387f3e10371ddff43557b1970f4ca7512c",
+      "previous_event_hash": "sha256:e4dc70904a0c3fad709a26855c4d68ebdc7d0248d9c6cac397c8571816f93a58",
       "safe_detail": {
         "blocked_reason": null,
         "payload_digest": "sha256:198234856ae435a1c199dcc3d0ad8078d894a11c38fb28859af5b075e1035bac",

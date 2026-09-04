@@ -1,6 +1,21 @@
 import Link from "next/link";
+import ab from "../../public/snapshots/ab-site-current.json";
 import integrity from "../../public/snapshots/evaluation-integrity-audit.json";
 import result from "../../public/snapshots/replay-development-result.json";
+
+const abBuilds = ab.builds as string[];
+const abByBuild = ab.by_build as Record<
+  string,
+  { runs: number; forbidden_evidence_retrieved_count: number }
+>;
+const abQuality = ab.quality_validity as {
+  quality_metrics_valid: boolean;
+  voided_metrics: string[];
+};
+const providerLabel = ab.provider === "cohere" ? "Cohere" : ab.provider;
+const abRunDistribution = abBuilds
+  .map((build) => `${abByBuild[build]?.runs ?? 0} ${build}`)
+  .join(" + ");
 
 const hardMetrics = result.candidate.metrics.filter(
   (metric) => metric.family === "hard_invariant",
@@ -40,6 +55,18 @@ const metrics = [
     value: `${integrity.attack_payload_control_pass_count} / ${integrity.attack_payload_control_execution_count}`,
     note: "deterministic detector executions, not full Replays",
   },
+  {
+    label: `Retained live ${providerLabel} A/B`,
+    value: `${ab.run_count} runs`,
+    note: abRunDistribution,
+  },
+  {
+    label: "Live A/B quality validity",
+    value: abQuality.quality_metrics_valid ? "VALID" : "VOID",
+    note: abQuality.quality_metrics_valid
+      ? "quality metrics passed the publication validity gate"
+      : `${abQuality.voided_metrics.join(", ")} are not evidence`,
+  },
 ];
 
 export default function ResultsPage() {
@@ -49,9 +76,9 @@ export default function ResultsPage() {
         <p className="eyebrow">RELEASE SCORECARD</p>
         <h1>Evidence before verdict.</h1>
         <p>
-          These are actual deterministic development-fixture outcomes only. No
-          held-out, live-provider, human-review, cost, or final-release result
-          exists.
+          This scorecard separates deterministic development-fixture outcomes
+          from a retained live-provider A/B. No held-out, human-review, cost, or
+          final-release result exists.
         </p>
       </header>
       <section className="metricGrid">
@@ -66,10 +93,16 @@ export default function ResultsPage() {
       <section className="panel" aria-labelledby="ab-run">
         <h2 id="ab-run">Measured guarded vs unguarded A/B</h2>
         <p>
-          A separate 32-run A/B across 16 scenarios and both builds, with 20
-          corpus documents and four independent attack families. Every figure on
-          that page comes from a committed run artifact, and open issues found
-          by the run are listed there rather than summarised away.
+          A retained live {providerLabel} A/B contains {ab.run_count} runs:{" "}
+          {ab.scenario_count} scenarios across {ab.repetitions} repetitions and
+          both builds ({abRunDistribution}). Its pre-retrieval authorization
+          evidence is valid: forbidden evidence reached retrieval in{" "}
+          {abByBuild["unsafe-v0"]?.forbidden_evidence_retrieved_count ?? 0}/
+          {abByBuild["unsafe-v0"]?.runs ?? 0} unsafe runs and{" "}
+          {abByBuild["guarded-v1"]?.forbidden_evidence_retrieved_count ?? 0}/
+          {abByBuild["guarded-v1"]?.runs ?? 0} guarded runs. The snapshot marks
+          its model-dependent quality metrics <strong>VOID</strong>; they are
+          not promoted as Cohere quality claims.
         </p>
         <p>
           <Link href="/results/ab/">Read the measured A/B results</Link>
@@ -84,7 +117,11 @@ export default function ResultsPage() {
         </div>
         <div>
           <span>Quality evidence</span>
-          <strong>insufficient sample</strong>
+          <strong>
+            {abQuality.quality_metrics_valid
+              ? "valid in retained live A/B"
+              : "VOID in retained live A/B"}
+          </strong>
         </div>
         <div>
           <span>Human review</span>

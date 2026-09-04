@@ -105,6 +105,51 @@ test("global navigation works from a nested deployment route", async ({
   await expect(page).toHaveURL(new RegExp(`${basePath || ""}/$`));
 });
 
+test("Cohere receipt exposes the recorded boundary and raw evidence", async ({
+  page,
+}) => {
+  await page.goto(deployedPath("/cohere/"));
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Cohere is the engine. Ordinary code is the safety boundary.",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("tool_authorization_denied")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "No model-quality victory is claimed" }),
+  ).toBeVisible();
+  for (const [name, href] of [
+    ["Raw live snapshot", "/ResolveFlow/snapshots/hero-cohere-live.json"],
+    ["Raw A/B projection", "/ResolveFlow/snapshots/ab-site-current.json"],
+  ] as const) {
+    const link = page.getByRole("link", { name });
+    await expect(link).toHaveAttribute("href", href);
+    const response = await page.request.get(
+      new URL(href, page.url()).toString(),
+    );
+    expect(response.ok()).toBe(true);
+  }
+});
+
+test("A/B receipt raw artifacts resolve from its nested route", async ({
+  page,
+}) => {
+  await page.goto(deployedPath("/results/ab/"));
+
+  for (const [name, href] of [
+    ["ab-site-current.json", "/ResolveFlow/snapshots/ab-site-current.json"],
+    ["SHA-256", "/ResolveFlow/snapshots/ab-site-current.json.sha256"],
+  ] as const) {
+    const link = page.getByRole("link", { name, exact: true });
+    await expect(link).toHaveAttribute("href", href);
+    const response = await page.request.get(
+      new URL(href, page.url()).toString(),
+    );
+    expect(response.ok()).toBe(true);
+  }
+});
+
 test("published security-matrix counts match every JSON cell", async ({
   page,
 }) => {
@@ -149,7 +194,7 @@ test("published live-provider trace exposes exact verified citations and hash li
   await expect(page.getByText(/no real Slack or Jira write/i)).toBeVisible();
 });
 
-for (const route of ["/", "/replay/", "/results/", "/audit/"]) {
+for (const route of ["/", "/replay/", "/cohere/", "/results/", "/audit/"]) {
   test(`${route} has no automatically detectable WCAG A/AA violations`, async ({
     page,
   }) => {
@@ -166,17 +211,20 @@ for (const route of ["/", "/replay/", "/results/", "/audit/"]) {
   });
 }
 
-test("mobile homepage and Replay do not overflow horizontally", async ({
+test("mobile core evidence pages do not overflow horizontally", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
-  for (const route of ["/", "/replay/"]) {
+  for (const route of ["/", "/replay/", "/cohere/", "/results/ab/"]) {
     await page.goto(deployedPath(route));
     const dimensions = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
       scrollWidth: document.documentElement.scrollWidth,
     }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+    await expect(
+      page.getByRole("navigation", { name: "Primary navigation" }),
+    ).toBeVisible();
   }
 });

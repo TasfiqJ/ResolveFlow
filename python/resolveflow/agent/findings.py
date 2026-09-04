@@ -34,6 +34,8 @@ class ClaimDraft(FrozenModel):
 
     @model_validator(mode="after")
     def material_claim_has_citation(self) -> ClaimDraft:
+        if self.action_supporting != (self.kind is ClaimKind.ACTION):
+            raise ValueError("action_supporting must be true exactly for action claims")
         if self.material and not self.citation_ids:
             raise ValueError("material claims require at least one citation mapping")
         return self
@@ -61,7 +63,12 @@ class FirstPassFindings(FrozenModel):
         claim_ids = {item.claim_id for item in self.claims}
         if len(claim_ids) != len(self.claims):
             raise ValueError("duplicate claim IDs")
+        unknown_ids = {item.unknown_id for item in self.unknowns}
+        if len(unknown_ids) != len(self.unknowns):
+            raise ValueError("duplicate unknown IDs")
         for claim in self.claims:
+            if len(set(claim.citation_ids)) != len(claim.citation_ids):
+                raise ValueError("duplicate citation IDs within a claim")
             if not set(claim.citation_ids).issubset(citation_ids):
                 raise ValueError("claim references an unknown citation")
         return self

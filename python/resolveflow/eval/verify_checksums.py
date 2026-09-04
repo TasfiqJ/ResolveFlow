@@ -15,9 +15,11 @@ files under another provider's heading.
 
 from __future__ import annotations
 
+import json
 import re
 import sys
-from pathlib import Path
+from collections import Counter
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from resolveflow.eval.publish import RESULTS_DIR, artifact_paths, sha256_file
@@ -27,11 +29,24 @@ ROW = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{64})`\s*\|\s*(\d+)\s*\|\s*$
 
 
 def parse_manifest(path: Path) -> list[tuple[str, str, int]]:
+    provider = path.stem.removeprefix("SHA256SUMS-")
+    expected_header = [
+        f"# Artifact checksums ({provider} provider)",
+        "",
+        "| Artifact | SHA-256 | Bytes |",
+        "| --- | --- | --- |",
+    ]
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if lines[:4] != expected_header:
+        raise ValueError("checksum manifest header is invalid")
+    if len(lines) == 4:
+        raise ValueError("checksum manifest contains no artifact rows")
     rows: list[tuple[str, str, int]] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line_number, line in enumerate(lines[4:], start=5):
         match = ROW.match(line.strip())
-        if match:
-            rows.append((match.group(1), match.group(2), int(match.group(3))))
+        if not match:
+            raise ValueError(f"checksum manifest line {line_number} is invalid")
+        rows.append((match.group(1), match.group(2), int(match.group(3))))
     return rows
 
 
@@ -40,14 +55,24 @@ def verify(provider: str) -> dict[str, Any]:
     if not manifest_path.exists():
         return {"provider": provider, "error": f"missing manifest {manifest_path}"}
 
-    rows = parse_manifest(manifest_path)
+    manifest_format_errors: list[str] = []
+    try:
+        rows = parse_manifest(manifest_path)
+    except ValueError as exc:
+        rows = []
+        manifest_format_errors.append(str(exc))
     missing: list[str] = []
     digest_mismatch: list[dict[str, str]] = []
     size_mismatch: list[dict[str, Any]] = []
+    invalid_paths: list[str] = []
     verified: list[str] = []
 
     for relative, expected_digest, expected_size in rows:
-        path = ROOT / relative
+        portable_relative = PurePosixPath(relative.replace("\\", "/"))
+        if portable_relative.is_absolute() or ".." in portable_relative.parts:
+            invalid_paths.append(relative)
+            continue
+        path = ROOT.joinpath(*portable_relative.parts)
         if not path.exists():
             missing.append(relative)
             continue
@@ -67,8 +92,18 @@ def verify(provider: str) -> dict[str, Any]:
             verified.append(relative)
 
     listed = {relative for relative, _, _ in rows}
-    on_disk = {str(path.relative_to(ROOT)).replace("\\", "/") for path in artifact_paths(provider)}
-    unlisted = sorted(on_disk - {name.replace("\\", "/") for name in listed})
+    normalized_listed = [name.replace("\\", "/") for name, _, _ in rows]
+    duplicate_rows = sorted(name for name, count in Counter(normalized_listed).items() if count > 1)
+    artifact_set_errors: list[str] = []
+    try:
+        expected_paths = artifact_paths(provider)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        expected_paths = []
+        artifact_set_errors.append(str(exc))
+    on_disk = {str(path.relative_to(ROOT)).replace("\\", "/") for path in expected_paths}
+    normalized_listed_set = {name.replace("\\", "/") for name in listed}
+    unlisted = sorted(on_disk - normalized_listed_set)
+    unexpected = sorted(normalized_listed_set - on_disk)
 
     return {
         "provider": provider,
@@ -78,8 +113,23 @@ def verify(provider: str) -> dict[str, Any]:
         "missing_files": missing,
         "digest_mismatches": digest_mismatch,
         "size_mismatches": size_mismatch,
+        "invalid_paths": invalid_paths,
+        "duplicate_manifest_rows": duplicate_rows,
+        "manifest_format_errors": manifest_format_errors,
         "artifacts_on_disk_not_in_manifest": unlisted,
-        "ok": not (missing or digest_mismatch or size_mismatch or unlisted),
+        "manifest_artifacts_not_in_provider_set": unexpected,
+        "artifact_set_errors": artifact_set_errors,
+        "ok": not (
+            missing
+            or digest_mismatch
+            or size_mismatch
+            or invalid_paths
+            or duplicate_rows
+            or manifest_format_errors
+            or unlisted
+            or unexpected
+            or artifact_set_errors
+        ),
     }
 
 
@@ -95,7 +145,12 @@ def main(provider: str = "fixture") -> int:
         ("missing file", "missing_files"),
         ("digest mismatch", "digest_mismatches"),
         ("size mismatch", "size_mismatches"),
+        ("invalid manifest path", "invalid_paths"),
+        ("duplicate manifest row", "duplicate_manifest_rows"),
+        ("manifest format", "manifest_format_errors"),
         ("on disk but unlisted", "artifacts_on_disk_not_in_manifest"),
+        ("listed outside provider set", "manifest_artifacts_not_in_provider_set"),
+        ("artifact set", "artifact_set_errors"),
     ):
         for item in report[key]:
             print(f"  [{label}] {item}")

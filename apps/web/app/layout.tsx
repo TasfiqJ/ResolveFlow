@@ -3,13 +3,13 @@ import Link from "next/link";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "ResolveFlow — Static AI safety engineering case study",
+  title: "ResolveFlow — Cohere-powered AI release gate",
   description:
-    "A credential-free GitHub Pages case study of ResolveFlow: a locally implemented AI-agent release gate with recorded evidence, Replay, and explicit limits.",
+    "A credential-free case study of a Cohere-powered AI-agent release gate with recorded Command A+, Embed v4, Rerank v4, Replay, and explicit limits.",
   openGraph: {
-    title: "ResolveFlow — AI agent release-gate case study",
+    title: "ResolveFlow — Cohere-powered AI release gate",
     description:
-      "A static, evidence-led case study of ResolveFlow's locally implemented agent-safety system.",
+      "A recorded, evidence-led case study using Command A+, Embed v4, Rerank v4, and application-enforced safety controls.",
     url: "https://tasfiqj.github.io/ResolveFlow/",
     siteName: "ResolveFlow",
     images: [
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ResolveFlow — AI agent release-gate case study",
+    title: "ResolveFlow — Cohere-powered AI release gate",
     description:
-      "A static, evidence-led case study of ResolveFlow's locally implemented agent-safety system.",
+      "A recorded, evidence-led Cohere integration with application-enforced safety controls.",
     images: ["https://tasfiqj.github.io/ResolveFlow/og-static-case-study.png"],
   },
 };
@@ -52,11 +52,12 @@ export default function RootLayout({
             </span>
           </Link>
           <nav aria-label="Primary navigation">
-            <Link href="/queue/">Queue</Link>
+            <Link href="/demo/">Demo</Link>
             <Link href="/replay/">Replay</Link>
-            <Link href="/architecture/">Architecture</Link>
+            <Link href="/cohere/">Cohere</Link>
             <Link href="/results/">Evidence</Link>
-            <Link href="/approvals/">Approvals</Link>
+            <Link href="/architecture/">Architecture</Link>
+            <Link href="/about/">About</Link>
           </nav>
           <a
             className="navAction"

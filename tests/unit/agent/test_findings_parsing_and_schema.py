@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 
+import pytest
+from pydantic import ValidationError
 from resolveflow.agent.cohere import CohereChatAdapter
-from resolveflow.agent.findings import FirstPassFindings
+from resolveflow.agent.findings import CitationDraft, ClaimDraft, FirstPassFindings, UnknownDraft
 from resolveflow.agent.service import GovernedAgent
 
 _VALID = json.dumps({"claims": [], "citations": [], "unknowns": []}, sort_keys=True)
@@ -99,3 +101,70 @@ def test_findings_parser_drops_invalid_sibling_claim_without_rewriting_valid_cla
 
     assert [item.claim_id for item in findings.claims] == ["claim_valid"]
     assert findings.claims[0].text == "issuer-routing-v3 completed"
+
+
+@pytest.mark.parametrize("bad_collection", [None, {}, "not-a-list", 7])
+@pytest.mark.parametrize("field", ["claims", "citations", "unknowns"])
+def test_findings_salvage_normalizes_non_list_collections_to_safe_failure(
+    field: str, bad_collection: object
+) -> None:
+    payload: dict[str, object] = {
+        "claims": [],
+        "citations": [],
+        "unknowns": [],
+        field: bad_collection,
+    }
+
+    with pytest.raises(ValueError, match="no valid claims or unknowns"):
+        GovernedAgent._salvage_findings(payload)
+
+
+def test_findings_reject_duplicate_unknown_ids() -> None:
+    unknown = UnknownDraft(unknown_id="u1", field="route", text="Unknown", reason_code="missing")
+
+    with pytest.raises(ValidationError, match="duplicate unknown IDs"):
+        FirstPassFindings(claims=(), citations=(), unknowns=(unknown, unknown))
+
+
+def test_findings_reject_duplicate_citation_ids_within_one_claim() -> None:
+    citation = CitationDraft(citation_id="c1", document_id="doc-1", exact_quote="supported")
+    claim = ClaimDraft(
+        claim_id="claim-1",
+        kind="fact",
+        text="supported",
+        subject="status",
+        value="supported",
+        citation_ids=("c1", "c1"),
+    )
+
+    with pytest.raises(ValidationError, match="duplicate citation IDs within a claim"):
+        FirstPassFindings(claims=(claim,), citations=(citation,), unknowns=())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        {"schema_version": "2.0"},
+        {"schema_version": "1.0", "unrecognized_authority": True},
+    ],
+)
+def test_findings_salvage_rejects_unknown_envelope_contracts(
+    mutation: dict[str, object],
+) -> None:
+    payload: dict[str, object] = {
+        "schema_version": "1.0",
+        "claims": [],
+        "citations": [],
+        "unknowns": [
+            {
+                "unknown_id": "u1",
+                "field": "route",
+                "text": "Route is unknown",
+                "reason_code": "context_not_found",
+            }
+        ],
+        **mutation,
+    }
+
+    with pytest.raises(ValueError, match="schema version|unknown top-level"):
+        GovernedAgent._parse_findings(json.dumps(payload))

@@ -96,6 +96,7 @@ class _RerankResponse:
         self.id = "rerank_stub_1"
         self.results = [_RerankResult(i, 1.0 - i * 0.01) for i in range(count)]
         self.usage = None
+        self.meta = {"billed_units": {"search_units": 1}}
 
 
 class _StubCohere:
@@ -115,7 +116,8 @@ class _StubCohere:
             # Structure pass: the model must return a StructureSelection. Returning
             # a deliberately empty-but-valid selection keeps the renderer honest.
             structure_payload = json.loads(kwargs["messages"][-1]["content"])
-            graph_hash = structure_payload["verified_graph"]["graph_hash"]
+            graph = structure_payload["verified_graph"]
+            graph_hash = graph["graph_hash"]
             return _ChatResponse(
                 json.dumps(
                     {
@@ -124,8 +126,8 @@ class _StubCohere:
                         "route_claim_id": None,
                         "summary_claim_ids": [],
                         "recommended_step_claim_ids": [],
-                        "unknown_ids": [],
-                        "conflict_ids": [],
+                        "unknown_ids": [item["unknown_id"] for item in graph["unknowns"]],
+                        "conflict_ids": [item["conflict_id"] for item in graph["conflicts"]],
                         "graph_hash": graph_hash,
                         "needs_review": True,
                     }
@@ -176,6 +178,7 @@ def _prewarmed_cache(tmp_path: Path) -> CachedEmbeddingAdapter:
         tmp_path / "cache.json",
         client=None,
         model="embed-v4.0",
+        dimension=FixtureEmbeddingAdapter.dimension,
         allow_provider=False,
     )
 

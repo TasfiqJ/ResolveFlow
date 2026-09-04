@@ -11,7 +11,7 @@ from __future__ import annotations
 import inspect
 
 import pytest
-from resolveflow.eval.budget import SDK_MAX_RETRIES
+from resolveflow.eval.budget import SDK_MAX_RETRIES, _response_fingerprint
 from resolveflow.retrieval.cohere import CohereRerankAdapter, read_float_embeddings
 
 cohere = pytest.importorskip("cohere")
@@ -44,7 +44,23 @@ def test_read_float_embeddings_fails_loudly_when_there_are_none() -> None:
         read_float_embeddings(_Response())
 
 
+def test_embed_fingerprint_reads_real_sdk_float_field() -> None:
+    from cohere.types import EmbedByTypeResponse, EmbedByTypeResponseEmbeddings
+
+    # An empty ID exercises the content-only fallback used when a provider or
+    # fixture omits its response identifier, while retaining the SDK's exact
+    # response and nested embedding model shapes.
+    response = EmbedByTypeResponse(
+        id="",
+        embeddings=EmbedByTypeResponseEmbeddings(float_=[[0.1, 0.2], [0.3, 0.4]]),
+    )
+
+    assert _response_fingerprint(response) == {"embedding_count": 2, "dimension": 2}
+
+
 def test_chat_accepts_every_keyword_the_adapter_sends() -> None:
+    from cohere.core.request_options import RequestOptions
+
     parameters = set(inspect.signature(cohere.ClientV2.chat).parameters)
     for name in (
         "model",
@@ -52,17 +68,21 @@ def test_chat_accepts_every_keyword_the_adapter_sends() -> None:
         "documents",
         "tools",
         "strict_tools",
+        "tool_choice",
+        "citation_options",
         "max_tokens",
         "temperature",
         "seed",
         "safety_mode",
+        "request_options",
     ):
         assert name in parameters, f"ClientV2.chat has no parameter {name!r}"
+    assert {"timeout_in_seconds", "max_retries"} <= set(RequestOptions.__annotations__)
 
 
 def test_rerank_accepts_the_keywords_the_adapter_sends() -> None:
     parameters = set(inspect.signature(cohere.ClientV2.rerank).parameters)
-    for name in ("model", "query", "documents", "top_n"):
+    for name in ("model", "query", "documents", "top_n", "max_tokens_per_doc"):
         assert name in parameters, f"ClientV2.rerank has no parameter {name!r}"
     # v2 rerank dropped return_documents; sending it would be a 4xx.
     assert "return_documents" not in parameters

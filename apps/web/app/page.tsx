@@ -51,7 +51,7 @@ const engineeringCards = [
   {
     code: "ACT.03",
     title: "Exactly-bound actions",
-    copy: "A Jira proposal is inert until a human approves the exact payload digest. Retries reconcile before any second effect.",
+    copy: "A Jira proposal is inert until a human approves the exact payload digest. This assumes caller identity is authenticated upstream; retries reconcile before any second effect.",
     proof: "NO PUBLIC WRITE AUTHORITY",
   },
   {
@@ -93,8 +93,8 @@ const deliverySurfaces = [
   {
     label: "PUBLIC SITE",
     title: "Static, credential-free evidence viewer",
-    copy: "This GitHub Pages build serves Next.js pages and checksummed JSON snapshots. It does not expose an API, a database, a model key, or a Slack/Jira connection to visitors.",
-    state: "WHAT A RECRUITER CAN INSPECT NOW",
+    copy: "This static export is built for GitHub Pages with Next.js pages and checksummed JSON snapshots. It exposes no API, database, model key, or Slack/Jira connection to visitors.",
+    state: "WHAT A REVIEWER CAN INSPECT IN THIS BUILD",
   },
   {
     label: "LOCAL RUNTIME",
@@ -105,7 +105,7 @@ const deliverySurfaces = [
   {
     label: "EVIDENCE BOUNDARY",
     title: "Fail closed when the proof is incomplete",
-    copy: "The published comparison is a synthetic development fixture. Human review, held-out evaluation, live-provider quality, real connector success, and a final release verdict remain unclaimed.",
+    copy: "The retained comparison is a synthetic development fixture. Human review, held-out evaluation, live-provider quality, real connector success, and a final release verdict remain unclaimed.",
     state: "TECHNICAL PREVIEW · NO SHIP",
   },
 ] as const;
@@ -134,7 +134,7 @@ const storyBeats = [
     number: "03",
     label: "THE RESOLVE PATH",
     title: "Earn each recommendation from evidence.",
-    copy: "The system checks access before search, ranks only authorized evidence, verifies key claims, shows what is still unknown, and keeps any Jira draft inactive until an operator approves it.",
+    copy: "The system checks access before search, ranks only authorized evidence, verifies key claims, shows what is still unknown, and keeps any Jira draft inactive until an upstream-authenticated operator approves it.",
   },
   {
     number: "04",
@@ -226,18 +226,20 @@ export default function Home() {
               observable recovery.
             </p>
             <p className="heroDisclosure">
-              You are viewing a credential-free GitHub Pages artifact: recorded
-              evidence is public; the API, database, worker, optional Cohere
-              runtime, and external connectors are not exposed here.
+              This credential-free static export is built for GitHub Pages. The
+              Cohere-focused revision in this working tree is verified locally
+              but not yet deployed; the hosted URL may show an older preview.
+              The API, database, worker, optional Cohere runtime, and external
+              connectors are not exposed here.
             </p>
             <div className="performanceActions">
               <a className="signalButton signalPrimary" href="#demo">
                 <span>RUN THE RECORDED REPLAY</span>
                 <b aria-hidden="true">↘</b>
               </a>
-              <a className="signalButton" href="#deployment">
-                <span>WHAT IS DEPLOYED?</span>
-                <b aria-hidden="true">↓</b>
+              <a className="signalButton" href="cohere/">
+                <span>OPEN COHERE RECEIPT</span>
+                <b aria-hidden="true">↗</b>
               </a>
               <a
                 className="signalButton"
@@ -248,6 +250,7 @@ export default function Home() {
               </a>
             </div>
             <div className="heroStack" aria-label="Core technologies">
+              <span>COHERE</span>
               <span>PYTHON</span>
               <span>FASTAPI</span>
               <span>POSTGRESQL</span>
@@ -1041,10 +1044,10 @@ export default function Home() {
         <div className="voidedAbNote">
           <span>EARLIER A/B RUN — VOIDED</span>
           <p>
-            An earlier A/B quality run used a total-token budget that could not
-            fit the estimated input plus required output. The harness would
-            abort every run, so its quality metrics were invalid and remain
-            non-claims.
+            An earlier A/B quality run used an observed-usage stop threshold
+            that could not fit the estimated input plus required output. Every
+            run stopped after its first response, so its quality metrics were
+            invalid and remain non-claims.
           </p>
         </div>
 
@@ -1245,7 +1248,7 @@ export default function Home() {
             <small>AI AGENT RELEASE GATE</small>
           </div>
         </div>
-        <p>BUILT IN TORONTO // PUBLISHED AS A RECORDED TECHNICAL PREVIEW</p>
+        <p>BUILT IN TORONTO // STATIC TECHNICAL PREVIEW · LOCAL REVISION</p>
         <div>
           <a href="https://github.com/TasfiqJ/ResolveFlow">GITHUB ↗</a>
           <a href="#top">TOP ↑</a>

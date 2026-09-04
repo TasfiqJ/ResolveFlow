@@ -208,7 +208,7 @@ The v1 domain is technical support and incident triage for a fictional B2B payme
 >
 > **5.** Run lexical and vector search only over eligible chunks, fuse the lists, then rerank a bounded authorized candidate set.
 >
-> **6.** Run Command A+ with authorized documents, narrow tools, explicit untrusted-content rules, and fixed round/time/token budgets.
+> **6.** Run Command A+ with authorized documents, narrow tools, explicit untrusted-content rules, hard round/provider/tool-call caps, an observed-usage token soft stop, and cooperative per-operation timeouts.
 >
 > **7.** Persist every provider response, tool call, normalized result, timeout, error, citation, and usage record.
 >
@@ -291,10 +291,10 @@ The v1 domain is technical support and incident triage for a fictional B2B payme
 > model_policy_id: cohere-primary-1.0.0
 > embed: embed-v4.0, 1024 dimensions, search_document/search_query
 > rerank: rerank-v4.0-fast default; rerank-v4.0-pro controlled escalation
-> command: command-a-plus-05-2026, low temperature, bounded tools/rounds/time
+> command: command-a-plus-05-2026, low temperature, hard tool/round/call caps, observed-token and cooperative time controls
 > structure: command-a-plus-05-2026, no tools/documents, strict local validation
 
-The exact top-N, timeout, token budget, and Fast-to-Pro escalation threshold are calibrated and then locked. They are project configuration, not universal facts.
+The exact top-N, timeout, token threshold, and Fast-to-Pro escalation threshold are calibrated and then locked. They are project configuration, not universal facts. Provider-call, agent-round, and tool-call limits are hard pre-dispatch caps. `max_total_tokens` is a preflight-sizing and post-response observed-usage soft stop, not a hard billing ceiling; remaining-time request/tool controls are cooperative per operation and checked again after return, not a guaranteed hard total deadline.
 
 ### 5.2 Required ablations
 

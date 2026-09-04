@@ -431,6 +431,8 @@ echo "Stage 01: deterministic snapshot and static browser smoke"
 uv run resolveflow-snapshot
 pnpm --dir apps/web build
 uv run python scripts/scan_public_build.py --path apps/web/out --strict
+uv run python -m resolveflow.eval.verify_checksums fixture
+uv run python -m resolveflow.eval.verify_checksums cohere
 uv run python scripts/verify_public_snapshots.py
 node tests/browser/snapshot-smoke.mjs
 pnpm --dir apps/web e2e

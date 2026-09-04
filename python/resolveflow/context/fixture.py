@@ -7,11 +7,16 @@ from resolveflow.domain.models import CanonicalCase, ContextResult, ContextStatu
 class FixtureContextRepository:
     """Named, deterministic, read-only context operations for the hero fixture."""
 
+    supports_deadline = True
+
     allowed_operations = frozenset(
         {"get_customer_profile", "get_active_clusters", "get_rollouts", "get_open_incidents"}
     )
 
-    def enrich(self, case: CanonicalCase) -> tuple[ContextResult, ...]:
+    def enrich(
+        self, case: CanonicalCase, *, timeout_seconds: float | None = None
+    ) -> tuple[ContextResult, ...]:
+        del timeout_seconds
         if case.tenant_id != "tenant_heliopay_synthetic":
             return (self._result("get_customer_profile", ContextStatus.NOT_FOUND, case, {}, ()),)
         return (

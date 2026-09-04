@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from resolveflow.domain.hashing import checksum
 from resolveflow.verifier.models import SupportStatus
 
 from tests.agent_helpers import run_governed
@@ -16,4 +17,7 @@ def test_every_final_material_claim_closes_over_verified_graph() -> None:
 
 
 def test_graph_hash_is_canonical_for_identical_inputs() -> None:
-    assert run_governed().evidence_graph.graph_hash == run_governed().evidence_graph.graph_hash
+    first = run_governed().evidence_graph
+    second = run_governed().evidence_graph
+    assert first.graph_hash == second.graph_hash
+    assert first.graph_hash == checksum(first.model_dump(mode="python", exclude={"graph_hash"}))
